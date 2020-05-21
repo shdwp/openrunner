@@ -1,0 +1,60 @@
+//
+// Created by shdwp on 3/12/2020.
+//
+
+#ifndef GLPL_GOBJECT_H
+#define GLPL_GOBJECT_H
+
+#include <cstdio>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include <engine/Camera.h>
+#include <render/Model.h>
+
+class Entity;
+
+class Entity {
+protected:
+    shared_ptr<Model> model_ = nullptr;
+
+    // assumes that parent will never be deallocated before child
+    Entity *parent_ = nullptr;
+    unique_ptr<vector<shared_ptr<Entity>>> children_ = make_unique<vector<shared_ptr<Entity>>>();
+
+public:
+    glm::vec3 position = glm::vec3(0);
+    glm::vec3 scale = glm::vec3(1);
+    glm::quat rotation = glm::quat(0, 0, 0, 0);
+
+    explicit Entity() = default;
+    explicit Entity(const shared_ptr<Model> &model);
+    explicit Entity(Model &&model);
+
+    virtual void update();
+
+    virtual void draw(glm::mat4 transform);
+
+    void updateHierarchy();
+    void drawHierarchy(glm::mat4 parentLocal);
+
+    glm::mat4 transform(glm::mat4 base = glm::mat4(1));
+
+    template<class T>
+    shared_ptr<T> addChild(T &&child) {
+        child.parent_= this;
+        auto ptr = make_shared<T>(move(child));
+        children_->emplace_back(ptr);
+        return ptr;
+    }
+
+    template<class T>
+    void addChild(shared_ptr<T> child) {
+        child->parent_= this;
+        children_->emplace_back(child);
+    }
+
+    void removeChild(const shared_ptr<Entity> &child);
+};
+
+#endif //GLPL_GOBJECT_H
