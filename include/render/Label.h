@@ -17,6 +17,8 @@ private:
     unique_ptr<VertexBufferObject> vbo_;
 
 public:
+    glm::vec4 color = glm::vec4(1.f);
+
     explicit Label(shared_ptr<Font> font);
 
     void setText(const string& text);

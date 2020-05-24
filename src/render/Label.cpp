@@ -18,51 +18,50 @@ void Label::setText(const string &text) {
     vector<float> verts;
     vector<float> texcoords;
     vector<uint32_t> indices;
-    vector<std::tuple<float, float>> offsets;
 
     verts.reserve(text.size() * 4);
     texcoords.reserve(text.size() * 4);
     indices.reserve(text.size() * 2);
-    offsets.reserve(text.size());
 
-    font_->bake(text, texcoords, offsets);
+    auto chars_meta = font_->bake(text);
 
     float x1 = 0.f;
-    float y1 = 0.f;
     int idx = 0;
 
-    for (auto &tuple : offsets) {
-        float x2 = x1 + std::get<0>(tuple);
-        float y2 = std::get<1>(tuple);
+    for (auto &meta : *chars_meta) {
+        float x2 = x1 + meta.size.x;
+        float y1 = meta.origin.y - meta.size.y;
+        float y2 = y1 + meta.size.y;
 
         // top right
         verts.emplace_back(x2);
         verts.emplace_back(y2);
         verts.emplace_back(0.f);
+        texcoords.emplace_back(meta.tex_max.x);
+        texcoords.emplace_back(meta.tex_min.y);
 
         // bottom right
         verts.emplace_back(x2);
         verts.emplace_back(y1);
         verts.emplace_back(0.f);
+        texcoords.emplace_back(meta.tex_max.x);
+        texcoords.emplace_back(meta.tex_max.y);
 
         // bottom left
         verts.emplace_back(x1);
         verts.emplace_back(y1);
         verts.emplace_back(0.f);
+        texcoords.emplace_back(meta.tex_min.x);
+        texcoords.emplace_back(meta.tex_max.y);
 
         // top left
         verts.emplace_back(x1);
         verts.emplace_back(y2);
         verts.emplace_back(0.f);
+        texcoords.emplace_back(meta.tex_min.x);
+        texcoords.emplace_back(meta.tex_min.y);
 
-        /*
-        indices.emplace_back(idx);
-        indices.emplace_back(idx + 1);
-        indices.emplace_back(idx + 3);
-        indices.emplace_back(idx + 1);
-        indices.emplace_back(idx + 2);
-        indices.emplace_back(idx + 3);
-         */
+        // indices
         indices.emplace_back(idx + 3);
         indices.emplace_back(idx + 1);
         indices.emplace_back(idx);
@@ -70,7 +69,7 @@ void Label::setText(const string &text) {
         indices.emplace_back(idx + 2);
         indices.emplace_back(idx + 1);
 
-        x1 = x2;
+        x1 += meta.advance.x;
         idx += 4;
     }
 
@@ -85,10 +84,14 @@ void Label::draw() {
     trans = glm::rotate(trans, (float)-M_PI_2, glm::vec3(1.f, 0.f, 0.f));
 
     shader_->uniform("local", trans);
+    shader_->uniform("color", color);
 
     font_->bind();
     vbo_->bind();
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR);
     vbo_->draw();
+    glDisable(GL_BLEND);
     vbo_->unbind();
     font_->unbind();
 

@@ -17,10 +17,10 @@ int main() {
         return -1;
     }
 
-     auto f = make_shared<Font>(Font::LoadFace("../assets/fonts/Roboto-Medium.ttf", 32));
+     auto f = make_shared<Font>(Font::LoadFace("../assets/fonts/Roboto-Medium.ttf", 48));
 
     auto l = Label(f);
-    l.setText("!@#$%^&");
+    l.setText("Sample text!");
 
     env_setup_debug();
 
@@ -31,7 +31,6 @@ int main() {
     );
     auto scene = make_unique<Scene>();
 
-    /*
     auto board_model = Model::Load("../assets/gameboard", "game_board.obj");
     auto board_view = scene->addChild(GameBoardView(make_shared<Model>(move(board_model))));
     board_view->position = glm::vec3(0, -0.1f, 0);
@@ -50,7 +49,6 @@ int main() {
     auto card = gameboard.push("corp_servers", Card());
     card->faceup = false;
     gameboard.push("corp_servers", Card());
-    */
 
     /*
     auto stack = board_view->addChild(StackWidget());
@@ -71,7 +69,7 @@ int main() {
             glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);
             scene->drawFrom(*camera);
-            l.draw();
+            //l.draw();
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
         }

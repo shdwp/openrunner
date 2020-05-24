@@ -54,6 +54,18 @@ VertexBufferObject::VertexBufferObject(const vector<float> &vertices, const vect
     }
 }
 
+VertexBufferObject::~VertexBufferObject() {
+    /*
+    auto bufs = vector<unsigned int>{vbo_, };
+    if (ebo_ != 0) {
+        bufs.emplace_back(ebo_);
+    }
+
+    glDeleteBuffers(bufs.size(), bufs.data());
+    glDeleteVertexArrays(1, &gid);
+    */
+}
+
 void VertexBufferObject::bind() {
     glBindVertexArray(gid);
 }

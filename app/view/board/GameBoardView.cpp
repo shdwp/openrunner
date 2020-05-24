@@ -63,5 +63,4 @@ void GameBoardView::draw(glm::mat4 transform) {
                 transform
         );
     }
-
 }

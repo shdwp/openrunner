@@ -25,6 +25,8 @@ public:
             const vector<uint32_t> &indices = vector<uint32_t>()
             );
 
+    ~VertexBufferObject();
+
     void bind();
     void draw(GLenum mode = GL_TRIANGLES);
     void unbind();

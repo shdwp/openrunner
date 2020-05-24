@@ -15,7 +15,7 @@ Font::Font(FT_Library ft, FT_Face face, int size) {
     memset(atlas_buf_.get(), 0, sizeof(uint8_t) * atlas_size_ * atlas_size_);
 
     atlas_tex_ = make_unique<Texture2D>(atlas_size_, atlas_size_);
-    atlas_meta_ = make_unique<std::unordered_map<char, std::tuple<float, float, float, float, float, float>>>();
+    atlas_meta_ = make_unique<std::unordered_map<char, atlas_meta_t>>();
 }
 
 Font Font::LoadFace(const string &path, int size) {
@@ -30,9 +30,11 @@ Font Font::LoadFace(const string &path, int size) {
     return Font(ft, face, size);
 }
 
-void Font::bake(const string &str, vector<float> &texcoords, vector<std::tuple<float, float>> &offsets) {
+unique_ptr<vector<atlas_meta_t>> Font::bake(const string &str) {
+    auto result = make_unique<vector<atlas_meta_t>>();
+    result->reserve(str.size());
+
     for (auto ch : str) {
-        std::tuple<float, float, float, float, float, float> meta;
         if (atlas_meta_->find(ch) == atlas_meta_->end()) {
             if (FT_Load_Char(face_, ch, FT_LOAD_RENDER) == 0) {
                 auto g = face_->glyph;
@@ -66,46 +68,31 @@ void Font::bake(const string &str, vector<float> &texcoords, vector<std::tuple<f
                   (straight copy was dropped since NV doesn't like NPOT subtex sizes)
                  */
 
-                float x1 = (float)atlas_x_offset_;
-                float y1 = (float)atlas_y_offset_;
-                float x2 = (float)atlas_x_offset_ + (float)g->bitmap.width;
-                float y2 = (float)atlas_y_offset_ + (float)g->bitmap.rows;
+                auto x1 = (float)atlas_x_offset_;
+                auto y1 = (float)atlas_y_offset_;
+                auto x2 = (float)atlas_x_offset_ + (float)g->bitmap.width;
+                auto y2 = (float)atlas_y_offset_ + (float)g->bitmap.rows;
 
-                meta = std::tuple<float, float, float, float, float, float>(
-                        x1 / (float)atlas_size_,
-                        y1 / (float)atlas_size_,
-                        x2 / (float)atlas_size_,
-                        y2 / (float)atlas_size_,
-                        g->bitmap.width,
-                        g->bitmap.rows
-                );
+                atlas_meta_t meta = {
+                        .origin = glm::vec2(g->bitmap_left, g->bitmap_top),
+                        .size = glm::vec2(g->bitmap.width, g->bitmap.rows),
+                        .advance = glm::vec2((float)g->advance.x / 64, (float)g->advance.y / 64),
+                        .tex_min = glm::vec2(x1 / (float)atlas_size_, y1 / (float)atlas_size_),
+                        .tex_max = glm::vec2(x2 / (float)atlas_size_, y2 / (float)atlas_size_),
+                };
 
                 atlas_meta_->insert_or_assign(ch, meta);
                 atlas_line_height_ = std::max(atlas_line_height_, g->bitmap.rows);
                 atlas_x_offset_ += g->bitmap.width + 10;
+
+                result->emplace_back(meta);
             } else {
                 ERROR("Failed to load char {}", ch);
             }
         } else {
-            meta = (*atlas_meta_)[ch];
+            result->emplace_back(atlas_meta_->at(ch));
         }
 
-        texcoords.emplace_back(std::get<2>(meta));
-        texcoords.emplace_back(std::get<1>(meta));
-
-        texcoords.emplace_back(std::get<2>(meta));
-        texcoords.emplace_back(std::get<3>(meta));
-
-        texcoords.emplace_back(std::get<0>(meta));
-        texcoords.emplace_back(std::get<3>(meta));
-
-        texcoords.emplace_back(std::get<0>(meta));
-        texcoords.emplace_back(std::get<1>(meta));
-
-        offsets.emplace_back(std::tuple<float, float>(
-                std::get<4>(meta),
-                std::get<5>(meta)
-        ));
     }
 
     atlas_tex_->bind();
@@ -113,7 +100,7 @@ void Font::bake(const string &str, vector<float> &texcoords, vector<std::tuple<f
     glGenerateMipmap(GL_TEXTURE_2D);
     atlas_tex_->unbind();
 
-    /*
-    stbi_write_png("../assets/atlas.png", atlas_size_, atlas_size_, 1, atlas_buf_.get(), atlas_size_);
-     */
+    // stbi_write_png("../assets/atlas.png", atlas_size_, atlas_size_, 1, atlas_buf_.get(), atlas_size_);
+
+    return result;
 }
