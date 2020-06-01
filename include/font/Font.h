@@ -32,6 +32,7 @@ private:
     unsigned int atlas_size_ = 0;
     unsigned int atlas_line_height_ = 0;
     unsigned int atlas_x_offset_ = 0, atlas_y_offset_ = 0;
+    unsigned int atlas_spacing_ = 5;
     unique_ptr<std::unordered_map<char, atlas_meta_t>> atlas_meta_;
 
     explicit Font(FT_Library ft, FT_Face face, int size);

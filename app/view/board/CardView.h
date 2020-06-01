@@ -17,12 +17,14 @@ public:
     string slotid;
 
     using Entity::Entity;
-    explicit CardView(shared_ptr<Card> card, shared_ptr<Model> model);
+    explicit CardView(shared_ptr<Card> card, const shared_ptr<Model>& model);
 
     static shared_ptr<Model> SharedModel;
     static CardView ForCard(shared_ptr<Card> card);
 
     void update() override;
+
+    void draw(glm::mat4 transform) override;
 };
 
 

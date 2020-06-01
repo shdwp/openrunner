@@ -39,3 +39,9 @@ Texture2D::Texture2D(string path, bool flip) {
 
     stbi_image_free(data);
 }
+
+Texture2D::~Texture2D() {
+    if (gid != 0) {
+        glDeleteTextures(1, &gid);
+    }
+}

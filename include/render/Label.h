@@ -22,7 +22,7 @@ public:
     explicit Label(shared_ptr<Font> font);
 
     void setText(const string& text);
-    void draw();
+    void draw(glm::mat4);
 };
 
 

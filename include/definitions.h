@@ -45,7 +45,7 @@ typedef unsigned int element_array_buffer_object_t;
     #define FAIL(fmt...) do {if (!cond) print(fmt);} while(0)
 #endif
 
-#define ERROR(fmt...) do{print(fmt);} while(0)
+#define ERROR(fmt...) do{_FORMATTED_PRINT(fmt);} while(0)
 
 // STD
 using std::move;

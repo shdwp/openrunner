@@ -15,12 +15,13 @@ add_subdirectory(extern/fmt)
 add_subdirectory(extern/glm)
 add_subdirectory(extern/stb_image)
 add_subdirectory(extern/tiny_obj_loader)
+add_subdirectory(extern/LuaBridge)
 
 # ---------------
 # Lib
 # ---------------
 set(LIB openrunner_lib)
-set(LIB_SOURCES src/engine/Camera.cpp src/engine/Entity.cpp src/engine/Scene.cpp src/render/Material.cpp src/render/Model.cpp src/render/ShaderProgram.cpp src/render/Texture2D.cpp src/render/UniformBufferObject.cpp src/render/VertexBufferObject.cpp src/env/env.cpp app/model/card/Card.cpp app/model/card/Card.h app/view/widgets/StackWidget.cpp app/view/widgets/StackWidget.h app/model/card/CardDeck.cpp app/model/card/CardDeck.h app/view/materials/CardMaterial.cpp app/view/materials/CardMaterial.h app/view/board/GameBoardView.cpp app/view/board/GameBoardView.h app/view/board/CardView.cpp app/view/board/CardView.h src/scripting/lua/LuaHost.cpp src/scripting/lua/LuaHost.h src/util/Debug.cpp include/util/Debug.h src/render/Label.cpp include/render/Label.h src/font/Font.cpp include/font/Font.h include/render/Primitives.h)
+set(LIB_SOURCES src/engine/Camera.cpp src/engine/Entity.cpp src/engine/Scene.cpp src/render/Material.cpp src/render/Model.cpp src/render/ShaderProgram.cpp src/render/Texture2D.cpp src/render/UniformBufferObject.cpp src/render/VertexBufferObject.cpp src/env/env.cpp app/model/card/Card.cpp app/model/card/Card.h app/view/widgets/StackWidget.cpp app/view/widgets/StackWidget.h app/model/card/CardDeck.cpp app/model/card/CardDeck.h app/view/materials/CardMaterial.cpp app/view/materials/CardMaterial.h app/view/board/GameBoardView.cpp app/view/board/GameBoardView.h app/view/board/CardView.cpp app/view/board/CardView.h src/scripting/LuaHost.cpp include/scripting/LuaHost.h src/util/Debug.cpp include/util/Debug.h src/render/Label.cpp include/render/Label.h src/font/Font.cpp include/font/Font.h include/render/Primitives.h src/input/Input.cpp include/input/Input.h app/controller/Scripting.cpp app/controller/Scripting.h)
 add_library(${LIB} ${LIB_SOURCES})
 target_include_directories(${LIB} PUBLIC include)
 
@@ -29,6 +30,8 @@ target_include_directories(${LIB} PUBLIC extern/glfw/include)
 
 target_link_libraries(${LIB} ${CMAKE_CURRENT_SOURCE_DIR}/extern/liblua/liblua53.a)
 target_include_directories(${LIB} PUBLIC extern/liblua/include)
+
+target_link_libraries(${LIB} LuaBridge)
 
 target_link_libraries(${LIB} ${CMAKE_CURRENT_SOURCE_DIR}/extern/freetype/lib/libfreetyped.a)
 target_include_directories(${LIB} PUBLIC extern/freetype/include)

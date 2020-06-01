@@ -7,10 +7,10 @@
 #include <unordered_map>
 #include <tiny_obj_loader/tiny_obj_loader.h>
 
-Model::Model(vector<VertexBufferObject> _buffers, vector<shared_ptr<Material>> _materials, vector<model_zone_t> &_zones) {
-    buffers = make_unique<vector<VertexBufferObject>>(_buffers);
-    materials = make_unique<vector<shared_ptr<Material>>>(_materials);
-    zones = make_unique<vector<model_zone_t>>(_zones);
+Model::Model(vector<VertexBufferObject> &&_buffers, vector<shared_ptr<Material>> &&_materials, vector<model_zone_t> &&_zones) {
+    buffers = make_unique<vector<VertexBufferObject>>(move(_buffers));
+    materials = make_unique<vector<shared_ptr<Material>>>(move(_materials));
+    zones = make_unique<vector<model_zone_t>>(move(_zones));
 }
 
 void Model::render(const glm::mat4 &local) {
@@ -51,8 +51,10 @@ Model Model::Load(const string &base_path, const string &obj_name, const shared_
                 vertices.push_back(attrib.vertices[3 * index.vertex_index + 2]);
             }
 
+            auto name = shape.name.substr(1, shape.name.find("_bbox") - 1);
+
             struct model_zone zone = {
-                    .identifier = shape.name.substr(1),
+                    .identifier = name,
                     .box = glm::vec4(vertices[0], vertices[2], vertices[6], vertices[8])
             };
 
@@ -118,5 +120,5 @@ Model Model::Load(const string &base_path, const string &obj_name, const shared_
         }
     }
 
-    return Model(result_buffers, result_materials, result_zones);
+    return Model(move(result_buffers), move(result_materials), move(result_zones));
 }

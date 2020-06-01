@@ -11,24 +11,39 @@ GameBoard::GameBoard(shared_ptr<GameBoardView> view) {
     single_slots_ = make_unique<std::unordered_map<string, shared_ptr<Card>>>();
 }
 
-shared_ptr<Card> GameBoard::assign(string slotid, Card &&card) {
+void GameBoard::luaRegister(luabridge::Namespace ns) {
+    ns
+            .beginClass<GameBoard>("GameBoard")
+            .addFunction("assign", &GameBoard::assign)
+            .addFunction("remove", &GameBoard::remove)
+            .addFunction("push", &GameBoard::push)
+            .addFunction("pull", &GameBoard::pull)
+            .endClass();
+
+}
+
+Card* GameBoard::assign(const string& slotid, const Card &card) {
     auto card_ptr = make_shared<Card>(card);
     single_slots_->insert_or_assign(slotid, card_ptr);
-    return card_ptr;
+
+    auto card_view = CardView::ForCard(card_ptr);
+    view->addCardView(slotid, card_view);
+
+    return card_ptr.get();
 }
 
-shared_ptr<Card> GameBoard::get(string slotid) {
-    return (*single_slots_)[slotid];
+Card* GameBoard::get(const string& slotid) {
+    return (*single_slots_)[slotid].get();
 }
 
-void GameBoard::remove(string slotid) {
+void GameBoard::remove(const string& slotid) {
     if (auto card = (*single_slots_)[slotid]) {
         view->removeCardView(slotid);
         single_slots_->erase(slotid);
     }
 }
 
-shared_ptr<Card> GameBoard::push(string slotid, Card &&card) {
+Card *GameBoard::push(const string& slotid, const Card &card) {
     auto card_ptr = make_shared<Card>(card);
     auto stack = (*stack_slots_)[slotid].get();
     if (stack == nullptr) {
@@ -45,19 +60,19 @@ shared_ptr<Card> GameBoard::push(string slotid, Card &&card) {
     }
 
     stack->emplace_back(card_ptr);
-    return card_ptr;
+    return card_ptr.get();
 }
 
-shared_ptr<Card> GameBoard::find(string slotid, int idx) {
+Card *GameBoard::find(const string& slotid, int idx) {
     auto stack = (*stack_slots_)[slotid].get();
     if (stack == nullptr) {
         return nullptr;
     }
 
-    return (*stack)[idx];
+    return (*stack)[idx].get();
 }
 
-void GameBoard::pull(string slotid, int idx) {
+void GameBoard::pull(const string& slotid, int idx) {
     auto stack = (*stack_slots_)[slotid].get();
     if (stack == nullptr) {
         return;
@@ -66,3 +81,4 @@ void GameBoard::pull(string slotid, int idx) {
     view->removeCardView(slotid, idx);
     stack->erase(stack->begin() + idx);
 }
+

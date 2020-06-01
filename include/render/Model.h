@@ -22,7 +22,7 @@ public:
     unique_ptr<vector<shared_ptr<Material>>> materials;
     unique_ptr<vector<model_zone_t>> zones;
 
-    Model(vector<VertexBufferObject> _buffers, vector<shared_ptr<Material>> _materials, vector<model_zone_t> &_zones);
+    Model(vector<VertexBufferObject>&&, vector<shared_ptr<Material>>&&, vector<model_zone_t>&&);
 
     static Model Load(const string &base_path, const string &obj_name, const shared_ptr<Material> &override_mat = nullptr, bool flip_tex = true);
 

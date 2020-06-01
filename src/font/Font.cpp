@@ -10,7 +10,7 @@ Font::Font(FT_Library ft, FT_Face face, int size) {
     ft_ = ft;
     face_ = face;
 
-    atlas_size_ = size * 16;
+    atlas_size_ = (size + atlas_spacing_) * 16;
     atlas_buf_ = make_unique<uint8_t[]>(atlas_size_ * atlas_size_);
     memset(atlas_buf_.get(), 0, sizeof(uint8_t) * atlas_size_ * atlas_size_);
 
@@ -40,7 +40,7 @@ unique_ptr<vector<atlas_meta_t>> Font::bake(const string &str) {
                 auto g = face_->glyph;
 
                 if (atlas_x_offset_ + g->bitmap.width > atlas_size_) {
-                    atlas_y_offset_ += atlas_line_height_ * atlas_size_ + 10;
+                    atlas_y_offset_ += atlas_line_height_ * atlas_size_ + atlas_spacing_;
                     atlas_x_offset_ = 0;
                 }
 
@@ -83,7 +83,7 @@ unique_ptr<vector<atlas_meta_t>> Font::bake(const string &str) {
 
                 atlas_meta_->insert_or_assign(ch, meta);
                 atlas_line_height_ = std::max(atlas_line_height_, g->bitmap.rows);
-                atlas_x_offset_ += g->bitmap.width + 10;
+                atlas_x_offset_ += g->bitmap.width + atlas_spacing_;
 
                 result->emplace_back(meta);
             } else {
@@ -100,7 +100,7 @@ unique_ptr<vector<atlas_meta_t>> Font::bake(const string &str) {
     glGenerateMipmap(GL_TEXTURE_2D);
     atlas_tex_->unbind();
 
-    // stbi_write_png("../assets/atlas.png", atlas_size_, atlas_size_, 1, atlas_buf_.get(), atlas_size_);
+    //stbi_write_png("../assets/atlas.png", atlas_size_, atlas_size_, 1, atlas_buf_.get(), atlas_size_);
 
     return result;
 }

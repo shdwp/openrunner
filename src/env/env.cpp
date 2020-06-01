@@ -76,12 +76,14 @@ void APIENTRY glDebugOutput(GLenum source,
 
 GLFWwindow  *env_setup_window() {
     glfwInit();
+    /*
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+     */
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
-    GLFWwindow *window = glfwCreateWindow(1600, 1200, "glpl", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(800, 600, "glpl", nullptr, nullptr);
     if (window == nullptr) {
         std::cout << "Failed to create window" << std::endl;
         glfwTerminate();
@@ -95,6 +97,8 @@ GLFWwindow  *env_setup_window() {
         glfwTerminate();
         return nullptr;
     }
+
+    std::cout << glGetString(GL_VERSION) << std::endl;
 
     return window;
 }

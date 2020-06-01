@@ -5,15 +5,12 @@
 #include "render/ShaderProgram.h"
 
 #include <istream>
-#include <fstream>
-#include <cassert>
-#include <sstream>
 #include <iostream>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <Shadinclude/Shadinclude.hpp>
 #include <shaderprintf/shaderprintf.h>
+
+#define PRINT_BUFFER 0
 
 shader_object_t load_shader(const string &path, GLenum type) {
     auto contents = Shadinclude::load(path);
@@ -41,17 +38,19 @@ shader_argument_t shader_argument(shader_argument_type type, std::string path) {
 
 ShaderProgram::ShaderProgram(vector<shader_argument_t> shaders) {
     gid = glCreateProgram();
+#if PRINT_BUFFER
     print_buffer_ = createPrintBuffer();
+#endif
 
     for (shader_argument_t arg: shaders) {
         shader_object_t shader = 0;
         switch (arg.type) {
             case ShaderType_Vertex:
-                shader = load_shader(arg.path.c_str(), GL_VERTEX_SHADER);
+                shader = load_shader(arg.path, GL_VERTEX_SHADER);
                 break;
 
             case ShaderType_Fragment:
-                shader = load_shader(arg.path.c_str(), GL_FRAGMENT_SHADER);
+                shader = load_shader(arg.path, GL_FRAGMENT_SHADER);
                 break;
         }
 
@@ -74,14 +73,18 @@ ShaderProgram::ShaderProgram(vector<shader_argument_t> shaders) {
 
 void ShaderProgram::activate() {
     glUseProgram(gid);
+#if PRINT_BUFFER
     bindPrintBuffer(gid, print_buffer_);
+#endif
 }
 
 void ShaderProgram::deactivate() {
+#if PRINT_BUFFER
     auto buffer = getPrintBufferString(print_buffer_);
     if (!buffer.empty()) {
         std::cout << buffer << std::endl << "========================" << std::endl;
     }
+#endif
 
     glUseProgram(0);
 }

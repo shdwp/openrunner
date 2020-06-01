@@ -76,11 +76,11 @@ void Label::setText(const string &text) {
     vbo_ = make_unique<VertexBufferObject>(verts, texcoords, vector<float>(), indices);
 }
 
-void Label::draw() {
+void Label::draw(glm::mat4 trans) {
     shader_->activate();
 
-    auto trans = glm::identity<glm::mat4>();
-    trans = glm::scale(trans, glm::vec3(0.001f));
+    trans = glm::scale(trans, glm::vec3(0.002f));
+    //trans = glm::scale(trans, glm::vec3(0.2f));
     trans = glm::rotate(trans, (float)-M_PI_2, glm::vec3(1.f, 0.f, 0.f));
 
     shader_->uniform("local", trans);
@@ -89,7 +89,7 @@ void Label::draw() {
     font_->bind();
     vbo_->bind();
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     vbo_->draw();
     glDisable(GL_BLEND);
     vbo_->unbind();

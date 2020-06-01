@@ -5,5 +5,6 @@ uniform sampler2D tex;
 uniform vec4 color;
 
 void main() {
-    Color = texture(tex, TextureCoord).x * color;
+    float alpha = texture(tex, TextureCoord).x * color.a;
+    Color = vec4(color.rgb, 1) * alpha;
 }

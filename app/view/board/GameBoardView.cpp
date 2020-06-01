@@ -28,12 +28,13 @@ void GameBoardView::addSlot(const string& slotid, glm::vec3 pos, glm::vec4 bbox)
 
 void GameBoardView::addCardView(const string& slotid, CardView &view) {
     view.slotid = slotid;
-    view.position = (*slot_positions_)[slotid];
+
     if (auto stack = dynamic_cast<StackWidget *>(&view)) {
         stack->bounding_box = (*slot_bounding_boxes_)[slotid];
         // @TODO: redo to arrive at single addChild
         this->addChild(make_shared<StackWidget>(move(*stack)));
     } else {
+        view.position = (*slot_positions_)[slotid];
         this->addChild(make_shared<CardView>(move(view)));
     }
 }
@@ -57,10 +58,15 @@ void GameBoardView::draw(glm::mat4 transform) {
 
     for (auto &vec : *slot_bounding_boxes_) {
         auto zone = vec.second;
-        Debug::Shared()->drawArea(
+
+        Debug::Shared->drawArea(
                 glm::vec3(zone.x, 0.0f, zone.y),
                 glm::vec3(zone.z, 0.0f, zone.w),
                 transform
         );
+
+        auto a = glm::vec3(zone.x, 0, zone.y);
+        auto b = glm::vec3(zone.z, 0, zone.w);
+        Debug::Shared->drawText(glm::translate(transform, ((b - a) * 0.5f) + a), vec.first);
     }
 }

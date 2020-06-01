@@ -55,15 +55,16 @@ VertexBufferObject::VertexBufferObject(const vector<float> &vertices, const vect
 }
 
 VertexBufferObject::~VertexBufferObject() {
-    /*
     auto bufs = vector<unsigned int>{vbo_, };
     if (ebo_ != 0) {
         bufs.emplace_back(ebo_);
-    }
+}
 
     glDeleteBuffers(bufs.size(), bufs.data());
-    glDeleteVertexArrays(1, &gid);
-    */
+
+    if (gid != 0) {
+        glDeleteVertexArrays(1, &gid);
+    }
 }
 
 void VertexBufferObject::bind() {
@@ -81,5 +82,4 @@ void VertexBufferObject::draw(GLenum mode) {
 void VertexBufferObject::unbind() {
     glBindVertexArray(0);
 }
-
 
