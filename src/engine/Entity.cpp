@@ -3,6 +3,7 @@
 //
 
 #include "engine/Entity.h"
+#include <engine/Scene.h>
 
 Entity::Entity(Model &&model) {
     model_ = make_shared<Model>(move(model));
@@ -10,6 +11,40 @@ Entity::Entity(Model &&model) {
 
 Entity::Entity(const shared_ptr<Model> &model) {
     model_ = model;
+}
+
+Entity::~Entity() {
+    if (children_ != nullptr) {
+        for (auto &child : *(children_.get())) {
+            child->parent_ = nullptr;
+        }
+    }
+}
+
+void Entity::CopyBasic(Entity *a, const Entity &b) {
+    a->model_ = b.model_;
+    a->parent_ = b.parent_;
+    a->position = b.position;
+    a->scale = b.scale;
+    a->rotation = b.rotation;
+}
+
+void Entity::Copy(Entity *a, const Entity &b) {
+    CopyBasic(a, b);
+    a->children_ = make_unique<vector<shared_ptr<Entity>>>(*b.children_);
+
+    for (auto &child : *a->children_) {
+        child->parent_ = a;
+    }
+}
+
+void Entity::Move(Entity *a, Entity &b) {
+    CopyBasic(a, b);
+    a->children_ = make_unique<vector<shared_ptr<Entity>>>(move(*b.children_));
+
+    for (auto &child : *a->children_) {
+        child->parent_ = a;
+    }
 }
 
 void Entity::update() {
@@ -20,6 +55,29 @@ void Entity::draw(const glm::mat4 transform) {
     if (model_) {
         model_->render(transform);
     }
+
+#ifdef DEBUG_RENDER_INFO
+    {
+        auto scene = findParent<Scene>();
+        auto mat = scene->camera->projection * scene->camera->lookAt() * transform;
+
+        auto ptr = this;
+        auto offset = string("");
+        while (ptr->parent_ != nullptr) {
+            offset.append("\t");
+            ptr = ptr->parent_;
+        }
+
+        auto origin = mat * glm::vec4(0.f, 0.f, 0.f, 1.f);
+
+        VERBOSE("{} * Entity {} origin {};{};{}",
+                offset,
+                (size_t)this,
+                origin.x,
+                origin.y,
+                origin.z);
+    }
+#endif
 }
 
 void Entity::updateHierarchy() {

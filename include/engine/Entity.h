@@ -5,20 +5,20 @@
 #ifndef GLPL_GOBJECT_H
 #define GLPL_GOBJECT_H
 
-#include <cstdio>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
+#include <definitions.h>
 #include <engine/Camera.h>
 #include <render/Model.h>
 
 class Entity;
 
 class Entity {
+private:
+    static void CopyBasic(Entity *a, const Entity &b);
+    static void Copy(Entity *a, const Entity &b);
+    static void Move(Entity *a, Entity &b);
+
 protected:
     shared_ptr<Model> model_ = nullptr;
-
-    // assumes that parent will never be deallocated before child
     Entity *parent_ = nullptr;
     unique_ptr<vector<shared_ptr<Entity>>> children_ = make_unique<vector<shared_ptr<Entity>>>();
 
@@ -31,6 +31,26 @@ public:
     explicit Entity(const shared_ptr<Model> &model);
     explicit Entity(Model &&model);
 
+    Entity(const Entity &o) noexcept {
+        Copy(this, o);
+    }
+
+    Entity(Entity &&o) noexcept {
+        Move(this, o);
+    }
+
+    Entity& operator=(const Entity &o) noexcept {
+        Copy(this, o);
+        return *this;
+    }
+
+    Entity& operator=(Entity &&o) noexcept {
+        Move(this, o);
+        return *this;
+    }
+
+    ~Entity();
+
     virtual void update();
 
     virtual void draw(glm::mat4 transform);
@@ -41,10 +61,22 @@ public:
     glm::mat4 transform(glm::mat4 base = glm::mat4(1));
 
     template<class T>
+    const T* findParent() const {
+        if (auto instance = dynamic_cast<const T *>(this)) {
+            return instance;
+        } else if (this->parent_ == nullptr) {
+            return nullptr;
+        } else {
+            return this->parent_->findParent<T>();
+        }
+    }
+
+    template<class T>
     shared_ptr<T> addChild(T &&child) {
         child.parent_= this;
         auto ptr = make_shared<T>(move(child));
         children_->emplace_back(ptr);
+
         return ptr;
     }
 
@@ -55,6 +87,14 @@ public:
     }
 
     void removeChild(const shared_ptr<Entity> &child);
+
+    void removeChild(const int idx) {
+        children_->erase(children_->begin() + idx);
+    }
+
+    shared_ptr<Entity> childAt(size_t idx) {
+        return children_->at(idx);
+    }
 };
 
 #endif //GLPL_GOBJECT_H

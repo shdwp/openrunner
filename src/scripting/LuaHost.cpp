@@ -3,7 +3,7 @@
 //
 
 #include "scripting/LuaHost.h"
-#include <input/Input.h>
+#include <ui/Input.h>
 #include <util/Debug.h>
 
 using namespace luabridge;
@@ -31,6 +31,8 @@ void LuaHost::bridgeEngine() {
     {
         ns()
                 .beginClass<Input>("_input")
+                .addProperty("cursorX", &Input::getCursorX)
+                .addProperty("cursorY", &Input::getCursorY)
                 .addFunction("keyDown", &Input::keyDown)
                 .addFunction("keyPressed", &Input::keyPressed)
                 .endClass();

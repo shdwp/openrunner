@@ -6,21 +6,22 @@
 
 UniformBufferObject::UniformBufferObject(uint32_t binding, const vector<size_t> &offsets) {
     offsets_ = make_unique<vector<size_t>>(offsets);
-    auto size = offsets_->back();
+    size_ = offsets_->back();
     offsets_->pop_back();
+    binding_ = binding;
 
     glGenBuffers(1, &gid);
 
     glBindBuffer(GL_UNIFORM_BUFFER, gid);
 
-    glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_DYNAMIC_DRAW);
-    glBindBufferRange(GL_UNIFORM_BUFFER, binding, gid, 0, size);
+    glBufferData(GL_UNIFORM_BUFFER, size_, NULL, GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void UniformBufferObject::bind() {
     glBindBuffer(GL_UNIFORM_BUFFER, gid);
+    glBindBufferRange(GL_UNIFORM_BUFFER, binding_, gid, 0, size_);
 }
 
 void UniformBufferObject::unbind() {

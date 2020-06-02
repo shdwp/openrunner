@@ -6,7 +6,7 @@
 #define OPENRUNNER_STACKWIDGET_H
 
 
-#include "../board/CardView.h"
+#include "../board/SlotView.h"
 
 enum stack_widget_orientation {
     StackWidgetOrientation_Horizontal,
@@ -21,9 +21,9 @@ enum stack_widget_alignment {
 typedef stack_widget_orientation stack_widget_orientation_t;
 typedef stack_widget_alignment stack_widget_alignment_t;
 
-class StackWidget: public CardView {
+class StackWidget: public SlotView {
 public:
-    using CardView::CardView;
+    using SlotView::SlotView;
 
     stack_widget_orientation_t orientation = StackWidgetOrientation_Horizontal;
     stack_widget_alignment_t alignment = StackWidgetAlignment_Min;

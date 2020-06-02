@@ -43,6 +43,15 @@ public:
 
     void doFile(const string&);
 
+    template <typename ...Arg>
+    void doFunction(const luabridge::LuaRef& ref, Arg... args) {
+        try {
+            ref(args...);
+        } catch (luabridge::LuaException &e) {
+            ERROR("Lua {}", e.what());
+        }
+    }
+
     luabridge::Namespace ns() {
         return luabridge::getGlobalNamespace(L);
     }

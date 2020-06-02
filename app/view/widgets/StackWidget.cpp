@@ -5,6 +5,13 @@
 #include "StackWidget.h"
 
 void StackWidget::update() {
+    auto scaled_bbox = glm::vec4(
+            bounding_box.x / scale.x,
+            bounding_box.y / scale.z,
+            bounding_box.z / scale.x,
+            bounding_box.w / scale.z
+            );
+
     auto amount = children_->size();
     if (amount == 0) {
         return;
@@ -18,12 +25,12 @@ void StackWidget::update() {
 
     switch (orientation) {
         case StackWidgetOrientation_Horizontal:
-            space = bounding_box.z - bounding_box.x;
-            offline_pos = bounding_box.y + (bounding_box.w - bounding_box.y) / 2.f;
+            space = scaled_bbox.z - scaled_bbox.x;
+            offline_pos = scaled_bbox.y + (scaled_bbox.w - scaled_bbox.y) / 2.f;
             break;
         case StackWidgetOrientation_Vertical:
-            space = bounding_box.w - bounding_box.y;
-            offline_pos = bounding_box.x + (bounding_box.z - bounding_box.x) / 2.f;
+            space = scaled_bbox.w - scaled_bbox.y;
+            offline_pos = scaled_bbox.x + (scaled_bbox.z - scaled_bbox.x) / 2.f;
             break;
     }
 
@@ -31,11 +38,11 @@ void StackWidget::update() {
 
     switch (alignment) {
         case StackWidgetAlignment_Max:
-            initial_pos = bounding_box.x - (scale * padding) / 2.f;
+            initial_pos = scaled_bbox.x - (scale * padding) / 2.f;
             break;
         case StackWidgetAlignment_Min:
             offset *= -1.f;
-            initial_pos = bounding_box.z + (scale * padding) / 2.f;
+            initial_pos = scaled_bbox.z + (scale * padding) / 2.f;
             break;
     }
 

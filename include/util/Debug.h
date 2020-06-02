@@ -14,15 +14,37 @@
 #define DEBUG_COLOR_BLUE glm::vec4(0, 0, 1, 1)
 #define DEFAULT_DEBUG_COLOR DEBUG_COLOR_RED
 
+enum DebugDrawOptions {
+    DebugDraw_Red = 1 << 0,
+    DebugDraw_Green = 1 << 1,
+    DebugDraw_Blue = 1 << 2,
+    DebugDraw_SS = 1 << 3,
+    DebugDraw_WS = 1 << 4,
+    DebugDraw_MinW = 1 << 5,
+};
+
+typedef unsigned int debug_draw_options_t;
+
+#define DEBUG_DRAW_DEFAULT DebugDraw_Red | DebugDraw_WS
+
 class Debug {
 private:
-    unique_ptr<ShaderProgram> shader_;
+    unique_ptr<ShaderProgram> worldspace_shader_;
     shared_ptr<Font> font_;
     unique_ptr<Label> debug_label_;
 
     explicit Debug();
 
-    void drawVBO(VertexBufferObject &vbo, glm::mat4 transform, glm::vec4 color, GLenum mode);
+    static glm::vec4 colorFromOpts(debug_draw_options_t opts) {
+        return glm::vec4(
+                opts & DebugDraw_Red ? 1.f : 0.f,
+                opts & DebugDraw_Green ? 1.f : 0.f,
+                opts & DebugDraw_Blue ? 1.f : 0.f,
+                1.f
+        );
+    }
+
+    void drawVBO(VertexBufferObject &vbo, glm::mat4 transform, debug_draw_options_t opts, GLenum mode);
 
 public:
     static Debug *Shared;
@@ -31,9 +53,11 @@ public:
         Shared = new Debug();
     }
 
-    void drawPoint(glm::vec3 pos, glm::mat4 transform, glm::vec4 color = DEFAULT_DEBUG_COLOR);
-    void drawArea(glm::vec3 a, glm::vec3 b, glm::mat4 transform = glm::identity<glm::mat4>(), glm::vec4 color = DEFAULT_DEBUG_COLOR);
-    void drawText(glm::mat4 transform, const string &text, glm::vec4 color = DEFAULT_DEBUG_COLOR);
+    void drawPoint(glm::vec3 pos, glm::mat4 transform, debug_draw_options_t opts = DEBUG_DRAW_DEFAULT);
+
+    void drawArea(glm::vec3 a, glm::vec3 b, glm::mat4 transform = glm::identity<glm::mat4>(), debug_draw_options_t opts = DEBUG_DRAW_DEFAULT);
+
+    void drawText(glm::mat4 transform, const string &text, debug_draw_options_t opts = DEBUG_DRAW_DEFAULT);
 };
 
 

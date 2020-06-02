@@ -6,21 +6,25 @@
 #define OPENRUNNER_CARDVIEW_H
 
 
-#include <engine/Entity.h>
+#include <ui/UILayer.h>
+#include "SlotView.h"
 #include "../../model/card/Card.h"
 
-class CardView: public Entity {
+class CardView: public SlotView, public UIInteractable {
 private:
     shared_ptr<Card> card_;
+    glm::mat4 uiTransform_;
 
 public:
-    string slotid;
-
-    using Entity::Entity;
+    using SlotView::SlotView;
     explicit CardView(shared_ptr<Card> card, const shared_ptr<Model>& model);
 
     static shared_ptr<Model> SharedModel;
     static CardView ForCard(shared_ptr<Card> card);
+
+    glm::vec4 getArea(const Camera &cam) override;
+
+    void clicked(glm::vec3 pos) override;
 
     void update() override;
 

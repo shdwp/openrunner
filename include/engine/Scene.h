@@ -8,6 +8,7 @@
 #include <render/UniformBufferObject.h>
 #include <engine/Entity.h>
 #include <util/runtime_debug.h>
+#include <ui/UILayer.h>
 
 class Camera;
 
@@ -15,13 +16,17 @@ class Scene: public Entity {
 public:
     unique_ptr<UniformBufferObject> uniform_buffer;
     unique_ptr<vector<shared_ptr<Light>>> lights = make_unique<vector<shared_ptr<Light>>>();
+    unique_ptr<UILayer> ui_layer;
 
     runtime_debug_type_t runtime_debug_flags = 0;
     glm::vec2 runtime_debug_focus = glm::vec2(0);
 
-    Scene();
+    unique_ptr<Camera> camera;
 
-    void drawFrom(const Camera &cam);
+    Scene(Camera &&camera);
+
+    void bind() const;
+    void unbind() const;
 };
 
 

@@ -89,12 +89,12 @@ void ShaderProgram::deactivate() {
     glUseProgram(0);
 }
 
-void ShaderProgram::uniform(const char *name, float a) {
-    glUniform1f(glGetUniformLocation(gid, name), a);
+void ShaderProgram::uniform(const char *name, float floatval) {
+    glUniform1f(glGetUniformLocation(gid, name), floatval);
 }
 
-void ShaderProgram::uniform(const char *name, int a) {
-    glUniform1i(glGetUniformLocation(gid, name), a);
+void ShaderProgram::uniform(const char *name, int intval) {
+    glUniform1i(glGetUniformLocation(gid, name), intval);
 }
 
 void ShaderProgram::uniform(const char *name, glm::vec3 vec) {

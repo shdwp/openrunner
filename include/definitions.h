@@ -10,6 +10,7 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include <iostream>
 
 #include <glad/glad.h>
 
@@ -31,21 +32,21 @@ typedef unsigned int element_array_buffer_object_t;
 // MACRO
 #define DEBUG
 
-#define _FORMATTED_PRINT(fmt...) do { print(fmt); std::cout << std::endl; } while (0)
+#define _FORMATTED_PRINT(args...) do { fmt::print(args); std::cout << std::endl; } while (0)
 
 #ifdef DEBUG
-    #define INFO(fmt...) _FORMATTED_PRINT(fmt)
-    #define VERBOSE(fmt...) _FORMATTED_PRINT(fmt)
-    #define ASSERT(cond, fmt...) do { if (!cond) _FORMATTED_PRINT(fmt); assert(cond); } while(0)
-    #define FAIL(fmt...) do { if (!cond) _FORMATTED_PRINT(fmt); assert(false); } while(0)
+    #define INFO(args...) _FORMATTED_PRINT(args)
+    #define VERBOSE(args...) _FORMATTED_PRINT(args)
+    #define ASSERT(cond, args...) do { if (!cond) _FORMATTED_PRINT(args); assert(cond); } while(0)
+    #define FAIL(args...) do { if (!cond) _FORMATTED_PRINT(args); assert(false); } while(0)
 #else
     #define INFO(...)
     #define VERBOSE(...)
-    #define ASSERT(cond, fmt...) do {if (!cond) print(fmt);} while(0)
-    #define FAIL(fmt...) do {if (!cond) print(fmt);} while(0)
+    #define ASSERT(cond, args...) do {if (!cond) fmt::print(args);} while(0)
+    #define FAIL(args...) do {if (!cond) fmt::print(args);} while(0)
 #endif
 
-#define ERROR(fmt...) do{_FORMATTED_PRINT(fmt);} while(0)
+#define ERROR(args...) do{_FORMATTED_PRINT(args);} while(0)
 
 // STD
 using std::move;
@@ -75,6 +76,5 @@ using std::string;
 // FMT
 
 using fmt::format;
-using fmt::print;
 
 #endif //OPENRUNNER_DEFINITIONS_H

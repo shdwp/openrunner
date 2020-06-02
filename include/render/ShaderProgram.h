@@ -35,8 +35,8 @@ public:
     void activate();
     void deactivate();
 
-    void uniform(const char *name, int a);
-    void uniform(const char *name, float a);
+    void uniform(const char *name, int intval);
+    void uniform(const char *name, float floatval);
 
     void uniform(const char *name, glm::vec3 vec);
     void uniform(const char *name, glm::vec4 vec);

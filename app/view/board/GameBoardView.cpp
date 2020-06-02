@@ -5,8 +5,6 @@
 #include "GameBoardView.h"
 #include <util/Debug.h>
 
-#include "../widgets/StackWidget.h"
-
 GameBoardView::GameBoardView(shared_ptr<Model> model): Entity::Entity(model) {
     slot_positions_ = make_unique<std::unordered_map<string, glm::vec3>>();
     slot_bounding_boxes_ = make_unique<std::unordered_map<string, glm::vec4>>();
@@ -20,26 +18,22 @@ GameBoardView::GameBoardView(shared_ptr<Model> model): Entity::Entity(model) {
     }
 }
 
+GameBoardView::GameBoardView(): Entity::Entity() {
+    slot_positions_ = make_unique<std::unordered_map<string, glm::vec3>>();
+    slot_bounding_boxes_ = make_unique<std::unordered_map<string, glm::vec4>>();
+}
+
 void GameBoardView::addSlot(const string& slotid, glm::vec3 pos, glm::vec4 bbox) {
     auto map = *slot_positions_;
     (*slot_positions_)[slotid] = pos;
     (*slot_bounding_boxes_)[slotid] = bbox;
 }
 
-void GameBoardView::addCardView(const string& slotid, CardView &view) {
-    view.slotid = slotid;
-
-    if (auto stack = dynamic_cast<StackWidget *>(&view)) {
-        stack->bounding_box = (*slot_bounding_boxes_)[slotid];
-        // @TODO: redo to arrive at single addChild
-        this->addChild(make_shared<StackWidget>(move(*stack)));
-    } else {
-        view.position = (*slot_positions_)[slotid];
-        this->addChild(make_shared<CardView>(move(view)));
-    }
+bool GameBoardView::hasSlot(const string &slotid) const {
+    return slot_positions_->find(slotid) != slot_positions_->end();
 }
 
-void GameBoardView::removeCardView(const string& slotid, int idx) {
+void GameBoardView::removeSlotView(const string& slotid, int idx) {
     for (auto &_child : *children_) {
         auto child = dynamic_pointer_cast<CardView>(_child);
         if (child->slotid == slotid) {
@@ -70,3 +64,4 @@ void GameBoardView::draw(glm::mat4 transform) {
         Debug::Shared->drawText(glm::translate(transform, ((b - a) * 0.5f) + a), vec.first);
     }
 }
+

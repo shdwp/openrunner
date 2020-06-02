@@ -26,7 +26,7 @@ public:
 
     void onTick(float dt) {
         for (auto &h : *tick_handles_) {
-            h(dt);
+            host_->doFunction(h, dt);
         }
     }
 };

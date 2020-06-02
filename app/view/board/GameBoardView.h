@@ -8,7 +8,10 @@
 
 #include <engine/Entity.h>
 #include <unordered_map>
+#include <engine/Scene.h>
+
 #include "CardView.h"
+#include "../widgets/StackWidget.h"
 
 class GameBoardView: public Entity {
 private:
@@ -17,15 +20,31 @@ private:
 
 public:
     explicit GameBoardView(shared_ptr<Model> model);
+    GameBoardView();
 
     void addSlot(const string& slotid, glm::vec3 pos, glm::vec4 bbox = glm::vec4(-1, -1, 1, 1));
 
-    void addCardView(const string& slotid, CardView &view);
+    bool hasSlot(const string& slotid) const;
 
-    template<class T> shared_ptr<T> getCardView(const string& slotid) {
+    template <typename T>
+    shared_ptr<T> addSlotView(const string& slotid, T &&view) {
+        auto child = this->addChild(move(view));
+        child->slotid = slotid;
+
+        if (auto stack_ptr = dynamic_pointer_cast<StackWidget>(child)) {
+            stack_ptr->bounding_box = (*slot_bounding_boxes_)[slotid];
+        } else {
+            child->position = (*slot_positions_)[slotid];
+        }
+
+        return child;
+    }
+
+    template<typename T>
+    shared_ptr<T> getSlotView(const string& slotid) const {
         for (auto &_child : *children_) {
 
-            auto child = std::dynamic_pointer_cast<CardView>(_child);
+            auto child = std::dynamic_pointer_cast<SlotView>(_child);
             if (child != nullptr && child->slotid == slotid) {
                 return std::dynamic_pointer_cast<T>(_child);
             }
@@ -34,7 +53,7 @@ public:
         return nullptr;
     }
 
-    void removeCardView(const string& slotid, int idx = 0);
+    void removeSlotView(const string& slotid, int idx = 0);
 
     void update() override;
 

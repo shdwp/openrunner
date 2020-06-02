@@ -5,7 +5,7 @@
 #include "engine/Scene.h"
 #include "engine/Camera.h"
 
-Scene::Scene() {
+Scene::Scene(Camera &&cam) {
     uniform_buffer = make_unique<UniformBufferObject>(0, (vector<size_t>) {
         0, // projection mat4
         64, // world mat4
@@ -13,14 +13,16 @@ Scene::Scene() {
         144, // debug cursor pos vec3
         152, // debug opts int
     });
+
+    this->camera = make_unique<Camera>(cam);
 }
 
-void Scene::drawFrom(const Camera &cam) {
+void Scene::bind() const {
     this->uniform_buffer->bind();
 
-    this->uniform_buffer->set(0, cam.projection);
-    this->uniform_buffer->set(1, cam.lookAt());
-    this->uniform_buffer->set(2, cam.position);
+    this->uniform_buffer->set(0, camera->projection);
+    this->uniform_buffer->set(1, camera->lookAt());
+    this->uniform_buffer->set(2, camera->position);
     /*
     this->uniform_buffer->set(3, runtime_debug_focus);
     this->uniform_buffer->set(4, runtime_debug_flags);
@@ -35,12 +37,8 @@ void Scene::drawFrom(const Camera &cam) {
         this->uniform_buffer->set(i++, lightStruct, SHADER_LIGHT_STRUCT_SIZE);
     }
      */
-
-    if (runtime_debug_flags & RuntimeDebugFlag_DisplayWireframe) {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
-
-    this->drawHierarchy(glm::identity<glm::mat4>());
-    this->uniform_buffer->unbind();
 }
 
+void Scene::unbind() const {
+    this->uniform_buffer->unbind();
+}

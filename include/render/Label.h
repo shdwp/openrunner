@@ -9,12 +9,15 @@
 #include <render/VertexBufferObject.h>
 #include <render/ShaderProgram.h>
 #include <render/Texture2D.h>
+#include <engine/Entity.h>
 
-class Label {
+class Label: public Entity {
 private:
     unique_ptr<ShaderProgram> shader_;
     shared_ptr<Font> font_;
     unique_ptr<VertexBufferObject> vbo_;
+
+    string text_;
 
 public:
     glm::vec4 color = glm::vec4(1.f);
@@ -22,7 +25,10 @@ public:
     explicit Label(shared_ptr<Font> font);
 
     void setText(const string& text);
-    void draw(glm::mat4);
+
+    const string &getText() const;
+
+    void draw(glm::mat4 transform) override;
 };
 
 

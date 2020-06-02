@@ -15,6 +15,8 @@ Label::Label(shared_ptr<Font> font) {
 }
 
 void Label::setText(const string &text) {
+    text_ = text;
+
     vector<float> verts;
     vector<float> texcoords;
     vector<uint32_t> indices;
@@ -76,12 +78,12 @@ void Label::setText(const string &text) {
     vbo_ = make_unique<VertexBufferObject>(verts, texcoords, vector<float>(), indices);
 }
 
+const string &Label::getText() const {
+    return text_;
+}
+
 void Label::draw(glm::mat4 trans) {
     shader_->activate();
-
-    trans = glm::scale(trans, glm::vec3(0.002f));
-    //trans = glm::scale(trans, glm::vec3(0.2f));
-    trans = glm::rotate(trans, (float)-M_PI_2, glm::vec3(1.f, 0.f, 0.f));
 
     shader_->uniform("local", trans);
     shader_->uniform("color", color);

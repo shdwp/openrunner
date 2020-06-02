@@ -12,6 +12,8 @@ typedef unsigned int uniform_block_object_t;
 class UniformBufferObject {
 
     unique_ptr<vector<size_t>> offsets_;
+    uint32_t binding_;
+    size_t size_;
 
 public:
     uniform_block_object_t gid;
