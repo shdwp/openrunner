@@ -69,8 +69,6 @@ public:
     void update() override;
 
     void draw(glm::mat4 transform) override;
-
-    static void luaRegister(luabridge::Namespace);
 };
 
 

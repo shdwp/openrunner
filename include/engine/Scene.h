@@ -23,10 +23,11 @@ public:
 
     unique_ptr<Camera> camera;
 
-    Scene(Camera &&camera);
+    Scene(Camera &&camera, glm::mat4 cursor_proj);
 
     void bind() const;
     void unbind() const;
+    void reset();
 };
 
 

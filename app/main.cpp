@@ -35,8 +35,7 @@ int main() {
             glm::perspective(glm::radians(65.f), 1600.f / 1200.f, 0.1f, 100.f),
             glm::vec3(0, 1.2f, 0.3f),
             glm::normalize(glm::vec3(0, -1, -0.01f))
-    ));
-    scene->ui_layer = make_unique<UILayer>(scene.get(), cursor_proj);
+    ), cursor_proj);
     auto board_model = make_shared<Model>(Model::Load("../assets/gameboard", "game_board.obj"));
     auto cards_tile = make_shared<Texture2D>(Texture2D("../assets/cards/3931.jpg"));
     auto card_tex = make_shared<Texture2D>(Texture2D("../assets/card/back.jpg"));
@@ -51,8 +50,7 @@ int main() {
             glm::ortho(0.f, 800.f, 0.f, 600.f, -100.f, 100.f),
             glm::vec3(0.f, 0.f, 0.f),
             glm::normalize(glm::vec3(0.f, 0.0f, -1.f))
-    ));
-    gui_scene->ui_layer = make_unique<UILayer>(gui_scene.get(), cursor_proj);
+    ), cursor_proj);
 
     auto test_label = Label(font);
     test_label.setText("Test label");
@@ -64,9 +62,8 @@ int main() {
 
     while (!glfwWindowShouldClose(window)) {
         INFO("Game begin");
-        if (board_view != nullptr) {
-            scene->removeChild(board_view);
-        }
+        scene->reset();
+        gui_scene->reset();
 
         board_view = scene->addChild(GameBoardView(board_model));
         board_view->position = glm::vec3(0.f, 0.f, 0.f);
@@ -82,6 +79,7 @@ int main() {
         gameboard.addView(hand_view);
 
         auto scripting = make_unique<Scripting>();
+        scripting->registerClasses();
         scripting->setGlobal("board", &gameboard);
         scripting->setGlobal("hand_view", hand_view.get());
         scripting->setGlobal("board_view", board_view.get());
@@ -118,6 +116,7 @@ int main() {
                 gui_scene->unbind();
             }
 
+            scene->ui_layer->debugDraw();
             gui_scene->ui_layer->debugDraw();
 
             if (Input::Shared->keyDown(GLFW_MOUSE_BUTTON_LEFT)) {

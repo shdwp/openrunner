@@ -9,7 +9,10 @@
 #include <engine/Entity.h>
 #include <scripting/LuaHost.h>
 
-class Item {};
+class Item {
+public:
+    virtual ~Item() = default;
+};
 
 class Card: public Item {
 public:
@@ -21,8 +24,6 @@ public:
         this->uid = uid;
         this->faceup = faceup;
     };
-
-    static void luaRegister(luabridge::Namespace ns);
 };
 
 

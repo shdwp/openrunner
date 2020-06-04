@@ -61,14 +61,9 @@ void GameBoardView::draw(glm::mat4 transform) {
 
         auto a = glm::vec3(zone.x, 0, zone.y);
         auto b = glm::vec3(zone.z, 0, zone.w);
-        Debug::Shared->drawText(glm::translate(transform, ((b - a) * 0.5f) + a), vec.first);
+        auto mat = glm::translate(transform, ((b - a) * 0.5f) + a);
+        mat = glm::rotate(mat, (float)M_PI_2, glm::vec3(0.f, 1.f, 0.f));
+
+        Debug::Shared->drawText(mat, vec.first);
     }
 }
-
-void GameBoardView::luaRegister(luabridge::Namespace ns) {
-    ns
-            .beginClass<GameBoardView>("GameBoardView")
-            .addFunction("getSlotStackWidget", &GameBoardView::getUnownedSlotView<StackWidget>)
-            .endClass();
-}
-

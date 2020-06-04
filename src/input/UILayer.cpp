@@ -49,11 +49,11 @@ void UILayer::unregisterSceneEntity(shared_ptr<Entity> ptr) {
 void UILayer::debugDraw() {
     for (auto &intr : *interactables_) {
         auto area = intr->getArea(*scene_->camera);
-    Debug::Shared->drawArea(
+        Debug::Shared->drawArea(
                 glm::vec3(area.x, area.y, 0.f),
                 glm::vec3(area.z, area.w, 0.f),
                 glm::identity<glm::mat4>(),
-                DebugDraw_Green | DebugDraw_SS | DebugDraw_MinW
+                DebugDraw_Green | DebugDraw_SS
         );
     }
 }

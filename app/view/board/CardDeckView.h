@@ -6,26 +6,22 @@
 #define OPENRUNNER_CARDDECKVIEW_H
 
 #include <ui/UILayer.h>
-#include "SlotView.h"
 #include "../../model/card/CardDeck.h"
+#include "CardView.h"
 
-class CardDeckView: public SlotView, public UIInteractable {
+class CardDeckView: public CardView {
 private:
     shared_ptr<CardDeck> deck_;
     glm::mat4 uiTransform_;
 
 public:
-    using SlotView::SlotView;
+    using CardView::CardView;
 
     explicit CardDeckView(shared_ptr<CardDeck> deck, const shared_ptr<Model>& model);
 
-    static CardDeckView ForDeck(shared_ptr<CardDeck> deck);
+    static CardDeckView For(shared_ptr<CardDeck> deck);
 
-    string debugDescription() override { return format("{} CardDeckView {}, {}", Entity::debugDescription(), deck_->topCard()->uid, deck_->size()); };
-
-    glm::vec4 getArea(const Camera &cam) override;
-
-    void clicked(glm::vec3 pos) override;
+    string debugDescription() override { return format("{} CardDeckView {}, {}", Entity::debugDescription(), deck_->top()->uid, deck_->size()); };
 
     void update() override;
 

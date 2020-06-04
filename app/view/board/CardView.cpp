@@ -12,14 +12,16 @@ CardView::CardView(shared_ptr<Card> card, const shared_ptr<Model>& model): SlotV
     scale = glm::vec3(0.1f, 0.01f, 0.1f);
 }
 
-CardView CardView::ForCard(shared_ptr<Card> card) {
+CardView CardView::For(shared_ptr<Card> card) {
     return CardView(card, SharedModel);
 }
 
 void CardView::update() {
     Entity::update();
 
-    this->rotation = glm::rotate(this->rotation, this->card_->faceup ? (float)M_PI : 0.f, glm::vec3(1.f, 0.f, 0.f));
+    if (card_ != nullptr) {
+        this->rotation = glm::rotate(this->rotation, this->card_->faceup ? (float) M_PI : 0.f, glm::vec3(1.f, 0.f, 0.f));
+    }
 }
 
 void CardView::draw(glm::mat4 transform) {

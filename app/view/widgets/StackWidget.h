@@ -36,8 +36,6 @@ public:
     string debugDescription() override { return format("{} StackWidget {} children", Entity::debugDescription(), children_->size()); };
 
     void update() override;
-
-    static void luaRegister(luabridge::Namespace ns);
 };
 
 

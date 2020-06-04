@@ -18,6 +18,8 @@ private:
 public:
     explicit Scripting();
 
+    void registerClasses();
+
     template <class T>
     void setGlobal(const string &name, T *ptr) {
         host_->setGlobal(name, ptr);
@@ -31,7 +33,7 @@ public:
         }
     }
 
-    void onTick(float dt) {
+    void onTick(double dt) {
         for (auto &h : *tick_handles_) {
             host_->doFunction(h, dt);
         }

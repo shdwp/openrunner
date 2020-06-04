@@ -11,16 +11,17 @@
 #include "../../model/card/Card.h"
 
 class CardView: public SlotView, public UIInteractable {
-private:
+protected:
     shared_ptr<Card> card_;
-    glm::mat4 uiTransform_;
+    glm::mat4 uiTransform_ = glm::mat4(0.f);
 
 public:
     using SlotView::SlotView;
     explicit CardView(shared_ptr<Card> card, const shared_ptr<Model>& model);
+    // explicit CardView(shared_ptr<Model> model): SlotView(model) { }
 
     static shared_ptr<Model> SharedModel;
-    static CardView ForCard(shared_ptr<Card> card);
+    static CardView For(shared_ptr<Card> card);
 
     string debugDescription() override { return format("{} CardView {}, {}", Entity::debugDescription(), card_->uid, card_->faceup); };
 
