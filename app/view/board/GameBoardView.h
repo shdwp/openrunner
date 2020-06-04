@@ -43,10 +43,21 @@ public:
     template<typename T>
     shared_ptr<T> getSlotView(const string& slotid) const {
         for (auto &_child : *children_) {
-
             auto child = std::dynamic_pointer_cast<SlotView>(_child);
             if (child != nullptr && child->slotid == slotid) {
                 return std::dynamic_pointer_cast<T>(_child);
+            }
+        }
+
+        return nullptr;
+    }
+
+    template<typename T>
+    T *getUnownedSlotView(const string &slotid) const {
+        for (auto &_child : *children_) {
+            auto child = std::dynamic_pointer_cast<SlotView>(_child);
+            if (child != nullptr && child->slotid == slotid) {
+                return dynamic_cast<T *>(_child.get());
             }
         }
 
@@ -58,6 +69,8 @@ public:
     void update() override;
 
     void draw(glm::mat4 transform) override;
+
+    static void luaRegister(luabridge::Namespace);
 };
 
 

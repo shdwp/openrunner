@@ -19,7 +19,7 @@ CardView CardView::ForCard(shared_ptr<Card> card) {
 void CardView::update() {
     Entity::update();
 
-    this->rotation = glm::rotate(this->rotation, glm::vec3(this->card_->faceup ? M_PI : 0, 0, 0));
+    this->rotation = glm::rotate(this->rotation, this->card_->faceup ? (float)M_PI : 0.f, glm::vec3(1.f, 0.f, 0.f));
 }
 
 void CardView::draw(glm::mat4 transform) {

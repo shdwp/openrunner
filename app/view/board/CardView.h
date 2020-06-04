@@ -22,6 +22,8 @@ public:
     static shared_ptr<Model> SharedModel;
     static CardView ForCard(shared_ptr<Card> card);
 
+    string debugDescription() override { return format("{} CardView {}, {}", Entity::debugDescription(), card_->uid, card_->faceup); };
+
     glm::vec4 getArea(const Camera &cam) override;
 
     void clicked(glm::vec3 pos) override;

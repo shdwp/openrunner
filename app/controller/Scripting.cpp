@@ -9,9 +9,12 @@
 Scripting::Scripting() {
     host_ = make_unique<LuaHost>();
     tick_handles_ = make_unique<vector<luabridge::LuaRef>>();
+    init_handles_ = make_unique<vector<luabridge::LuaRef>>();
 
     Card::luaRegister(host_->ns());
     GameBoard::luaRegister(host_->ns());
+    GameBoardView::luaRegister(host_->ns());
+    StackWidget::luaRegister(host_->ns());
 }
 
 void Scripting::doScripts(const string &base_path) {
@@ -38,9 +41,13 @@ void Scripting::doModule(const string &path, const string &name) {
     auto descr_table = host_->getGlobal(name);
 
     auto tick_handle = descr_table["onTick"];
-    auto key_handle = descr_table["onKeyPress"];
+    auto init_handle = descr_table["onInit"];
 
     if (!tick_handle.isNil()) {
         tick_handles_->emplace_back(tick_handle);
+    }
+
+    if (!init_handle.isNil()) {
+        init_handles_->emplace_back(init_handle);
     }
 }

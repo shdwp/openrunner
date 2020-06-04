@@ -5,6 +5,8 @@
 #include "engine/Entity.h"
 #include <engine/Scene.h>
 
+// #define DEBUG_RENDER_INFO
+
 Entity::Entity(Model &&model) {
     model_ = make_shared<Model>(move(model));
 }
@@ -70,9 +72,12 @@ void Entity::draw(const glm::mat4 transform) {
 
         auto origin = mat * glm::vec4(0.f, 0.f, 0.f, 1.f);
 
-        VERBOSE("{} * Entity {} origin {};{};{}",
+        VERBOSE("{} * {} pos {:+0.3f};{:+0.3f};{:+0.3f} screen-space {:+0.3f};{:+0.3f};{:+0.3f}",
                 offset,
-                (size_t)this,
+                this->debugDescription(),
+                position.x,
+                position.y,
+                position.z,
                 origin.x,
                 origin.y,
                 origin.z);

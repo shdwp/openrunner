@@ -74,7 +74,7 @@ int main() {
         float hand_scale = 500.f;
         hand_view = gui_scene->addChild(GameBoardView());
         hand_view->addSlot("corp_hand", glm::vec3(0.f), glm::vec4(100.f, 50.f, 700.f, 50.f) * (1.f / hand_scale));
-        hand_view->rotation = glm::rotate(hand_view->rotation, glm::vec3((float)-M_PI_2, 0.f, 0.f));
+        hand_view->rotation = glm::rotate(hand_view->rotation, glm::vec3((float)-M_PI_2, (float)0.1f, 0.f));
         hand_view->scale = glm::vec3(hand_scale);
 
         auto gameboard = GameBoard();
@@ -83,7 +83,10 @@ int main() {
 
         auto scripting = make_unique<Scripting>();
         scripting->setGlobal("board", &gameboard);
+        scripting->setGlobal("hand_view", hand_view.get());
+        scripting->setGlobal("board_view", board_view.get());
         scripting->doScripts("../app/scripts");
+        scripting->onInit();
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.1f, 0.1f, 0.1f, 1.f);

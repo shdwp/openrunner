@@ -10,6 +10,7 @@
 class Scripting {
 private:
     unique_ptr<LuaHost> host_;
+    unique_ptr<vector<luabridge::LuaRef>> init_handles_;
     unique_ptr<vector<luabridge::LuaRef>> tick_handles_;
 
     void doModule(const string &path, const string &name);
@@ -23,6 +24,12 @@ public:
     }
 
     void doScripts(const string &base_path);
+
+    void onInit() {
+        for (auto &h: *init_handles_) {
+            host_->doFunction(h);
+        }
+    }
 
     void onTick(float dt) {
         for (auto &h : *tick_handles_) {

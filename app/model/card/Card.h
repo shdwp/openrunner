@@ -9,7 +9,9 @@
 #include <engine/Entity.h>
 #include <scripting/LuaHost.h>
 
-class Card {
+class Item {};
+
+class Card: public Item {
 public:
     int uid = 0;
     int variant = 0;

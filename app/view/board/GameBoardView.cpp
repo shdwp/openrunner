@@ -65,3 +65,10 @@ void GameBoardView::draw(glm::mat4 transform) {
     }
 }
 
+void GameBoardView::luaRegister(luabridge::Namespace ns) {
+    ns
+            .beginClass<GameBoardView>("GameBoardView")
+            .addFunction("getSlotStackWidget", &GameBoardView::getUnownedSlotView<StackWidget>)
+            .endClass();
+}
+

@@ -88,7 +88,7 @@ add_executable(${APP} ${APP_SOURCES}
         app/view/widgets/ActionWidget.h
         app/view/board/SlotView.cpp
         app/view/board/SlotView.h
-        )
+        app/view/board/CardDeckView.cpp app/view/board/CardDeckView.h)
 
 # ---------------
 # Link

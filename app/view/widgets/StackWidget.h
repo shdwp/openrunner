@@ -7,6 +7,7 @@
 
 
 #include "../board/SlotView.h"
+#include <scripting/LuaHost.h>
 
 enum stack_widget_orientation {
     StackWidgetOrientation_Horizontal,
@@ -29,7 +30,14 @@ public:
     stack_widget_alignment_t alignment = StackWidgetAlignment_Min;
     glm::vec4 bounding_box = glm::vec4(0, 0, 1, 1);
 
+    float child_padding = 1.4f;
+    float child_rotation = 0.f;
+
+    string debugDescription() override { return format("{} StackWidget {} children", Entity::debugDescription(), children_->size()); };
+
     void update() override;
+
+    static void luaRegister(luabridge::Namespace ns);
 };
 
 

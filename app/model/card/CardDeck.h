@@ -7,10 +7,17 @@
 
 
 #include <engine/Entity.h>
+#include "Card.h"
 
-class CardDeck {
+class CardDeck: public Item {
 private:
     shared_ptr<Entity> entity_;
+    unique_ptr<vector<shared_ptr<Card>>> cards_;
+public:
+    [[nodiscard]] shared_ptr<Card> topCard() const;
+
+    size_t size() { return cards_->size(); }
+
 };
 
 

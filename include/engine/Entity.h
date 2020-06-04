@@ -51,6 +51,8 @@ public:
 
     ~Entity();
 
+    virtual string debugDescription() { return format("E{:x}", (size_t)this); }
+
     virtual void update();
 
     virtual void draw(glm::mat4 transform);

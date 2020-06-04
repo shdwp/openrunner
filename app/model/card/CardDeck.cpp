@@ -3,3 +3,7 @@
 //
 
 #include "CardDeck.h"
+
+shared_ptr<Card> CardDeck::topCard() const {
+    return (*cards_)[0];
+}
