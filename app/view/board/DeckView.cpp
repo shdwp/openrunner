@@ -21,7 +21,7 @@ void DeckView::update() {
     CardView::update();
 
     scale.y = 0.01f * deck_->size();
-    card_ = deck_->top();
+    card = deck_->top();
 }
 
 void DeckView::draw(glm::mat4 transform) {

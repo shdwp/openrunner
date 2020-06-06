@@ -13,6 +13,7 @@
 
 enum InteractionEvent {
     InteractionEvent_Click,
+    InteractionEvent_AltClick,
     InteractionEvent_Drag,
     InteractionEvent_Release
 };
@@ -59,6 +60,7 @@ public:
         string event_str;
         switch (event) {
             case InteractionEvent_Click: event_str = "click"; break;
+            case InteractionEvent_AltClick: event_str = "altclick"; break;
             case InteractionEvent_Drag: event_str = "drag"; break;
             case InteractionEvent_Release: event_str = "release"; break;
             default: FAIL("Enum error");

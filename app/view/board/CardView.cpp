@@ -8,31 +8,33 @@
 shared_ptr<Model> CardView::SharedModel = nullptr;
 shared_ptr<CardMaterial> CardView::SharedMaterial = nullptr;
 
-CardView::CardView(shared_ptr<Card> card, const shared_ptr<Model>& model): SlotView::SlotView(model) {
-    card_ = card;
+CardView::CardView(shared_ptr<Card> card, const shared_ptr<Model>& model):
+        SlotView::SlotView(model),
+        card(card)
+{
     scale = glm::vec3(0.1f, 0.01f, 0.1f);
 }
 
-CardView CardView::For(shared_ptr<Card> card) {
-    return CardView(card, SharedModel);
+CardView CardView::For(shared_ptr<Card> _card) {
+    return CardView(_card, SharedModel);
 }
 
 void CardView::update() {
     Entity::update();
 
-    if (card_ != nullptr) {
-        this->rotation = glm::rotate(this->rotation, this->card_->faceup ? (float) M_PI : 0.f, glm::vec3(1.f, 0.f, 0.f));
+    if (card != nullptr) {
+        this->rotation = glm::rotate(this->rotation, this->card->faceup ? (float) M_PI : 0.f, glm::vec3(1.f, 0.f, 0.f));
     }
 }
 
 void CardView::draw(glm::mat4 transform) {
     uiTransform_ = transform;
 
-    if (card_ != nullptr) {
-        SharedMaterial->setupFor(*card_);
+    if (card != nullptr) {
+        SharedMaterial->setupFor(*card);
         Entity::draw(transform);
 
-        Debug::Shared->drawText(glm::scale(transform, glm::vec3(10, 100, 10)), format("{}", card_->uid));
+        Debug::Shared->drawText(glm::scale(transform, glm::vec3(10, 100, 10)), format("{}", card->uid));
     }
 }
 

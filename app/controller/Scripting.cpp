@@ -2,6 +2,7 @@
 // Created by shdwp on 5/31/2020.
 //
 
+#include <render/Label.h>
 #include "Scripting.h"
 #include "dirent.h"
 
@@ -178,6 +179,15 @@ void Scripting::registerClasses() {
                 .addProperty("slot", &SlotInteractable::slotid)
                 .endClass();
     }
+
+    // Label
+    {
+        host_->ns()
+                .beginClass<Label>("Label")
+                .TYPE_PROP(Label)
+                .addFunction("setText", &Label::setText)
+                .endClass();
+    }
 }
 
 void Scripting::doScripts(const string &base_path) {
@@ -187,9 +197,11 @@ void Scripting::doScripts(const string &base_path) {
 
     while ((entry = readdir(handle))) {
         auto filename = string(entry->d_name);
-        auto path = base_path + "/" + filename;
+        auto path = format("{}/{}", base_path, filename);
 
-        if (path.compare(path.length() - 4, 4, ".lua") == 0) {
+        if (filename.find('.') == string::npos) {
+            doScripts(path);
+        } else if (path.compare(path.length() - 4, 4, ".lua") == 0) {
             auto module_name = filename.substr(0, filename.length() - 4);
 
             try {
@@ -205,7 +217,11 @@ void Scripting::doScripts(const string &base_path) {
 
 void Scripting::doModule(const string &path, const string &name) {
     host_->doFile(path);
+
     auto descr_table = host_->getGlobal(name);
+    if (descr_table.isNil()) {
+        return;
+    }
 
     auto tick_handle = descr_table["onTick"];
     auto init_handle = descr_table["onInit"];

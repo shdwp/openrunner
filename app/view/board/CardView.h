@@ -13,22 +13,29 @@
 
 class CardView: public SlotView, public UIInteractable {
 protected:
-    shared_ptr<Card> card_;
     glm::mat4 uiTransform_ = glm::mat4(0.f);
 
 public:
+    shared_ptr<Card> card;
+
     using SlotView::SlotView;
-    explicit CardView(shared_ptr<Card> card, const shared_ptr<Model>& model);
+
+    CardView(shared_ptr<Card> card, const shared_ptr<Model>& model);
 
     static shared_ptr<Model> SharedModel;
     static shared_ptr<CardMaterial> SharedMaterial;
     static CardView For(shared_ptr<Card> card);
 
-    [[nodiscard]] Card *getUnownedCardPtr() const { return card_.get(); }
+    [[nodiscard]] Card *getUnownedCardPtr() const { return card.get(); }
 
-    string debugDescription() override { return format("{} CardView {}, {}", Entity::debugDescription(), card_->uid, card_->faceup); };
+    string debugDescription() override { return format("{} CardView {}, {}", Entity::debugDescription(), card->uid, card->faceup); };
 
-    void *itemPointer() override { return card_.get(); }
+    void *itemPointer() override { return card.get(); }
+
+    template <class T>
+    void setItem(shared_ptr<T> item) {
+        card = item;
+    }
 
     std::tuple<glm::vec4, glm::vec4> interactableArea() override;
 

@@ -56,7 +56,9 @@ public:
 
         auto ptr = cards_->back();
         cards_->pop_back();
-        return *ptr;
+
+        auto card = *ptr;
+        return card;
     }
 
     Card takeBottom() {

@@ -52,11 +52,6 @@ int main() {
     ), cursor_proj);
     gui_scene->position = glm::vec3(400.f, 300.f, 0.f);
 
-    auto test_label = Label(font);
-    test_label.setText("Test label");
-    test_label.position = glm::vec3(0.f, 0.f, 0.f);
-    gui_scene->addChild(move(test_label));
-
     shared_ptr<GameBoardView> board_view = nullptr;
     shared_ptr<GameBoardView> hand_view = nullptr;
     unique_ptr<Scripting> scripting = nullptr;
@@ -66,6 +61,15 @@ int main() {
         scene->reset();
         gui_scene->reset();
 
+        auto status_label = make_shared<Label>(font);
+        status_label->setText("Test label");
+        status_label->position = glm::vec3(-100.f, 270.f, 0.f);
+        gui_scene->addChild(status_label);
+
+        auto gui_card_zoomed_view = make_shared<CardView>(card_model);
+        gui_card_zoomed_view->scale = glm::vec3(250.f);
+        gui_scene->addChild(gui_card_zoomed_view);
+
         board_view = scene->addChild(GameBoardView(board_model));
         board_view->position = glm::vec3(0.f, 0.f, 0.f);
         board_view->addModelSlots();
@@ -73,7 +77,7 @@ int main() {
         float hand_scale = 500.f;
         hand_view = gui_scene->addChild(GameBoardView());
         hand_view->addSlot("corp_hand", glm::vec3(0.f), glm::vec4(-300.f, 250.f, 300.f, 250.f) * (1.f / hand_scale));
-        hand_view->rotation = glm::rotate(hand_view->rotation, glm::vec3((float)M_PI_2, (float)0.0f, 0.f));
+        hand_view->rotation = glm::rotate(hand_view->rotation, glm::vec3((float)M_PI_2, 0.0f, 0.f));
         hand_view->scale = glm::vec3(hand_scale);
 
         auto gameboard = GameBoard();
@@ -85,6 +89,7 @@ int main() {
         scripting->setGlobal("board", &gameboard);
         scripting->setGlobal("hand_view", hand_view.get());
         scripting->setGlobal("board_view", board_view.get());
+        scripting->setGlobal("status_label", status_label.get());
         scripting->doScripts("../app/scripts");
         scripting->onInit();
 
@@ -94,6 +99,9 @@ int main() {
             //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
             scene->updateHierarchy();
+            // @TODO: fixme
+            gui_card_zoomed_view->rotation = glm::rotate(gui_card_zoomed_view->rotation, glm::vec3((float)M_PI_2, 0.f, 0.f));
+
             scripting->onTick(glfwGetTime());
 
             {
@@ -132,18 +140,27 @@ int main() {
                 }
             }
 
-            /*
-            if (Input::Shared->keyReleased(GLFW_MOUSE_BUTTON_LEFT)) {
+            if (Input::Shared->keyPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
                 shared_ptr<UIInteractable> intr;
                 if ((intr = gui_scene->ui_layer->traceInputCursor()) || (intr = scene->ui_layer->traceInputCursor())) {
-                    scripting->onInteraction(InteractionEvent_Release, intr);
+                    scripting->onInteraction(InteractionEvent_AltClick, intr);
                 }
             }
-            */
 
             if (Input::Shared->keyPressed(GLFW_KEY_R)) {
                 // force game restart
                 break;
+            }
+
+            if (Input::Shared->keyDown(GLFW_KEY_LEFT_ALT)) {
+                shared_ptr<UIInteractable> intr;
+                if ((intr = gui_scene->ui_layer->traceInputCursor()) || (intr = scene->ui_layer->traceInputCursor())) {
+                    if (auto card_view = dynamic_pointer_cast<CardView>(intr)) {
+                        gui_card_zoomed_view->setItem(card_view->card);
+                    }
+                }
+            } else {
+                gui_card_zoomed_view->setItem<Card>(nullptr);
             }
 
             if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -158,6 +175,5 @@ int main() {
     }
 
     // @TODO: run destructors on LuaRefs before LuaHost closes luaL
-
     return 0;
 }
