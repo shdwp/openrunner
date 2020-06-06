@@ -6,6 +6,7 @@
 #include "CardView.h"
 
 shared_ptr<Model> CardView::SharedModel = nullptr;
+shared_ptr<CardMaterial> CardView::SharedMaterial = nullptr;
 
 CardView::CardView(shared_ptr<Card> card, const shared_ptr<Model>& model): SlotView::SlotView(model) {
     card_ = card;
@@ -25,26 +26,19 @@ void CardView::update() {
 }
 
 void CardView::draw(glm::mat4 transform) {
-    Entity::draw(transform);
     uiTransform_ = transform;
 
     if (card_ != nullptr) {
+        SharedMaterial->setupFor(*card_);
+        Entity::draw(transform);
+
         Debug::Shared->drawText(glm::scale(transform, glm::vec3(10, 100, 10)), format("{}", card_->uid));
     }
 }
 
-glm::vec4 CardView::getArea(const Camera &cam) {
-    auto a = cam.projection * cam.lookAt() * uiTransform_ * glm::vec4(-0.65f, 0.f, -1.f, 1.f);
-    auto b = cam.projection * cam.lookAt() * uiTransform_ * glm::vec4(0.65f, 0.f, 1.f, 1.f);
-
-    return glm::vec4(
-            a.x < b.x ? a.x : b.x,
-            a.y < b.y ? a.y : b.y,
-            b.x > a.x ? b.x : a.x,
-            b.y > a.y ? b.y : a.y
-    );
+std::tuple<glm::vec4, glm::vec4> CardView::interactableArea() {
+    auto a = uiTransform_ * glm::vec4(-0.65f, 0.f, -1.f, 1.f);
+    auto b = uiTransform_ * glm::vec4(0.65f, 0.f, 1.f, 1.f);
+    return std::tuple<glm::vec4, glm::vec4>(a, b);
 }
 
-void CardView::clicked(glm::vec3 pos) {
-
-}

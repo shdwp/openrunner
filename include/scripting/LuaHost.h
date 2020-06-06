@@ -65,6 +65,10 @@ public:
     luabridge::LuaRef getGlobal(const string &name) {
         return luabridge::getGlobal(L, name.c_str());
     }
+
+    luabridge::LuaRef createTable() {
+        return luabridge::LuaRef::newTable(L);
+    }
 };
 
 

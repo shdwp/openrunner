@@ -4,7 +4,7 @@
 
 #include "GameBoard.h"
 #include "../../view/widgets/StackWidget.h"
-#include "../../view/board/CardDeckView.h"
+#include "../../view/board/DeckView.h"
 
 GameBoard::GameBoard():
         views(make_shared<vector<shared_ptr<GameBoardView>>>()),

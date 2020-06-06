@@ -10,11 +10,12 @@
 #include <scripting/LuaHost.h>
 
 #include "../card/Card.h"
-#include "../card/CardDeck.h"
+#include "../card/Deck.h"
 #include "../../view/board/GameBoardView.h"
 
 class GameBoard {
 private:
+    // TODO: move to lua-shared ownership for cards
     unique_ptr<std::unordered_map<string, vector<shared_ptr<Item>>>> cards_;
 
     static void Copy(GameBoard *a, const GameBoard &b) {
@@ -64,10 +65,40 @@ public:
             }
 
             auto card_view = stack_widget->addChild(V::For(ptr));
+            card_view->slotid = slotid;
             UILayer::registerSceneEntity(card_view);
         }
 
         return ptr.get();
+    }
+
+    template <class T>
+    int erase(const string &slotid, T* item) {
+        auto vec = &(*cards_)[slotid];
+
+        for (auto i = vec->begin(); i != vec->end(); i++) {
+            if (i->get() == item) {
+                if (auto view = findViewFor(slotid)) {
+                    auto stack_widget = view->getSlotView<StackWidget>(slotid);
+                    if (stack_widget != nullptr) {
+                        stack_widget->removeChild([item](shared_ptr<Entity> ptr) {
+                            if (auto view = dynamic_pointer_cast<SlotView>(ptr)) {
+                                if (view->itemPointer() == item) {
+                                    return true;
+                                }
+                            }
+
+                            return false;
+                        });
+                    }
+                }
+
+                vec->erase(i);
+                return distance(vec->begin(), i);
+            }
+        }
+
+        return -1;
     }
 
     template <class T, class V>
@@ -75,21 +106,32 @@ public:
         return insert<T, V>(slotid, card, -1);
     }
 
-    void erase(const string &slotid, size_t idx = 0) {
-        auto vec = &(*cards_)[slotid];
-        vec->erase(vec->begin() + idx);
+    template <class T>
+    T pop(const string &slotid, T *ptr) {
+        auto card = *ptr;
+        erase<T>(slotid, ptr);
+        return card;
     }
 
-    template <class T, class V>
-    T *replace(const string &slotid, const T &card, size_t idx = 0) {
-        this->erase(slotid, idx);
-        return this->insert<T, V>(slotid, card, idx);
+    template <class O, class T, class V>
+    T *replace(const string &slotid, O *from, const T &to) {
+        auto idx = this->erase(slotid, from);
+        if (idx != -1) {
+            return this->insert<T, V>(slotid, to, idx);
+        } else {
+            return nullptr;
+        }
     }
 
     template <class T>
     T *get(const string &slotid, int idx = 0) {
-        auto p = (*cards_)[slotid][idx];
-        return dynamic_pointer_cast<T>(p).get();
+        auto vec = &(*cards_)[slotid];
+        if (vec->size() > idx) {
+            auto p = vec->at(idx);
+            return dynamic_pointer_cast<T>(p).get();
+        } else {
+            return nullptr;
+        }
     }
 };
 

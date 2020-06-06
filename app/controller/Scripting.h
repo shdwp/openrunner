@@ -6,17 +6,32 @@
 #define OPENRUNNER_SCRIPTING_H
 
 #include <scripting/LuaHost.h>
+#include <ui/UILayer.h>
+
+#include "../view/board/SlotInteractable.h"
+#include "../view/board/DeckView.h"
+
+enum InteractionEvent {
+    InteractionEvent_Click,
+    InteractionEvent_Drag,
+    InteractionEvent_Release
+};
+
+typedef enum InteractionEvent interaction_event_t;
+
+typedef vector<std::tuple<luabridge::LuaRef, luabridge::LuaRef>> scripting_handles_t;
 
 class Scripting {
 private:
-    unique_ptr<LuaHost> host_;
-    unique_ptr<vector<luabridge::LuaRef>> init_handles_;
-    unique_ptr<vector<luabridge::LuaRef>> tick_handles_;
+    unique_ptr<LuaHost> host_ = make_unique<LuaHost>();
+    unique_ptr<scripting_handles_t> init_handles_ = make_unique<scripting_handles_t>();
+    unique_ptr<scripting_handles_t> tick_handles_ = make_unique<scripting_handles_t>();
+    unique_ptr<scripting_handles_t> interaction_handles_ = make_unique<scripting_handles_t>();
 
     void doModule(const string &path, const string &name);
 
 public:
-    explicit Scripting();
+    Scripting() {}
 
     void registerClasses();
 
@@ -29,13 +44,34 @@ public:
 
     void onInit() {
         for (auto &h: *init_handles_) {
-            host_->doFunction(h);
+            host_->doFunction(std::get<1>(h), std::get<0>(h));
         }
     }
 
     void onTick(double dt) {
         for (auto &h : *tick_handles_) {
-            host_->doFunction(h, dt);
+            host_->doFunction(std::get<1>(h), std::get<0>(h), dt);
+        }
+    }
+
+    template <class T>
+    void onInteraction(interaction_event_t event, shared_ptr<T> object) {
+        string event_str;
+        switch (event) {
+            case InteractionEvent_Click: event_str = "click"; break;
+            case InteractionEvent_Drag: event_str = "drag"; break;
+            case InteractionEvent_Release: event_str = "release"; break;
+            default: FAIL("Enum error");
+        }
+
+        for (auto &h : *interaction_handles_) {
+            if (auto slot = dynamic_cast<SlotInteractable *>(object.get())) {
+                host_->doFunction(std::get<1>(h), std::get<0>(h), event_str, slot);
+            } else if (auto deckview = dynamic_cast<DeckView *>(object.get())) {
+                host_->doFunction(std::get<1>(h), std::get<0>(h), event_str, deckview);
+            } else if (auto cardview = dynamic_cast<CardView *>(object.get())) {
+                host_->doFunction(std::get<1>(h), std::get<0>(h), event_str, cardview);
+            }
         }
     }
 };

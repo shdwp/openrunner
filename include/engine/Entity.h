@@ -23,9 +23,9 @@ protected:
     unique_ptr<vector<shared_ptr<Entity>>> children_ = make_unique<vector<shared_ptr<Entity>>>();
 
 public:
-    glm::vec3 position = glm::vec3(0);
-    glm::vec3 scale = glm::vec3(1);
-    glm::quat rotation = glm::quat(0, 0, 0, 0);
+    glm::vec3 position = glm::vec3(0.f);
+    glm::vec3 scale = glm::vec3(1.f);
+    glm::quat rotation = glm::quat(0.f, 0.f, 0.f, 0.f);
 
     explicit Entity() = default;
     explicit Entity(const shared_ptr<Model> &model);
@@ -92,6 +92,17 @@ public:
 
     void removeChild(const int idx) {
         children_->erase(children_->begin() + idx);
+        auto fn = [](float a){};
+    }
+
+    template <typename T>
+    void removeChild(T pred) {
+        for (auto i = begin(*children_); i != end(*children_); i++) {
+            if (pred(*i) == true) {
+                children_->erase(i);
+                break;
+            }
+        }
     }
 
     shared_ptr<Entity> childAt(size_t idx) {

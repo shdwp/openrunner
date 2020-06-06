@@ -12,8 +12,9 @@
 class Input {
 private:
     GLFWwindow *window_;
-    unique_ptr<std::unordered_map<int, bool>> key_states_;
-    unique_ptr<std::unordered_map<int, bool>> key_releases_;
+    unique_ptr<std::unordered_map<int, bool>> key_states_ = make_unique<std::unordered_map<int, bool>>();
+    unique_ptr<std::unordered_map<int, bool>> key_releases_ = make_unique<std::unordered_map<int, bool>>();
+    unique_ptr<std::unordered_map<int, bool>> key_presses_ = make_unique<std::unordered_map<int, bool>>();
     double cursorX_ = 0.0, cursorY_ = 0.0;
 
     explicit Input(GLFWwindow *);
@@ -30,6 +31,7 @@ public:
     [[nodiscard]] double getCursorY() const;
 
     bool keyPressed(int);
+    bool keyReleased(int);
     bool keyDown(int);
     void reset();
 

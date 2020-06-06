@@ -9,8 +9,8 @@ void main() {
     Color = albedo;
 
     if (TextureCoord.x >= 0.9f && TextureCoord.y <= 0.1f) {
-        float x = mix(card.x * card.w, (card.x + 1) * card.w, 10.f * (TextureCoord.x - 0.9f));
-        float y = mix(card.y * card.h, (card.y + 1) * card.h, 10.f * (TextureCoord.y - 0.1f));
-        Color = texture(card.tilemap, vec2(x, y));
+        float x = 10.f * (TextureCoord.x - 0.9f);
+        float y = 10.f * (TextureCoord.y - 0.1f);
+        Color = texture(card.tex, vec2(x, y));
     }
 }

@@ -38,7 +38,7 @@ typedef unsigned int element_array_buffer_object_t;
     #define INFO(args...) _FORMATTED_PRINT(args)
     #define VERBOSE(args...) _FORMATTED_PRINT(args)
     #define ASSERT(cond, args...) do { if (!cond) _FORMATTED_PRINT(args); assert(cond); } while(0)
-    #define FAIL(args...) do { if (!cond) _FORMATTED_PRINT(args); assert(false); } while(0)
+    #define FAIL(args...) do { _FORMATTED_PRINT(args); assert(false); } while(0)
 #else
     #define INFO(...)
     #define VERBOSE(...)

@@ -15,14 +15,15 @@ class Scene;
 
 class UIInteractable {
 public:
-    virtual glm::vec4 getArea(const Camera &cam) = 0;
-    virtual void clicked(glm::vec3 pos) = 0;
+    virtual std::tuple<glm::vec4, glm::vec4> interactableArea() = 0;
 };
 
 class UILayer {
 private:
     Scene *scene_;
     unique_ptr<std::vector<shared_ptr<UIInteractable>>> interactables_;
+
+    glm::vec4 project(glm::vec4 a, glm::vec4 b);
 
 public:
     glm::mat4 cursor_proj;
@@ -49,6 +50,8 @@ public:
     shared_ptr<UIInteractable> trace(glm::vec2 pos);
 
     shared_ptr<UIInteractable> traceInputCursor();
+
+    static UILayer *layerFor(const Entity *ptr);
 
     static void registerSceneEntity(shared_ptr<Entity> ptr);
 

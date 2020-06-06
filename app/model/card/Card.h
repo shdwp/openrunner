@@ -19,10 +19,13 @@ public:
     int uid = 0;
     int variant = 0;
     bool faceup = true;
+    luabridge::LuaRef meta;
 
-    explicit Card(int uid, bool faceup = true) {
-        this->uid = uid;
-        this->faceup = faceup;
+    explicit Card(int uid, luabridge::LuaRef meta):
+            uid(uid),
+            meta(meta)
+    {
+
     };
 };
 

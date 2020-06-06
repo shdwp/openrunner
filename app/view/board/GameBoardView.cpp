@@ -4,29 +4,37 @@
 
 #include "GameBoardView.h"
 #include <util/Debug.h>
+#include <util/Geom.h>
 
-GameBoardView::GameBoardView(shared_ptr<Model> model): Entity::Entity(model) {
-    slot_positions_ = make_unique<std::unordered_map<string, glm::vec3>>();
-    slot_bounding_boxes_ = make_unique<std::unordered_map<string, glm::vec4>>();
+GameBoardView::GameBoardView(shared_ptr<Model> model): Entity::Entity(model)
+{
+}
 
-    for (auto &zone : *model->zones) {
+GameBoardView::GameBoardView(): Entity::Entity() { }
+
+void GameBoardView::addModelSlots() {
+    for (auto &zone : *model_->zones) {
+        auto box = zone.box;
+        auto norm_box = glm::vec4(
+        );
+
         auto a = glm::vec3(zone.box.x, 0.04f, zone.box.y);
         auto b = glm::vec3(zone.box.z, 0.04f, zone.box.w);
 
         auto pos = ((b - a) * 0.5f) + a;
-        this->addSlot(zone.identifier, pos, zone.box);
+        this->addSlot(zone.identifier, pos, ascendingZBox(zone.box));
     }
-}
-
-GameBoardView::GameBoardView(): Entity::Entity() {
-    slot_positions_ = make_unique<std::unordered_map<string, glm::vec3>>();
-    slot_bounding_boxes_ = make_unique<std::unordered_map<string, glm::vec4>>();
 }
 
 void GameBoardView::addSlot(const string& slotid, glm::vec3 pos, glm::vec4 bbox) {
     auto map = *slot_positions_;
     (*slot_positions_)[slotid] = pos;
     (*slot_bounding_boxes_)[slotid] = bbox;
+
+    auto intrl = make_shared<SlotInteractable>(slotid, bbox);
+    (*slot_interactables_)[slotid] = intrl;
+
+    UILayer::layerFor(this)->registerInteractable(intrl);
 }
 
 bool GameBoardView::hasSlot(const string &slotid) const {
@@ -50,18 +58,25 @@ void GameBoardView::update() {
 void GameBoardView::draw(glm::mat4 transform) {
     Entity::draw(transform);
 
+    for (auto &tup : *slot_interactables_) {
+        tup.second->transform = transform;
+    }
+
     for (auto &vec : *slot_bounding_boxes_) {
         auto zone = vec.second;
 
+        /*
         Debug::Shared->drawArea(
                 glm::vec3(zone.x, 0.0f, zone.y),
                 glm::vec3(zone.z, 0.0f, zone.w),
                 transform
         );
+        */
 
         auto a = glm::vec3(zone.x, 0, zone.y);
         auto b = glm::vec3(zone.z, 0, zone.w);
         auto mat = glm::translate(transform, ((b - a) * 0.5f) + a);
+        mat = glm::translate(mat, glm::vec3(0.f, 0.f, 0.f));
         mat = glm::rotate(mat, (float)M_PI_2, glm::vec3(0.f, 1.f, 0.f));
 
         Debug::Shared->drawText(mat, vec.first);

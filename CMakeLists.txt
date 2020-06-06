@@ -37,7 +37,7 @@ set(LIB_SOURCES
         src/render/Label.cpp
         src/font/Font.cpp
         src/input/Input.cpp
-        src/input/UILayer.cpp)
+        src/input/UILayer.cpp include/util/Geom.h)
 add_library(${LIB} ${LIB_SOURCES})
 target_include_directories(${LIB} PUBLIC include)
 
@@ -74,8 +74,8 @@ add_executable(${APP} ${APP_SOURCES}
         app/model/card/Card.h
         app/view/widgets/StackWidget.cpp
         app/view/widgets/StackWidget.h
-        app/model/card/CardDeck.cpp
-        app/model/card/CardDeck.h
+        app/model/card/Deck.cpp
+        app/model/card/Deck.h
         app/view/materials/CardMaterial.cpp
         app/view/materials/CardMaterial.h
         app/view/board/GameBoardView.cpp
@@ -88,7 +88,7 @@ add_executable(${APP} ${APP_SOURCES}
         app/view/widgets/ActionWidget.h
         app/view/board/SlotView.cpp
         app/view/board/SlotView.h
-        app/view/board/CardDeckView.cpp app/view/board/CardDeckView.h)
+        app/view/board/DeckView.cpp app/view/board/DeckView.h app/view/board/SlotInteractable.cpp app/view/board/SlotInteractable.h)
 
 # ---------------
 # Link

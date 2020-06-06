@@ -56,3 +56,7 @@ fabric.properties
 
 # build
 cmake-build-*
+
+assets/cards/*
+
+assets/json/*

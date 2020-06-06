@@ -11,20 +11,23 @@
 #include <engine/Scene.h>
 
 #include "CardView.h"
+#include "SlotInteractable.h"
 #include "../widgets/StackWidget.h"
 
 class GameBoardView: public Entity {
 private:
-    unique_ptr<std::unordered_map<string, glm::vec3>> slot_positions_;
-    unique_ptr<std::unordered_map<string, glm::vec4>> slot_bounding_boxes_;
+    unique_ptr<std::unordered_map<string, glm::vec3>> slot_positions_ = make_unique<std::unordered_map<string, glm::vec3>>();
+    unique_ptr<std::unordered_map<string, glm::vec4>> slot_bounding_boxes_ = make_unique<std::unordered_map<string, glm::vec4>>();
+    unique_ptr<std::unordered_map<string, shared_ptr<SlotInteractable>>> slot_interactables_ = make_unique<std::unordered_map<string, shared_ptr<SlotInteractable>>>();
 
 public:
     explicit GameBoardView(shared_ptr<Model> model);
     GameBoardView();
 
+    void addModelSlots();
     void addSlot(const string& slotid, glm::vec3 pos, glm::vec4 bbox = glm::vec4(-1, -1, 1, 1));
 
-    bool hasSlot(const string& slotid) const;
+    [[nodiscard]] bool hasSlot(const string& slotid) const;
 
     template <typename T>
     shared_ptr<T> addSlotView(const string& slotid, T &&view) {

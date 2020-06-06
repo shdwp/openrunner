@@ -12,6 +12,8 @@ class SlotView: public Entity {
 
 public:
     string slotid;
+
+    virtual void *itemPointer() { return nullptr; }
 };
 
 

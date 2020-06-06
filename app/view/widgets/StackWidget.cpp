@@ -37,22 +37,23 @@ void StackWidget::update() {
 
     switch (alignment) {
         case StackWidgetAlignment_Max:
+            offset *= -1.f;
             switch (orientation) {
                 case StackWidgetOrientation_Horizontal:
                     initial_pos = scaled_bbox.z - (scale * child_padding) / 2.f;
                     break;
                 case StackWidgetOrientation_Vertical:
-                    initial_pos = scaled_bbox.y + (scale * child_padding) / 2.f;
+                    initial_pos = scaled_bbox.y - (scale * child_padding) / 2.f;
                     break;
             }
             break;
         case StackWidgetAlignment_Min:
-            offset *= -1.f;
             switch (orientation) {
                 case StackWidgetOrientation_Horizontal:
                     initial_pos = scaled_bbox.x + (scale * child_padding) / 2.f;
                     break;
                 case StackWidgetOrientation_Vertical:
+                    offset *= -1.f;
                     initial_pos = scaled_bbox.w - (scale * child_padding) / 2.f;
                     break;
             }

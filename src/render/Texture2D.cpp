@@ -26,6 +26,21 @@ Texture2D::Texture2D(string path, bool flip) {
 
     auto type = ch == 4 ? GL_RGBA : GL_RGB;
 
+    /*
+    if (w > h) {
+        auto new_rows = h - w;
+        data = (unsigned char *)realloc(data, w * h * ch + w * new_rows * ch);
+        memset(data + w * h * ch, 0, w * new_rows * ch);
+    } else if (h > w) {
+        auto new_cols = h - w;
+        data = (unsigned char *)realloc(data, w * h * ch + h * new_cols * ch);
+
+        for (auto row = 0; row < h; row++) {
+            memset(data + row * w + w, 0, new_cols);
+        }
+    }
+     */
+
     glGenTextures(1, &gid);
     glBindTexture(GL_TEXTURE_2D, gid);
     glTexImage2D(GL_TEXTURE_2D, 0, type, w, h, 0, type, GL_UNSIGNED_BYTE, data);

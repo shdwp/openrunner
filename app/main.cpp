@@ -37,12 +37,11 @@ int main() {
             glm::normalize(glm::vec3(0, -1, -0.01f))
     ), cursor_proj);
     auto board_model = make_shared<Model>(Model::Load("../assets/gameboard", "game_board.obj"));
-    auto cards_tile = make_shared<Texture2D>(Texture2D("../assets/cards/3931.jpg"));
     auto card_tex = make_shared<Texture2D>(Texture2D("../assets/card/back.jpg"));
-    auto card_material = make_shared<CardMaterial>(CardMaterial::Card(card_tex));
-    card_material->tile_tex = cards_tile;
+    auto card_material = make_shared<CardMaterial>(CardMaterial::Material(card_tex));
 
     auto card_model = make_shared<Model>(Model::Load("../assets/card", "base_card.obj", card_material));
+    CardView::SharedMaterial = card_material;
     CardView::SharedModel = card_model;
 
     /** gui scene **/
@@ -51,6 +50,7 @@ int main() {
             glm::vec3(0.f, 0.f, 0.f),
             glm::normalize(glm::vec3(0.f, 0.0f, -1.f))
     ), cursor_proj);
+    gui_scene->position = glm::vec3(400.f, 300.f, 0.f);
 
     auto test_label = Label(font);
     test_label.setText("Test label");
@@ -59,6 +59,7 @@ int main() {
 
     shared_ptr<GameBoardView> board_view = nullptr;
     shared_ptr<GameBoardView> hand_view = nullptr;
+    unique_ptr<Scripting> scripting = nullptr;
 
     while (!glfwWindowShouldClose(window)) {
         INFO("Game begin");
@@ -67,18 +68,19 @@ int main() {
 
         board_view = scene->addChild(GameBoardView(board_model));
         board_view->position = glm::vec3(0.f, 0.f, 0.f);
+        board_view->addModelSlots();
 
         float hand_scale = 500.f;
         hand_view = gui_scene->addChild(GameBoardView());
-        hand_view->addSlot("corp_hand", glm::vec3(0.f), glm::vec4(100.f, 50.f, 700.f, 50.f) * (1.f / hand_scale));
-        hand_view->rotation = glm::rotate(hand_view->rotation, glm::vec3((float)-M_PI_2, (float)0.1f, 0.f));
+        hand_view->addSlot("corp_hand", glm::vec3(0.f), glm::vec4(-300.f, 250.f, 300.f, 250.f) * (1.f / hand_scale));
+        hand_view->rotation = glm::rotate(hand_view->rotation, glm::vec3((float)M_PI_2, (float)0.0f, 0.f));
         hand_view->scale = glm::vec3(hand_scale);
 
         auto gameboard = GameBoard();
         gameboard.addView(board_view);
         gameboard.addView(hand_view);
 
-        auto scripting = make_unique<Scripting>();
+        scripting = make_unique<Scripting>();
         scripting->registerClasses();
         scripting->setGlobal("board", &gameboard);
         scripting->setGlobal("hand_view", hand_view.get());
@@ -119,34 +121,43 @@ int main() {
             scene->ui_layer->debugDraw();
             gui_scene->ui_layer->debugDraw();
 
-            if (Input::Shared->keyDown(GLFW_MOUSE_BUTTON_LEFT)) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(32));
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+
+            if (Input::Shared->keyPressed(GLFW_MOUSE_BUTTON_LEFT)) {
                 shared_ptr<UIInteractable> intr;
-                auto a = gui_scene->ui_layer->traceInputCursor();
-                auto b = scene->ui_layer->traceInputCursor();
                 if ((intr = gui_scene->ui_layer->traceInputCursor()) || (intr = scene->ui_layer->traceInputCursor())) {
-                    INFO("hit a {} b {}", a != nullptr, b != nullptr);
+                    scripting->onInteraction(InteractionEvent_Click, intr);
                 }
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(16));
-            glfwSwapBuffers(window);
-            glfwPollEvents();
+            /*
+            if (Input::Shared->keyReleased(GLFW_MOUSE_BUTTON_LEFT)) {
+                shared_ptr<UIInteractable> intr;
+                if ((intr = gui_scene->ui_layer->traceInputCursor()) || (intr = scene->ui_layer->traceInputCursor())) {
+                    scripting->onInteraction(InteractionEvent_Release, intr);
+                }
+            }
+            */
 
             if (Input::Shared->keyPressed(GLFW_KEY_R)) {
                 // force game restart
                 break;
             }
 
-            Input::Shared->reset();
-
             if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
                 glfwTerminate();
                 return 0;
             }
+
+            Input::Shared->reset();
         }
 
         INFO("Game end");
     }
+
+    // @TODO: run destructors on LuaRefs before LuaHost closes luaL
 
     return 0;
 }

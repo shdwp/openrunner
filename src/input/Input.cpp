@@ -24,6 +24,10 @@ void Input::keyUpdated(int key, int action) {
         (*key_releases_)[key] = true;
     }
 
+    if (!(*key_states_)[key] && action == GLFW_PRESS) {
+        (*key_presses_)[key] = true;
+    }
+
     (*key_states_)[key] = (action == GLFW_PRESS) || (action == GLFW_REPEAT);
 }
 
@@ -43,6 +47,15 @@ Input::Input(GLFWwindow *window) {
 }
 
 bool Input::keyPressed(int key) {
+    if ((*key_presses_)[key]) {
+        (*key_presses_)[key] = false;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool Input::keyReleased(int key) {
     if ((*key_releases_)[key]) {
         (*key_releases_)[key] = false;
         return true;

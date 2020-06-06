@@ -4,7 +4,7 @@
 
 #include "CardMaterial.h"
 
-CardMaterial CardMaterial::Card(const shared_ptr<Texture2D> &tex) {
+CardMaterial CardMaterial::Material(const shared_ptr<Texture2D> &tex) {
     auto shader = make_unique<ShaderProgram>(vector<shader_argument_struct>(
             {
                     shader_argument(ShaderType_Vertex, std::string("../app/shaders/card/card_vert.glsl")),
@@ -18,18 +18,23 @@ CardMaterial CardMaterial::Card(const shared_ptr<Texture2D> &tex) {
 void CardMaterial::activate(glm::mat4 local) {
     Material::activate(local);
 
-    shader_->uniform("card.x", tile_x);
-    shader_->uniform("card.y", tile_y);
-    shader_->uniform("card.w", 0.1742f);
-    shader_->uniform("card.h", 0.2512f);
-
-    if (tile_tex != nullptr) {
-        tile_tex->bind(GL_TEXTURE0 + texture_idx_);
-        shader_->uniform("card.tilemap", texture_idx_);
+    if (current_card_tex_ != nullptr) {
+        current_card_tex_->bind(GL_TEXTURE0 + texture_idx_);
+        shader_->uniform("card.tex", texture_idx_);
         texture_idx_++;
     }
 }
 
 void CardMaterial::deactivate() {
     Material::deactivate();
+}
+
+void CardMaterial::setupFor(const Card &card) {
+    if (auto existing_tex = (*texture_cache_)[card.uid]) {
+        current_card_tex_ = existing_tex;
+    } else {
+        auto new_tex = make_shared<Texture2D>(format("../assets/cards/{}.jpg", card.uid), false);
+        (*texture_cache_)[card.uid] = new_tex;
+        current_card_tex_ = new_tex;
+    }
 }
