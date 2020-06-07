@@ -1,8 +1,15 @@
 agendas = {
-    [1094] = { -- Hostile Takeover
-        onScore = function ()
-            game.corp.credits = game.corp.credits + 7
-            game.corp.bad_publicity = game.corp.bad_publicity + 1
+    ["01094"] = { -- Hostile Takeover
+        onScore = function (meta)
+            game.corp:alterCredits(7)
+            game.corp:alterBadPublicity(1)
+            game.corp:alterScore(meta.info.agenda_points)
         end,
-    }
+    },
+
+    ["01095"] = {
+        onScore = function (meta)
+            game.corp:alterScore(meta.info.agenda_points)
+        end,
+    },
 }

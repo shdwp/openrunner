@@ -49,7 +49,17 @@ public:
             ref(args...);
         } catch (luabridge::LuaException &e) {
             ERROR("Lua {}", e.what());
+            printTraceback();
         }
+    }
+
+    void printTraceback() {
+        lua_getglobal(L, "debug");
+        lua_pushstring(L, "traceback");
+        lua_gettable(L, -2);
+        lua_pcall(L, 0, 1, 0);
+        ERROR(lua_tostring(L, -1));
+        lua_pop(L, 1);
     }
 
     luabridge::Namespace ns() {

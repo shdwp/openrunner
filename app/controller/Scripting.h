@@ -15,7 +15,7 @@ enum InteractionEvent {
     InteractionEvent_Click,
     InteractionEvent_AltClick,
     InteractionEvent_Drag,
-    InteractionEvent_Release
+    InteractionEvent_Release,
 };
 
 typedef enum InteractionEvent interaction_event_t;
@@ -35,6 +35,32 @@ public:
     Scripting() {}
 
     void registerClasses();
+
+    template <unsigned int level>
+    void log(const string &str) {
+        auto line = string("Lua ");
+        switch (level) {
+            case 0: line.append("E: "); break;
+            case 1: line.append("I: "); break;
+            case 2: line.append("V: "); break;
+        }
+
+        line.append(str);
+
+        switch (level) {
+            case 0: {
+                ERROR(line);
+                host_->printTraceback();
+                break;
+            }
+            case 1:
+                INFO(line);
+                break;
+            case 2:
+                VERBOSE(line);
+                break;
+        }
+    }
 
     template <class T>
     void setGlobal(const string &name, T *ptr) {
@@ -56,7 +82,7 @@ public:
     }
 
     template <class T>
-    void onInteraction(interaction_event_t event, shared_ptr<T> object) {
+    void onInteraction(interaction_event_t event, shared_ptr<T> object = nullptr) {
         string event_str;
         switch (event) {
             case InteractionEvent_Click: event_str = "click"; break;

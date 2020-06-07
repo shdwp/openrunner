@@ -2,16 +2,23 @@ inspect = dofile(libpath .. "inspect.lua/inspect.lua")
 
 game = {
     turn = "corp",
+    turn_n = 1,
+    last_run_turn_n = 0,
+    last_successfull_run_turn_n = 0,
+    last_agenda_scored_turn_n = 0,
 }
 
 function game.onInit()
     game.corp = Corp.new()
-    game.corp.clicks = 99999
-    game.runner = {}
+    game.runner = {
+        credits,
+        tags,
+    }
 
-    status_label:setText("Clicks: " .. game.corp.clicks)
-
+    host:info("Loading packs...");
     db:loadPack("core")
+
+    host:info("Dealing initial cards...");
     board:cardAppend("corp_hq", db:card(1093))
 
     local deck = db:deck([[3 Hostile Takeover
@@ -44,8 +51,12 @@ function game.onInit()
     board:cardAppend("corp_hand", db:card(1083))
     board:cardAppend("corp_hand", db:card(1103))
     board:cardAppend("corp_hand", db:card(1098))
+
+    host:info("Game ready!")
 end
 
-function game.halt(self, reason)
-    print("Game halted: " .. reason)
+function game:sideEndedTurn()
+    host:info("side " .. self.turn .. " ended turn")
+    self.turn_n = self.turn_n + 1
+    game.corp:newTurn()
 end

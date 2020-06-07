@@ -2,8 +2,10 @@
 // Created by shdwp on 5/31/2020.
 //
 
-#include <render/Label.h>
 #include "Scripting.h"
+#include <render/Label.h>
+#include <ui/Input.h>
+
 #include "dirent.h"
 
 #include "../model/board/GameBoard.h"
@@ -186,6 +188,18 @@ void Scripting::registerClasses() {
                 .beginClass<Label>("Label")
                 .TYPE_PROP(Label)
                 .addFunction("setText", &Label::setText)
+                .endClass();
+    }
+
+    // lib
+    {
+        host_->ns()
+                .beginClass<Scripting>("Scripting")
+                .TYPE_PROP(Scripting)
+                .addFunction("error", &Scripting::log<0>)
+                .addFunction("info", &Scripting::log<1>)
+                .addFunction("verbose", &Scripting::log<2>)
+                .addFunction("keyPressed", std::function([] (const Scripting *ptr, int code) { return Input::Shared->keyPressed(code); }))
                 .endClass();
     }
 }

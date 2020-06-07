@@ -27,7 +27,7 @@ int main() {
     Input::Setup(window);
     Debug::Setup();
 
-    auto font = make_shared<Font>(Font::LoadFace("../assets/fonts/Roboto-Medium.ttf", 32));
+    auto font = make_shared<Font>(Font::LoadFace("../assets/fonts/Roboto-Medium.ttf", 24));
     auto cursor_proj = glm::ortho(0.f, 800.f, 600.f, 0.f);
 
     /** game scene **/
@@ -63,8 +63,13 @@ int main() {
 
         auto status_label = make_shared<Label>(font);
         status_label->setText("Test label");
-        status_label->position = glm::vec3(-100.f, 270.f, 0.f);
+        status_label->position = glm::vec3(-400.f, 280.f, 0.f);
         gui_scene->addChild(status_label);
+
+        auto alert_label = make_shared<Label>(font);
+        alert_label->setText("");
+        alert_label->position = glm::vec3(-400.f, 265.f, 0.f);
+        gui_scene->addChild(alert_label);
 
         auto gui_card_zoomed_view = make_shared<CardView>(card_model);
         gui_card_zoomed_view->scale = glm::vec3(250.f);
@@ -86,10 +91,12 @@ int main() {
 
         scripting = make_unique<Scripting>();
         scripting->registerClasses();
+        scripting->setGlobal("host", scripting.get());
         scripting->setGlobal("board", &gameboard);
         scripting->setGlobal("hand_view", hand_view.get());
         scripting->setGlobal("board_view", board_view.get());
         scripting->setGlobal("status_label", status_label.get());
+        scripting->setGlobal("alert_label", status_label.get());
         scripting->doScripts("../app/scripts");
         scripting->onInit();
 

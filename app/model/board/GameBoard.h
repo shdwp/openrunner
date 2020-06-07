@@ -84,6 +84,7 @@ public:
                         stack_widget->removeChild([item](shared_ptr<Entity> ptr) {
                             if (auto view = dynamic_pointer_cast<SlotView>(ptr)) {
                                 if (view->itemPointer() == item) {
+                                    UILayer::unregisterSceneEntity(view);
                                     return true;
                                 }
                             }
