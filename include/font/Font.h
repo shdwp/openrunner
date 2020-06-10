@@ -38,6 +38,8 @@ private:
     explicit Font(FT_Library ft, FT_Face face, int size);
 
 public:
+    size_t size;
+
     unique_ptr<Texture2D> atlas_tex_;
 
     unique_ptr<vector<atlas_meta_t>> bake(const string &str);

@@ -36,38 +36,34 @@ public:
 
     void registerClasses();
 
-    template <unsigned int level>
-    void log(const string &str) {
-        auto line = string("Lua ");
-        switch (level) {
-            case 0: line.append("E: "); break;
-            case 1: line.append("I: "); break;
-            case 2: line.append("V: "); break;
-        }
-
-        line.append(str);
-
-        switch (level) {
-            case 0: {
-                ERROR(line);
-                host_->printTraceback();
-                break;
-            }
-            case 1:
-                INFO(line);
-                break;
-            case 2:
-                VERBOSE(line);
-                break;
-        }
-    }
+    void log(int level, const string &str);
 
     template <class T>
     void setGlobal(const string &name, T *ptr) {
         host_->setGlobal(name, ptr);
     }
 
+    luabridge::LuaRef getGlobal(const string &name) {
+        return host_->getGlobal(name);
+    }
+
     void doScripts(const string &base_path);
+
+    void doScript(const string &path);
+
+    void registerController(const luabridge::LuaRef &descr_table);
+
+    void reset();
+
+    template <class T>
+    string debugMetadataDescription(T *ptr) {
+        auto ref = host_->getGlobal("debugDescription");
+        try {
+            return ref(ptr);
+        } catch (luabridge::LuaException &ex) {
+            return "fail";
+        }
+    }
 
     void onInit() {
         for (auto &h: *init_handles_) {

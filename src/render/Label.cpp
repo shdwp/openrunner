@@ -14,7 +14,9 @@ Label::Label(shared_ptr<Font> font) {
     ));
 }
 
-void Label::setText(const string &text) {
+void Label::setText(string text) {
+    text.append("\n");
+
     text_ = text;
 
     vector<float> verts;
@@ -25,54 +27,63 @@ void Label::setText(const string &text) {
     texcoords.reserve(text.size() * 4);
     indices.reserve(text.size() * 2);
 
-    auto chars_meta = font_->bake(text);
-
-    float x1 = 0.f;
+    size_t pos = 0;
+    float line_offset = 0.f;
     int idx = 0;
 
-    for (auto &meta : *chars_meta) {
-        float x2 = x1 + meta.size.x;
-        float y1 = meta.origin.y - meta.size.y;
-        float y2 = y1 + meta.size.y;
+    while ((pos = text.find('\n')) != string::npos) {
+        auto line = text.substr(0, pos);
+        text.erase(0, pos + 1);
 
-        // top right
-        verts.emplace_back(x2);
-        verts.emplace_back(y2);
-        verts.emplace_back(0.f);
-        texcoords.emplace_back(meta.tex_max.x);
-        texcoords.emplace_back(meta.tex_min.y);
+        float x1 = 0.f;
+        auto chars_meta = font_->bake(line);
 
-        // bottom right
-        verts.emplace_back(x2);
-        verts.emplace_back(y1);
-        verts.emplace_back(0.f);
-        texcoords.emplace_back(meta.tex_max.x);
-        texcoords.emplace_back(meta.tex_max.y);
+        for (auto &meta : *chars_meta) {
+            float x2 = x1 + meta.size.x;
+            float y1 = meta.origin.y - meta.size.y - line_offset;
+            float y2 = y1 + meta.size.y;
 
-        // bottom left
-        verts.emplace_back(x1);
-        verts.emplace_back(y1);
-        verts.emplace_back(0.f);
-        texcoords.emplace_back(meta.tex_min.x);
-        texcoords.emplace_back(meta.tex_max.y);
+            // top right
+            verts.emplace_back(x2);
+            verts.emplace_back(y2);
+            verts.emplace_back(0.f);
+            texcoords.emplace_back(meta.tex_max.x);
+            texcoords.emplace_back(meta.tex_min.y);
 
-        // top left
-        verts.emplace_back(x1);
-        verts.emplace_back(y2);
-        verts.emplace_back(0.f);
-        texcoords.emplace_back(meta.tex_min.x);
-        texcoords.emplace_back(meta.tex_min.y);
+            // bottom right
+            verts.emplace_back(x2);
+            verts.emplace_back(y1);
+            verts.emplace_back(0.f);
+            texcoords.emplace_back(meta.tex_max.x);
+            texcoords.emplace_back(meta.tex_max.y);
 
-        // indices
-        indices.emplace_back(idx + 3);
-        indices.emplace_back(idx + 1);
-        indices.emplace_back(idx);
-        indices.emplace_back(idx + 3);
-        indices.emplace_back(idx + 2);
-        indices.emplace_back(idx + 1);
+            // bottom left
+            verts.emplace_back(x1);
+            verts.emplace_back(y1);
+            verts.emplace_back(0.f);
+            texcoords.emplace_back(meta.tex_min.x);
+            texcoords.emplace_back(meta.tex_max.y);
 
-        x1 += meta.advance.x;
-        idx += 4;
+            // top left
+            verts.emplace_back(x1);
+            verts.emplace_back(y2);
+            verts.emplace_back(0.f);
+            texcoords.emplace_back(meta.tex_min.x);
+            texcoords.emplace_back(meta.tex_min.y);
+
+            // indices
+            indices.emplace_back(idx + 3);
+            indices.emplace_back(idx + 1);
+            indices.emplace_back(idx);
+            indices.emplace_back(idx + 3);
+            indices.emplace_back(idx + 2);
+            indices.emplace_back(idx + 1);
+
+            x1 += meta.advance.x;
+            idx += 4;
+        }
+
+        line_offset += font_->size;
     }
 
     vbo_ = make_unique<VertexBufferObject>(verts, texcoords, vector<float>(), indices);

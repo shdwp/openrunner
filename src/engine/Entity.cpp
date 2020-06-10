@@ -71,8 +71,9 @@ void Entity::draw(const glm::mat4 transform) {
         }
 
         auto origin = mat * glm::vec4(0.f, 0.f, 0.f, 1.f);
+        auto one_right = mat * glm::vec4(1.f, 0.f, 0.f, 1.f);
 
-        VERBOSE("{} * {} pos {:+0.3f};{:+0.3f};{:+0.3f} screen-space {:+0.3f};{:+0.3f};{:+0.3f}",
+        VERBOSE("{} * {} pos {:+0.3f};{:+0.3f};{:+0.3f} screen-space {:+0.3f};{:+0.3f};{:+0.3f} (one-right {:+0.3f};{:+0.3f};{:+0.3f})",
                 offset,
                 this->debugDescription(),
                 position.x,
@@ -80,7 +81,11 @@ void Entity::draw(const glm::mat4 transform) {
                 position.z,
                 origin.x,
                 origin.y,
-                origin.z);
+                origin.z,
+                one_right.x,
+                one_right.y,
+                one_right.z
+                );
     }
 #endif
 }
@@ -95,7 +100,9 @@ void Entity::updateHierarchy() {
 
 void Entity::drawHierarchy(const glm::mat4 parentLocal) {
     auto local = this->transform(parentLocal);
-    this->draw(local);
+    if (!this->hidden) {
+        this->draw(local);
+    }
 
     for (auto &child: *children_) {
         child->drawHierarchy(local);

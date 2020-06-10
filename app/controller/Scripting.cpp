@@ -10,6 +10,7 @@
 
 #include "../model/board/GameBoard.h"
 #include "../view/board/DeckView.h"
+#include "../view/widgets/CardSelectWidget.h"
 
 /*
 template <class T>
@@ -191,15 +192,22 @@ void Scripting::registerClasses() {
                 .endClass();
     }
 
+    // CardSelectWidget
+    {
+        host_->ns()
+                .beginClass<CardSelectWidget>("CardSelectWidget")
+                .TYPE_PROP(CardSelectWidget)
+                .addFunction("setDeck", &CardSelectWidget::setDeck)
+                .endClass();
+    }
+
     // lib
     {
         host_->ns()
                 .beginClass<Scripting>("Scripting")
                 .TYPE_PROP(Scripting)
-                .addFunction("error", &Scripting::log<0>)
-                .addFunction("info", &Scripting::log<1>)
-                .addFunction("verbose", &Scripting::log<2>)
-                .addFunction("keyPressed", std::function([] (const Scripting *ptr, int code) { return Input::Shared->keyPressed(code); }))
+                .addFunction("log", &Scripting::log)
+                .addFunction("register", &Scripting::registerController)
                 .endClass();
     }
 }
@@ -209,6 +217,7 @@ void Scripting::doScripts(const string &base_path) {
     DIR *handle = opendir(base_path.c_str());
     ASSERT(handle, "Failed to open base_path");
 
+    // @FIXME: this rely on readdir filename sorting
     while ((entry = readdir(handle))) {
         auto filename = string(entry->d_name);
         auto path = format("{}/{}", base_path, filename);
@@ -219,7 +228,7 @@ void Scripting::doScripts(const string &base_path) {
             auto module_name = filename.substr(0, filename.length() - 4);
 
             try {
-                this->doModule(path, module_name);
+                this->doScript(path);
             } catch (luabridge::LuaException &ex) {
                 ERROR("Failed to load module {}", path);
             }
@@ -229,14 +238,11 @@ void Scripting::doScripts(const string &base_path) {
     closedir(handle);
 }
 
-void Scripting::doModule(const string &path, const string &name) {
+void Scripting::doScript(const string &path) {
     host_->doFile(path);
+}
 
-    auto descr_table = host_->getGlobal(name);
-    if (descr_table.isNil()) {
-        return;
-    }
-
+void Scripting::registerController(const luabridge::LuaRef &descr_table) {
     auto tick_handle = descr_table["onTick"];
     auto init_handle = descr_table["onInit"];
     auto intr_handle = descr_table["onInteraction"];
@@ -251,5 +257,40 @@ void Scripting::doModule(const string &path, const string &name) {
 
     if (!intr_handle.isNil()) {
         interaction_handles_->emplace_back(std::tuple(descr_table, intr_handle));
+    }
+}
+
+void Scripting::reset() {
+    tick_handles_->erase(begin(*tick_handles_), end(*tick_handles_));
+    init_handles_->erase(begin(*init_handles_), end(*init_handles_));
+    interaction_handles_->erase(begin(*interaction_handles_), end(*interaction_handles_));
+}
+
+void Scripting::log(const int level, const string &str) {
+    auto line = string("Lua ");
+    switch (level) {
+        case 0: line.append("E: "); break;
+        case 1: line.append("I: "); break;
+        case 2: line.append("V: "); break;
+        default: break;
+    }
+
+    line.append(str);
+
+    switch (level) {
+        case 0: {
+            ERROR(line);
+            host_->printTraceback();
+            break;
+        }
+        case 1:
+            INFO(line);
+            break;
+        case 2:
+            VERBOSE(line);
+            break;
+        default:
+            FAIL("Invalid enum");
+            break;
     }
 }

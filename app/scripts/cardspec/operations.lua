@@ -16,8 +16,8 @@ operations = {
     ["01060"] = { -- Shipment from MirrorMorph
         onPlay = function (meta)
             for _ = 0, 2 do
-                return intr:promptStackSelect("corp_hand", function (card)
-                    return intr:promptInstall(card)
+                return make_interaction:promptStackSelect(SIDE_CORP, SLOT_CORP_HAND, function (card)
+                    return make_interaction:promptInstall(SIDE_CORP, card)
                 end)
             end
         end
@@ -35,9 +35,9 @@ operations = {
 
     ["01073"] = { -- Precognition
         onPlay = function (meta)
-            intr:promptDeckSelect("corp_rnd", 5, 5, function (card)
+            make_interaction:promptDeckSelect(SIDE_CORP, SLOT_CORP_RND, 5, 5, function (card)
                 card.faceup = false
-                board:deckAppend("corp_rnd", card)
+                board:deckAppend(SIDE_CORP, SLOT_CORP_RND, card)
                 return true
             end)
         end
@@ -65,7 +65,7 @@ operations = {
         canPlay = function (meta) return game.runner.tags > 0 end,
         onPlay = function (meta)
             for _ = 0, game.runner.tags do
-                intr:promptAdvance()
+                make_interaction:promptFreeAdvance(SIDE_CORP)
             end
         end
     },
@@ -74,7 +74,7 @@ operations = {
         canPlay = function (meta) return game.turn_n -1 == game.last_successfull_run_turn_n end,
         onPlay = function (meta)
             if game.runner:trace(3) then
-                game.runner:alterTags(1);
+                game.runner:alterTags(1)
             end
         end
     },
@@ -82,12 +82,12 @@ operations = {
     ["01097"] = { -- Aggressive Negotiation
         canPlay = function (meta) return game.turn_n == game.last_agenda_scored_turn_n end,
         onPlay = function (meta)
-            intr:promptDeckSelect("corp_rnd", -1, 1, function (card)
+            make_interaction:promptDeckSelect(SIDE_CORP, SLOT_CORP_RND, -1, 1, function (card)
                 card.faceup = true
-                board:cardAppend("corp_hand", card)
+                board:cardAppend(SLOT_CORP_HAND, card)
             end)
 
-            board:getDeck("corp_rnd"):shuffle()
+            board:getDeck(SLOT_CORP_RND):shuffle()
         end
     },
 
@@ -115,8 +115,8 @@ operations = {
                 end
             end
 
-            intr:promptInstalled(fn)
-            intr:promptInstalled(fn)
+            make_interaction:promptFreeAdvance(SIDE_CORP, fn)
+            make_interaction:promptFreeAdvance(SIDE_CORP, fn)
         end,
     },
 

@@ -27,6 +27,8 @@ public:
     glm::vec3 scale = glm::vec3(1.f);
     glm::quat rotation = glm::quat(0.f, 0.f, 0.f, 0.f);
 
+    bool hidden = false;
+
     explicit Entity() = default;
     explicit Entity(const shared_ptr<Model> &model);
     explicit Entity(Model &&model);

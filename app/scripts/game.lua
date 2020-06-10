@@ -1,27 +1,76 @@
-inspect = dofile(libpath .. "inspect.lua/inspect.lua")
-
+--- @class game
+--- @field interaction_stack InteractionStack
+--- @field current_side string
+--- @field corp Corp
+--- @field runner Runner
 game = {
-    turn = "corp",
     turn_n = 1,
+    current_side,
+
+    player_controllers = {},
+    interaction_stack,
+
     last_run_turn_n = 0,
     last_successfull_run_turn_n = 0,
     last_agenda_scored_turn_n = 0,
 }
 
-function game.onInit()
-    game.corp = Corp.new()
-    game.runner = {
-        credits,
-        tags,
-    }
+--- @param player string const
+--- @return PlayerController
+function game:controllerFor(player)
+    return self.player_controllers[player]
+end
 
-    host:info("Loading packs...");
+function game:cycle()
+    info("Game cycle")
+    if game.interaction_stack:empty() then
+        self.corp:newTurn()
+        self.runner:newTurn()
+
+        local clicks = 0
+        if self.current_side == nil or self.current_side == SIDE_RUNNER then
+            self.current_side = SIDE_CORP
+            clicks = self.corp.clicks
+        else
+            self.current_side = SIDE_RUNNER
+            clicks = self.runner.clicks
+        end
+
+        for _ = 0, clicks do
+            self.interaction_stack:push(TurnBaseIntr:New(self.current_side))
+        end
+    end
+
+    local phase = self.interaction_stack:pop()
+    local ctrl = self:controllerFor(phase.side)
+
+    ctrl:handle(phase)
+end
+
+function game:onInit()
+    info("Game init")
+    self.corp = Corp:New()
+    self.runner = Runner:New()
+    self.runner:newTurn()
+
+    self.player_controllers[SIDE_CORP] = HumanController:New()
+    self.player_controllers[SIDE_RUNNER] = HumanController:New()
+
+    for _, t in pairs(self.player_controllers) do
+        host:register(t)
+    end
+
+    self.interaction_stack = InteractionStack:New()
+
+    info("Loading packs...");
     db:loadPack("core")
 
-    host:info("Dealing initial cards...");
-    board:cardAppend("corp_hq", db:card(1093))
+    if board:cardGet("corp_hq", 0) == nil then
+        info("Dealing initial cards...");
+        board:cardAppend("corp_hq", db:card(1093))
 
-    local deck = db:deck([[3 Hostile Takeover
+        local deck = db:deck([[
+3 Hostile Takeover
 2 Posted Bounty
 3 Priority Requisition
 3 Private Security Force
@@ -41,22 +90,22 @@ function game.onInit()
 2 Rototurret
 3 Shadow
 ]]
-    )
-    deck:shuffle()
+        )
+        deck:shuffle()
 
-    board:deckAppend("corp_rnd", deck)
-    board:cardAppend("corp_hand", db:card(1094))
-    board:cardAppend("corp_hand", db:card(1095))
-    board:cardAppend("corp_hand", db:card(1056))
-    board:cardAppend("corp_hand", db:card(1083))
-    board:cardAppend("corp_hand", db:card(1103))
-    board:cardAppend("corp_hand", db:card(1098))
+        board:deckAppend("corp_rnd", deck)
+        board:cardAppend("corp_hand", db:card(1094))
+        board:cardAppend("corp_hand", db:card(1095))
+        board:cardAppend("corp_hand", db:card(1056))
+        board:cardAppend("corp_hand", db:card(1083))
+        board:cardAppend("corp_hand", db:card(1103))
+        board:cardAppend("corp_hand", db:card(1098))
+        board:cardAppend("corp_hand", db:card(1060))
+        board:cardAppend("corp_hand", db:card(1073))
+    end
 
-    host:info("Game ready!")
+    info("Game ready!")
+    self:cycle()
 end
 
-function game:sideEndedTurn()
-    host:info("side " .. self.turn .. " ended turn")
-    self.turn_n = self.turn_n + 1
-    game.corp:newTurn()
-end
+host:register(game)

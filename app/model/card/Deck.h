@@ -11,14 +11,14 @@
 
 class Deck: public Item {
 private:
-    unique_ptr<vector<shared_ptr<Card>>> cards_ = nullptr;
-
     static void Copy(Deck *a, const Deck &b) {
-        a->cards_ = make_unique<vector<shared_ptr<Card>>>(*b.cards_);
+        a->cards = make_unique<vector<shared_ptr<Card>>>(*b.cards);
     }
 
 public:
-    Deck(): cards_(make_unique<vector<shared_ptr<Card>>>()) {}
+    unique_ptr<vector<shared_ptr<Card>>> cards = nullptr;
+
+    Deck(): cards(make_unique<vector<shared_ptr<Card>>>()) {}
 
     Deck(const Deck &b) {
         Copy(this, b);
@@ -31,10 +31,10 @@ public:
 
     void insert(const Card &card, int idx) {
         if (idx == -1) {
-            idx = cards_->size();
+            idx = cards->size();
         }
 
-        cards_->insert(cards_->begin() + idx, make_shared<Card>(card));
+        cards->insert(cards->begin() + idx, make_shared<Card>(card));
     }
 
     void append(const Card &card) {
@@ -42,52 +42,52 @@ public:
     }
 
     void remove(int idx) {
-        cards_->erase(cards_->begin() + idx);
+        cards->erase(cards->begin() + idx);
     }
 
     void shuffle() {
-        std::random_shuffle(begin(*cards_), end(*cards_));
+        std::random_shuffle(begin(*cards), end(*cards));
     }
 
     Card takeTop() {
-        if (cards_->empty()) {
+        if (cards->empty()) {
             return Card(0, nullptr);
         }
 
-        auto ptr = cards_->back();
-        cards_->pop_back();
+        auto ptr = cards->back();
+        cards->pop_back();
 
         auto card = *ptr;
         return card;
     }
 
     Card takeBottom() {
-        if (cards_->empty()) {
+        if (cards->empty()) {
             return Card(0, nullptr);
         }
 
-        auto ptr = cards_->front();
-        cards_->erase(cards_->begin());
+        auto ptr = cards->front();
+        cards->erase(cards->begin());
         return *ptr;
     }
 
     [[nodiscard]] Card *topUnowned() const {
-        if (cards_->empty()) {
+        if (cards->empty()) {
             return nullptr;
         } else {
-            return cards_->front().get();
+            return cards->front().get();
         }
     }
 
     [[nodiscard]] shared_ptr<Card> top() const {
-        if (cards_->empty()) {
+        if (cards->empty()) {
             return nullptr;
         } else {
-            return cards_->front();
+            return cards->front();
         }
     }
 
-    [[nodiscard]] size_t size() const { return cards_->size(); }
+    [[nodiscard]] size_t size() const { return cards->size(); }
 };
 
 

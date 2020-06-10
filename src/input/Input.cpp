@@ -15,6 +15,10 @@ void Input::MouseCallback(GLFWwindow *window, double xpos, double ypos) {
     Input::Shared->mouseUpdated(xpos, ypos);
 }
 
+void Input::ScrollCallback(GLFWwindow *window, double xpos, double ypos) {
+    Input::Shared->scrollUpdated(xpos, ypos);
+}
+
 void Input::MouseButtonCallback(GLFWwindow *, int button, int action, int mods) {
     Input::Shared->keyUpdated(button, action);
 }
@@ -36,6 +40,11 @@ void Input::mouseUpdated(double xpos, double ypos) {
     cursorY_ = ypos;
 }
 
+void Input::scrollUpdated(double xpos, double ypos) {
+    scrollX_ = xpos;
+    scrollY_ = ypos;
+}
+
 Input::Input(GLFWwindow *window) {
     window_ = window;
     key_states_ = make_unique<std::unordered_map<int, bool>>();
@@ -44,6 +53,7 @@ Input::Input(GLFWwindow *window) {
     glfwSetKeyCallback(window, &Input::KeyCallback);
     glfwSetMouseButtonCallback(window, &Input::MouseButtonCallback);
     glfwSetCursorPosCallback(window, &Input::MouseCallback);
+    glfwSetScrollCallback(window, &Input::ScrollCallback);
 }
 
 bool Input::keyPressed(int key) {
@@ -70,6 +80,9 @@ bool Input::keyDown(int key) {
 
 void Input::reset() {
     key_releases_->erase(key_releases_->begin(), key_releases_->end());
+    key_presses_->erase(key_presses_->begin(), key_presses_->end());
+    scrollX_ = 0.0;
+    scrollY_ = 0.0;
 }
 
 double Input::getCursorX() const {
@@ -78,4 +91,12 @@ double Input::getCursorX() const {
 
 double Input::getCursorY() const {
     return cursorY_;
+}
+
+double Input::getScrollX() const {
+    return scrollX_;
+}
+
+double Input::getScrollY() const {
+    return scrollY_;
 }

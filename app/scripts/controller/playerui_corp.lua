@@ -20,7 +20,7 @@ function playerui_corp:onTick(dt)
         ))
 
         if self.alert_until > dt then
-            host:verbose("Alert expired")
+            verbose("Alert expired")
             alert_label:setText("")
         end
 
@@ -28,20 +28,20 @@ function playerui_corp:onTick(dt)
     end
 end
 
-function playerui_corp:onInteraction (event, itr)
-    if game.turn ~= "corp" then
+function playerui_corp:onInteraction(event, itr)
+    if game.current_side ~= "corp" then
         return
     end
 
     if event == "click" then
         if itr.slot == "corp_rnd" then
-            host:verbose("corp click on draw card")
+            verbose("corp click on draw card")
             game.corp:actionDrawCard()
             return self:reset()
 
         elseif itr.slot == "corp_hand" then
             local intr = cardspec:interactionFromHand(itr.card.meta)
-            host:verbose()
+            verbose()
             if intr == "install" then
                 self.event = itr
             elseif intr == "play" then

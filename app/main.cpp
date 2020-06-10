@@ -15,6 +15,8 @@
 #include "view/materials/CardMaterial.h"
 #include "model/board/GameBoard.h"
 #include "view/widgets/ActionWidget.h"
+#include "view/board/ZoomCardView.h"
+#include "view/widgets/CardSelectWidget.h"
 
 int main() {
     auto window = env_setup_window();
@@ -57,12 +59,11 @@ int main() {
     unique_ptr<Scripting> scripting = nullptr;
 
     while (!glfwWindowShouldClose(window)) {
-        INFO("Game begin");
         scene->reset();
         gui_scene->reset();
 
         auto status_label = make_shared<Label>(font);
-        status_label->setText("Test label");
+        status_label->setText("");
         status_label->position = glm::vec3(-400.f, 280.f, 0.f);
         gui_scene->addChild(status_label);
 
@@ -71,7 +72,7 @@ int main() {
         alert_label->position = glm::vec3(-400.f, 265.f, 0.f);
         gui_scene->addChild(alert_label);
 
-        auto gui_card_zoomed_view = make_shared<CardView>(card_model);
+        auto gui_card_zoomed_view = make_shared<ZoomCardView>(card_model);
         gui_card_zoomed_view->scale = glm::vec3(250.f);
         gui_scene->addChild(gui_card_zoomed_view);
 
@@ -85,100 +86,116 @@ int main() {
         hand_view->rotation = glm::rotate(hand_view->rotation, glm::vec3((float)M_PI_2, 0.0f, 0.f));
         hand_view->scale = glm::vec3(hand_scale);
 
+        auto card_select_widget = make_shared<CardSelectWidget>();
+        card_select_widget->rotation = glm::rotate(card_select_widget->rotation, glm::vec3((float)M_PI_2 + M_PI, 0.f, 0.f));
+        card_select_widget->scale = glm::vec3(600.f);
+        gui_scene->addChild(card_select_widget);
+
         auto gameboard = GameBoard();
         gameboard.addView(board_view);
         gameboard.addView(hand_view);
 
         scripting = make_unique<Scripting>();
         scripting->registerClasses();
+        scripting->doScript("../app/scripts_lib/native_interface.lua");
+
         scripting->setGlobal("host", scripting.get());
         scripting->setGlobal("board", &gameboard);
         scripting->setGlobal("hand_view", hand_view.get());
         scripting->setGlobal("board_view", board_view.get());
+        scripting->setGlobal("card_select_widget", card_select_widget.get());
         scripting->setGlobal("status_label", status_label.get());
         scripting->setGlobal("alert_label", status_label.get());
-        scripting->doScripts("../app/scripts");
-        scripting->onInit();
 
         while (!glfwWindowShouldClose(window)) {
-            glClearColor(0.1f, 0.1f, 0.1f, 1.f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-            //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+            scripting->reset();
+            scripting->doScript("../app/scripts_lib/lib.lua");
+            scripting->doScripts("../app/scripts");
+            scripting->onInit();
 
-            scene->updateHierarchy();
-            // @TODO: fixme
-            gui_card_zoomed_view->rotation = glm::rotate(gui_card_zoomed_view->rotation, glm::vec3((float)M_PI_2, 0.f, 0.f));
+            while (!glfwWindowShouldClose(window)) {
+                glClearColor(0.1f, 0.1f, 0.1f, 1.f);
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+                //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
-            scripting->onTick(glfwGetTime());
+                scene->updateHierarchy();
+                scripting->onTick(glfwGetTime());
 
-            {
-                scene->bind();
-                glEnable(GL_CULL_FACE);
-                glEnable(GL_DEPTH_TEST);
-                scene->drawHierarchy(glm::identity<glm::mat4>());
-                glDisable(GL_DEPTH_TEST);
-                glDisable(GL_CULL_FACE);
-                scene->unbind();
-            }
-
-            gui_scene->updateHierarchy();
-
-            {
-                gui_scene->bind();
-                glEnable(GL_CULL_FACE);
-                glEnable(GL_DEPTH_TEST);
-                gui_scene->drawHierarchy(glm::identity<glm::mat4>());
-                glDisable(GL_DEPTH_TEST);
-                glDisable(GL_CULL_FACE);
-                gui_scene->unbind();
-            }
-
-            scene->ui_layer->debugDraw();
-            gui_scene->ui_layer->debugDraw();
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(32));
-            glfwSwapBuffers(window);
-            glfwPollEvents();
-
-            if (Input::Shared->keyPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-                shared_ptr<UIInteractable> intr;
-                if ((intr = gui_scene->ui_layer->traceInputCursor()) || (intr = scene->ui_layer->traceInputCursor())) {
-                    scripting->onInteraction(InteractionEvent_Click, intr);
+                {
+                    scene->bind();
+                    glEnable(GL_CULL_FACE);
+                    glEnable(GL_DEPTH_TEST);
+                    scene->drawHierarchy(glm::identity<glm::mat4>());
+                    glDisable(GL_DEPTH_TEST);
+                    glDisable(GL_CULL_FACE);
+                    scene->unbind();
                 }
-            }
 
-            if (Input::Shared->keyPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
-                shared_ptr<UIInteractable> intr;
-                if ((intr = gui_scene->ui_layer->traceInputCursor()) || (intr = scene->ui_layer->traceInputCursor())) {
-                    scripting->onInteraction(InteractionEvent_AltClick, intr);
+                gui_scene->updateHierarchy();
+
+                {
+                    gui_scene->bind();
+                    glEnable(GL_CULL_FACE);
+                    glEnable(GL_DEPTH_TEST);
+                    gui_scene->drawHierarchy(glm::identity<glm::mat4>());
+                    glDisable(GL_DEPTH_TEST);
+                    glDisable(GL_CULL_FACE);
+                    gui_scene->unbind();
                 }
+
+                scene->ui_layer->debugDraw();
+                gui_scene->ui_layer->debugDraw();
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(32));
+                glfwSwapBuffers(window);
+                glfwPollEvents();
+
+                card_select_widget->offset += glm::vec2(0.f, (float)Input::Shared->getScrollY() * 10.f);
+
+                if (Input::Shared->keyPressed(GLFW_MOUSE_BUTTON_LEFT)) {
+                    shared_ptr<UIInteractable> intr;
+                    if ((intr = gui_scene->ui_layer->traceInputCursor()) || (intr = scene->ui_layer->traceInputCursor())) {
+                        scripting->onInteraction(InteractionEvent_Click, intr);
+                    }
+                }
+
+                if (Input::Shared->keyPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
+                    shared_ptr<UIInteractable> intr;
+                    if ((intr = gui_scene->ui_layer->traceInputCursor()) || (intr = scene->ui_layer->traceInputCursor())) {
+                        scripting->onInteraction(InteractionEvent_AltClick, intr);
+                    }
+                }
+
+                if (Input::Shared->keyPressed(GLFW_KEY_R)) {
+                    // force game restart
+                    break;
+                }
+
+                if (Input::Shared->keyDown(GLFW_KEY_LEFT_ALT)) {
+                    shared_ptr<UIInteractable> intr;
+                    if ((intr = gui_scene->ui_layer->traceInputCursor()) || (intr = scene->ui_layer->traceInputCursor())) {
+                        if (auto card_view = dynamic_pointer_cast<CardView>(intr)) {
+                            gui_card_zoomed_view->setCard(card_view->card, scripting->debugMetadataDescription(card_view->card.get()));
+                            gui_card_zoomed_view->hidden = false;
+                        }
+                    }
+                } else {
+                    gui_card_zoomed_view->hidden = true;
+                }
+
+                if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+                    glfwTerminate();
+                    return 0;
+                }
+
+                Input::Shared->reset();
             }
 
-            if (Input::Shared->keyPressed(GLFW_KEY_R)) {
+            if (Input::Shared->keyDown(GLFW_KEY_R) && Input::Shared->keyDown(GLFW_KEY_LEFT_SHIFT)) {
                 // force game restart
                 break;
             }
-
-            if (Input::Shared->keyDown(GLFW_KEY_LEFT_ALT)) {
-                shared_ptr<UIInteractable> intr;
-                if ((intr = gui_scene->ui_layer->traceInputCursor()) || (intr = scene->ui_layer->traceInputCursor())) {
-                    if (auto card_view = dynamic_pointer_cast<CardView>(intr)) {
-                        gui_card_zoomed_view->setItem(card_view->card);
-                    }
-                }
-            } else {
-                gui_card_zoomed_view->setItem<Card>(nullptr);
-            }
-
-            if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-                glfwTerminate();
-                return 0;
-            }
-
-            Input::Shared->reset();
         }
-
-        INFO("Game end");
     }
 
     // @TODO: run destructors on LuaRefs before LuaHost closes luaL

@@ -1,6 +1,3 @@
-JSON = dofile(libpath .. "json-lua/JSON.lua")
-inspect = dofile(libpath .. "inspect.lua/inspect.lua")
-
 db = {
     _cards = {},
     _cardNameIndexes = {},

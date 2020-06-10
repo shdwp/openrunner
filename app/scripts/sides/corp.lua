@@ -1,32 +1,12 @@
-Corp = {}
+--- @class Corp: Side
+--- @field bad_publicity number
+Corp = class(Side)
 
-function Corp.new()
-    local table = {
-        max_clicks = 4,
-        clicks = 4,
-        points = 0,
-        score = 0,
-        credits = 3,
-        bad_publicity = 0,
-    }
-
-    setmetatable(table, {__index = Corp})
-    return table
-end
-
---- @param amount number
-function Corp:alterCredits(amount)
-    self.credits = self.credits + amount
-end
-
---- @param amount number
-function Corp:alterClicks(amount)
-    self.clicks = self.clicks + amount
-end
-
---- @param amount number
-function Corp:alterScore(amount)
-    self.score = self.score + amount
+--- @return Corp
+function Corp:New()
+    return construct(self, Side:New(3), {
+        bad_publicity = 0
+    })
 end
 
 --- @param amount number
@@ -34,35 +14,8 @@ function Corp:alterBadPublicity(amount)
     self.bad_publicity = self.bad_publicity + amount
 end
 
---- @return boolean
-function Corp:spendClick()
-    if self.clicks > 0 then
-        self.clicks = self.clicks - 1
-        return true
-    else
-        return false
-    end
-end
-
---- @param amount number
---- @return boolean
-function Corp:spendCredits(amount)
-    if self.credits >= amount then
-        self:alterCredits(-amount)
-        return true
-    else
-        return false
-    end
-end
-
---- @param meta table card metatable
---- @return boolean
-function Corp:payPrice(meta)
-    return self:spendCredits(meta.info.cost)
-end
-
 function Corp:newTurn()
-    self.clicks = self.max_clicks
+    Side.newTurn(self)
     self:drawCard()
 end
 
@@ -98,7 +51,7 @@ end
 --- @param from string
 function Corp:actionAdvance(card, from)
     if not cardspec:canAdvance(card.meta) then
-        host:info("cardspec forbids advance!")
+        info("cardspec forbids advance!")
         return false
     end
 

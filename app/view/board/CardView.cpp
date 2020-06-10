@@ -23,7 +23,7 @@ void CardView::update() {
     Entity::update();
 
     if (card != nullptr) {
-        this->rotation = glm::rotate(this->rotation, this->card->faceup ? (float) M_PI : 0.f, glm::vec3(1.f, 0.f, 0.f));
+        rotation = glm::rotate(rotation, (card->faceup || force_faceup) ? (float) M_PI : 0.f, glm::vec3(1.f, 0.f, 0.f));
     }
 }
 

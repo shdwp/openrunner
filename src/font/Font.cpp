@@ -9,8 +9,9 @@
 Font::Font(FT_Library ft, FT_Face face, int size) {
     ft_ = ft;
     face_ = face;
+    this->size = size;
 
-    atlas_size_ = (size + atlas_spacing_) * 16;
+    atlas_size_ = (size + atlas_spacing_) * 32;
     atlas_buf_ = make_unique<uint8_t[]>(atlas_size_ * atlas_size_);
     memset(atlas_buf_.get(), 0, sizeof(uint8_t) * atlas_size_ * atlas_size_);
 

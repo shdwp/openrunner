@@ -24,7 +24,7 @@ public:
 
     explicit Label(shared_ptr<Font> font);
 
-    void setText(const string& text);
+    void setText(string text);
 
     const string &getText() const;
 

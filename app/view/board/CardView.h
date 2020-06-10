@@ -17,6 +17,7 @@ protected:
 
 public:
     shared_ptr<Card> card;
+    bool force_faceup = false;
 
     using SlotView::SlotView;
 
