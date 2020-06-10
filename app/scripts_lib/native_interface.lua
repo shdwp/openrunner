@@ -33,9 +33,11 @@ function _deck:append(card) end
 
 function _deck:shuffle() end
 
---- @param card Card
 --- @param idx number
 function _deck:remove(card, idx) end
+
+--- @param card Card
+function _deck:erase(card) end
 
 --- @return number
 function _deck:size() end
@@ -121,6 +123,8 @@ function _game_board_view:getSlotStackWidget(slot) end
 
 --- @class SlotInteractable
 --- @field slot string
+--- @field card Card
+--- @field deck Deck
 
 --[[
             Widgets
@@ -139,12 +143,15 @@ _label = {}
 function _label:setText(str) end
 
 --- @class CardSelectWidget
+--- @field hidden boolean
 _card_select_widget = {}
 
 --- @param deck Deck
 --- @param limit number
---- @param amount number
-function _card_select_widget:setDeck(deck, limit, amount) end
+function _card_select_widget:setDeck(deck, limit) end
+
+--- @param card Card
+function _card_select_widget:removeCard(card) end
 
 --[[
             Host

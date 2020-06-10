@@ -16,7 +16,7 @@ operations = {
     ["01060"] = { -- Shipment from MirrorMorph
         onPlay = function (meta)
             for _ = 0, 2 do
-                return make_interaction:promptStackSelect(SIDE_CORP, SLOT_CORP_HAND, function (card)
+                return make_interaction:promptSlotSelect(SIDE_CORP, SLOT_CORP_HAND, 1, function (card)
                     return make_interaction:promptInstall(SIDE_CORP, card)
                 end)
             end
@@ -37,7 +37,10 @@ operations = {
         onPlay = function (meta)
             make_interaction:promptDeckSelect(SIDE_CORP, SLOT_CORP_RND, 5, 5, function (card)
                 card.faceup = false
-                board:deckAppend(SIDE_CORP, SLOT_CORP_RND, card)
+
+                local deck = board:deckGet(SLOT_CORP_RND, 0)
+                deck:append(card)
+
                 return true
             end)
         end

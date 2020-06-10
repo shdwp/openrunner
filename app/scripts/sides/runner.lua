@@ -18,15 +18,19 @@ function Runner:alterTags(amount)
     self.tags = self.tags + amount
 end
 
+--- @param amount number
 function Runner:alterBrainDamage(amount)
     self.brain_damage = self.brain_damage + amount
 end
 
+--- @param amount number
 function Runner:alterMeatDamage(amount)
     self.meat_damage = self.meat_damage + amount
 end
 
 --- @param strength number
 --- @return boolean
-function Runner:trace(strength) return self.link < strength end
+function Runner:trace(strength)
+    return self.link < strength
+end
 

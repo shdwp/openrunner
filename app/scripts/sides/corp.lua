@@ -29,64 +29,108 @@ function Corp:drawCard()
 end
 
 function Corp:actionDrawCard()
-    if self:spendClick() then
-        self:drawCard()
-    end
+    self:drawCard()
+    return true
 end
 
 --- @param card userdata Card
 --- @param from string
 --- @param to string
+--- @return boolean
 function Corp:actionInstallRemote(card, from, to)
-    if self:spendClick() then
-        card.faceup = false
-        card.meta.adv = 0
-        board:cardAppend(to, card)
-
-        board:cardPop(from, card)
+    if not card then
+        return false
     end
+
+    card.faceup = false
+    card.meta.adv = 0
+    local existing_card = board:cardGet(to, 0)
+    if existing_card then
+        board:cardReplace(to, existing_card, card)
+    else
+        board:cardAppend(to, card)
+    end
+
+    board:cardPop(from, card)
+    return true
 end
 
 --- @param card userdata Card
 --- @param from string
+--- @return boolean
 function Corp:actionAdvance(card, from)
+    if not card then
+        return false
+    end
+
     if not cardspec:canAdvance(card.meta) then
         info("cardspec forbids advance!")
         return false
     end
 
-    if self:spendCredits(1) and self:spendClick() then
+    if self:spendCredits(1) then
         card.meta.adv = card.meta.adv + 1
+        return true
     end
+
+    return false
 end
 
 --- @param card userdata Card
 --- @param from string
+--- @return boolean
 function Corp:actionScore(card, from)
+    if not card then
+        return false
+    end
+
     if card.meta.adv >= card.meta.info.advancement_cost then
         cardspec:onScore(card.meta)
         board:cardPop(from, card)
+        return true
     end
+
+    return false
 end
 
 --- @param card userdata Card
 --- @param from string
+--- @return boolean
 function Corp:actionRez(card, from)
+    if not card then
+        return false
+    end
+
+    if card.faceup then
+        return false
+    end
+
     if self:payPrice(card.meta) then
         cardspec:onRez(card.meta)
         card.faceup = true
+        return true
     end
+
+    return false
 end
 
 --- @param card userdata Card
 --- @param from string
+--- @return boolean
 function Corp:actionOperation(card, from)
-    if not cardspec:canPlay(card.meta) then
-        return
+    if not card then
+        return false
     end
 
-    if self:payPrice(card.meta) and self:spendClick() then
+    if not cardspec:canPlay(card.meta) then
+        return false
+    end
+
+    if self:payPrice(card.meta) then
         cardspec:onPlay(card.meta)
         board:cardPop(from, card)
+        return true
     end
+
+    return false
 end

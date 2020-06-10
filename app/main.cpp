@@ -1,4 +1,3 @@
-#include <iostream>
 #include <chrono>
 #include <thread>
 
@@ -8,13 +7,9 @@
 #include <scripting/LuaHost.h>
 #include <ui/Input.h>
 #include <util/Debug.h>
-#include <ui/UILayer.h>
 
 #include "controller/Scripting.h"
-#include "view/widgets/StackWidget.h"
-#include "view/materials/CardMaterial.h"
 #include "model/board/GameBoard.h"
-#include "view/widgets/ActionWidget.h"
 #include "view/board/ZoomCardView.h"
 #include "view/widgets/CardSelectWidget.h"
 
@@ -119,7 +114,6 @@ int main() {
                 //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
                 scene->updateHierarchy();
-                scripting->onTick(glfwGetTime());
 
                 {
                     scene->bind();
@@ -150,7 +144,11 @@ int main() {
                 glfwSwapBuffers(window);
                 glfwPollEvents();
 
-                card_select_widget->offset += glm::vec2(0.f, (float)Input::Shared->getScrollY() * 10.f);
+                scripting->onTick(glfwGetTime());
+
+                {
+                    card_select_widget->offset += glm::vec2(0.f, (float) Input::Shared->getScrollY() * 10.f);
+                }
 
                 if (Input::Shared->keyPressed(GLFW_MOUSE_BUTTON_LEFT)) {
                     shared_ptr<UIInteractable> intr;
@@ -166,6 +164,10 @@ int main() {
                     }
                 }
 
+                if (Input::Shared->keyPressed(GLFW_KEY_ESCAPE)) {
+                    scripting->onInteraction<UIInteractable>(InteractionEvent_Cancel);
+                }
+
                 if (Input::Shared->keyPressed(GLFW_KEY_R)) {
                     // force game restart
                     break;
@@ -175,17 +177,14 @@ int main() {
                     shared_ptr<UIInteractable> intr;
                     if ((intr = gui_scene->ui_layer->traceInputCursor()) || (intr = scene->ui_layer->traceInputCursor())) {
                         if (auto card_view = dynamic_pointer_cast<CardView>(intr)) {
-                            gui_card_zoomed_view->setCard(card_view->card, scripting->debugMetadataDescription(card_view->card.get()));
-                            gui_card_zoomed_view->hidden = false;
+                            if (!dynamic_pointer_cast<DeckView>(intr)) {
+                                gui_card_zoomed_view->setCard(card_view->card, scripting->debugMetadataDescription(card_view->card.get()));
+                                gui_card_zoomed_view->hidden = false;
+                            }
                         }
                     }
                 } else {
                     gui_card_zoomed_view->hidden = true;
-                }
-
-                if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-                    glfwTerminate();
-                    return 0;
                 }
 
                 Input::Shared->reset();

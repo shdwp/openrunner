@@ -22,6 +22,8 @@ public:
 
     void setDeck(Deck *deck, size_t limit);
 
+    void removeCard(Card *card);
+
     void update() override;
 };
 

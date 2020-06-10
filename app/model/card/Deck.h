@@ -41,8 +41,22 @@ public:
         insert(card, -1);
     }
 
+    void moveToTop(const Card &card) {
+        auto val = card;
+
+    }
+
     void remove(int idx) {
         cards->erase(cards->begin() + idx);
+    }
+
+    void erase(Card *card) {
+        for (auto i = begin(*cards); i != end(*cards); i++) {
+            if (card == i->get()) {
+                *cards->erase(i);
+                return;
+            }
+        }
     }
 
     void shuffle() {

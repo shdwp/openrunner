@@ -1,5 +1,5 @@
 --- @class PlayerController
---- @field handling InteractionPhase
+--- @field phase InteractionPhase
 PlayerController = class()
 
 --- @param child_storage table
@@ -8,14 +8,35 @@ function PlayerController:New()
     return construct(self)
 end
 
-function PlayerController:active() return self.handling ~= nil end
+function PlayerController:active() return self.phase ~= nil end
 
 --- @param phase InteractionPhase
 function PlayerController:handle(phase)
-    info("Controller %s handling %s of %s", self, phase.type, phase.side)
+    info("Controller %s phase %s of %s", self, phase.type, phase.side)
+    self.phase = phase
 end
 
-function PlayerController:handled()
-    self.handling = nil
+--- @param amount number amount of phases to pop
+function PlayerController:handled(amount)
+    amount = amount or 1
+
+    if game:popIfTop(self.phase) then
+        info("Controller %s handled %d phases", self, amount)
+
+        self.phase = nil
+        for _ = 2, amount do
+            game:popPhase()
+        end
+
+        game:cycle()
+    else
+        info("Controller %s tried to handle %d phases but had to delegate to the top", self, amount)
+        self:delegated()
+    end
+
+end
+
+function PlayerController:delegated()
+    self.phase = nil
     game:cycle()
 end

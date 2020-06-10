@@ -1,11 +1,14 @@
 --- @class Side
+--- @field max_clicks number
+--- @field points number
+--- @field score number
+--- @field credits number
 Side = {}
 
 --- @return Side
 function Side:New(max_clicks)
     return construct(self, {
         max_clicks = max_clicks,
-        clicks = max_clicks,
         points = 0,
         score = 0,
         credits = 0,
@@ -18,23 +21,8 @@ function Side:alterCredits(amount)
 end
 
 --- @param amount number
-function Side:alterClicks(amount)
-    self.clicks = self.clicks + amount
-end
-
---- @param amount number
 function Side:alterScore(amount)
     self.score = self.score + amount
-end
-
---- @return boolean
-function Side:spendClick()
-    if self.clicks > 0 then
-        self.clicks = self.clicks - 1
-        return true
-    else
-        return false
-    end
 end
 
 --- @param amount number
@@ -55,5 +43,4 @@ function Side:payPrice(meta)
 end
 
 function Side:newTurn()
-    self.clicks = self.max_clicks
 end

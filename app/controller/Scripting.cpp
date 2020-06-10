@@ -71,6 +71,7 @@ void Scripting::registerClasses() {
                 .addFunction("append", &Deck::append)
                 .addFunction("shuffle", &Deck::shuffle)
                 .addFunction("remove", &Deck::remove)
+                .addFunction("erase", &Deck::erase)
                 .addProperty("size", &Deck::size)
                 .endClass();
     }
@@ -198,6 +199,10 @@ void Scripting::registerClasses() {
                 .beginClass<CardSelectWidget>("CardSelectWidget")
                 .TYPE_PROP(CardSelectWidget)
                 .addFunction("setDeck", &CardSelectWidget::setDeck)
+                .addFunction("removeCard", &CardSelectWidget::removeCard)
+                .addProperty("hidden",
+                             std::function([](const CardSelectWidget *ptr) { return ptr->hidden; }),
+                             std::function([](CardSelectWidget *ptr, bool value) { ptr->hidden = value; }))
                 .endClass();
     }
 

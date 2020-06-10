@@ -8,7 +8,19 @@
 
 void CardSelectWidget::setDeck(Deck *deck, size_t limit) {
     for (auto i = begin(*deck->cards); i != begin(*deck->cards) + limit; i++) {
-        addChild(CardView::For(*i));
+        auto view = addChild(CardView::For(*i));
+        UILayer::registerSceneEntity(view);
+    }
+}
+
+void CardSelectWidget::removeCard(Card *ptr) {
+    for (auto &child : *children_) {
+        if (auto view = dynamic_pointer_cast<CardView>(child)) {
+            if (view->getUnownedCardPtr() == ptr) {
+                removeChild(child);
+                break;
+            }
+        }
     }
 }
 
@@ -32,3 +44,4 @@ void CardSelectWidget::update() {
         }
     }
 }
+

@@ -16,6 +16,7 @@ enum InteractionEvent {
     InteractionEvent_AltClick,
     InteractionEvent_Drag,
     InteractionEvent_Release,
+    InteractionEvent_Cancel,
 };
 
 typedef enum InteractionEvent interaction_event_t;
@@ -85,6 +86,7 @@ public:
             case InteractionEvent_AltClick: event_str = "altclick"; break;
             case InteractionEvent_Drag: event_str = "drag"; break;
             case InteractionEvent_Release: event_str = "release"; break;
+            case InteractionEvent_Cancel: event_str = "cancel"; break;
             default: FAIL("Enum error");
         }
 
@@ -95,6 +97,8 @@ public:
                 host_->doFunction(std::get<1>(h), std::get<0>(h), event_str, deckview);
             } else if (auto cardview = dynamic_cast<CardView *>(object.get())) {
                 host_->doFunction(std::get<1>(h), std::get<0>(h), event_str, cardview);
+            } else {
+                host_->doFunction(std::get<1>(h), std::get<0>(h), event_str);
             }
         }
     }
