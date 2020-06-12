@@ -138,7 +138,7 @@ function HumanController:onInteraction(type, descr)
         elseif ph.type == SelectFromStackPhase.Type then
             --- @yype SelectFromStackPhase
             local sel_ph = ph
-            
+
         end
     end
 end
