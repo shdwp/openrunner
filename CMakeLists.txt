@@ -41,18 +41,22 @@ set(LIB_SOURCES
 add_library(${LIB} ${LIB_SOURCES})
 target_include_directories(${LIB} PUBLIC include)
 
-target_link_libraries(${LIB} ${CMAKE_CURRENT_SOURCE_DIR}/extern/glfw/libglfw3.a)
-target_include_directories(${LIB} PUBLIC extern/glfw/include)
+if (UNIX)
+    target_link_libraries(${LIB} /usr/lib/liblua5.2.so /usr/lib/libglfw.so /usr/lib/libfreetype.so ${CMAKE_DL_LIBS})
+    target_include_directories(${LIB} PUBLIC /usr/include/freetype2 /usr/include /usr/include/lua5.2)
+else()
+    target_link_libraries(${LIB} ${CMAKE_CURRENT_SOURCE_DIR}/extern/glfw/libglfw3.a)
+    target_include_directories(${LIB} PUBLIC extern/glfw/include)
 
-target_link_libraries(${LIB} ${CMAKE_CURRENT_SOURCE_DIR}/extern/liblua/liblua53.a)
-target_include_directories(${LIB} PUBLIC extern/liblua/include)
+    target_link_libraries(${LIB} ${CMAKE_CURRENT_SOURCE_DIR}/extern/liblua/liblua53.a)
+    target_include_directories(${LIB} PUBLIC extern/liblua/include)
+
+    target_link_libraries(${LIB} ${CMAKE_CURRENT_SOURCE_DIR}/extern/freetype/lib/libfreetyped.a)
+    target_include_directories(${LIB} PUBLIC extern/freetype/include)
+    target_include_directories(${LIB} PUBLIC extern/freetype/include/freetype)
+endif()
 
 target_link_libraries(${LIB} LuaBridge)
-
-target_link_libraries(${LIB} ${CMAKE_CURRENT_SOURCE_DIR}/extern/freetype/lib/libfreetyped.a)
-target_include_directories(${LIB} PUBLIC extern/freetype/include)
-target_include_directories(${LIB} PUBLIC extern/freetype/include/freetype)
-
 target_link_libraries(${LIB} glad)
 target_link_libraries(${LIB} glm)
 target_link_libraries(${LIB} stb_image)

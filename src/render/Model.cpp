@@ -35,7 +35,7 @@ Model Model::Load(const string &base_path, const string &obj_name, const shared_
 
     string warn, err;
     auto ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, (base_path + "/" + obj_name).c_str(), base_path.c_str());
-    assert(ret);
+    assert(ret);;
 
     vector<VertexBufferObject> result_buffers;
     vector<shared_ptr<Material>> result_materials;

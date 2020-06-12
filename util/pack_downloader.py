@@ -2,7 +2,7 @@ import json
 from os import path
 import urllib.request
 
-core_set = json.load(open("../assets/json/pack/core.json"))
+core_set = json.load(open("../assets/netrunner-cards-json/pack/core.json"))
 
 for card in core_set:
     filename = "../assets/cards/{}.jpg".format(int(card["code"]))

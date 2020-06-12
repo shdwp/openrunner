@@ -4,7 +4,7 @@ db = {
 }
 
 db.loadPack = function (self, name)
-    local path = "../assets/json/pack/" .. name .. ".json"
+    local path = "../assets/netrunner-cards-json/pack/" .. name .. ".json"
     local contents = io.open(path, "rb"):read("*all")
     assert(contents)
     local cards = JSON:decode(contents)
