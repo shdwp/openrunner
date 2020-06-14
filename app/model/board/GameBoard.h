@@ -115,7 +115,7 @@ public:
     }
 
     template <class O, class T, class V>
-T *replace(const string &slotid, O *from, const T &to) {
+    T *replace(const string &slotid, O *from, const T &to) {
         auto idx = this->erase(slotid, from);
         if (idx != -1) {
             return this->insert<T, V>(slotid, to, idx);
@@ -133,6 +133,11 @@ T *replace(const string &slotid, O *from, const T &to) {
         } else {
             return nullptr;
         }
+    }
+
+    size_t count(const string &slotid) {
+        auto vec = &(*cards_)[slotid];
+        return vec->size();
     }
 };
 

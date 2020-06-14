@@ -13,6 +13,8 @@ game = {
     last_run_turn_n = 0,
     last_successfull_run_turn_n = 0,
     last_agenda_scored_turn_n = 0,
+
+    last_ui_update = 0,
 }
 
 --- @param player string const
@@ -24,28 +26,7 @@ end
 function game:cycle()
     info("Game cycle")
     if game.interaction_stack:empty() then
-        if self.turn_n > 1 then
-            self.corp:newTurn()
-            self.runner:newTurn()
-        end
-
-        local clicks = 0
-        if self.current_side == nil or self.current_side == SIDE_RUNNER then
-            self.current_side = SIDE_CORP
-            clicks = self.corp.max_clicks
-        else
-            self.current_side = SIDE_RUNNER
-            clicks = self.runner.max_clicks
-        end
-
-        -- @TODO: remove
-        self.current_side = SIDE_CORP
-
-        for _ = 0, clicks do
-            self.interaction_stack:push(TurnBasePhase:New(self.current_side))
-        end
-
-        self.turn_n = self.turn_n + 1
+        game:newTurn()
     end
 
     local phase = self.interaction_stack:top()
@@ -59,8 +40,12 @@ function game:pushPhase(phase)
     self.interaction_stack:push(phase)
 end
 
-function game:popPhase()
-    self.interaction_stack:pop()
+function game:popPhase(phase)
+    if phase == nil then
+        self.interaction_stack:pop()
+    else
+        self.interaction_stack:remove(phase)
+    end
 end
 
 --- @param phase InteractionPhase
@@ -90,6 +75,52 @@ function game:alterClicks(side, amount)
     end
 end
 
+function game:newTurn()
+    if self.turn_n > 1 then
+        self.corp:newTurn()
+        self.runner:newTurn()
+    end
+
+    local clicks = 0
+    if self.current_side == nil or self.current_side == SIDE_RUNNER then
+        self.current_side = SIDE_CORP
+        clicks = self.corp.max_clicks
+    else
+        self.current_side = SIDE_RUNNER
+        clicks = self.runner.max_clicks
+    end
+
+    -- @TODO: remove
+    self.current_side = SIDE_CORP
+
+    for _ = 0, clicks do
+        self.interaction_stack:push(TurnBasePhase:New(self.current_side))
+    end
+
+    local slots = {
+        "corp_remote_1",
+        "corp_remote_2",
+        "corp_remote_3",
+        "corp_remote_4",
+        "corp_remote_5",
+        "corp_remote_6",
+        "corp_hq",
+    }
+
+    for _, slot in pairs(slots) do
+        for i = 0, board:count(slot) do
+            local card = board:cardGet(slot, i)
+            if card and card.faceup then
+                if cardspec:onNewTurn(card.meta) then
+                    board:cardPop(slot, card)
+                end
+            end
+        end
+    end
+
+    self.turn_n = self.turn_n + 1
+end
+
 function game:onInit()
     info("Game init")
     self.corp = Corp:New()
@@ -98,8 +129,8 @@ function game:onInit()
 
     self.corp:alterCredits(12)
 
-    self.player_controllers[SIDE_CORP] = HumanController:New()
-    self.player_controllers[SIDE_RUNNER] = HumanController:New()
+    self.player_controllers[SIDE_CORP] = HumanController:New(SIDE_CORP)
+    self.player_controllers[SIDE_RUNNER] = HumanController:New(SIDE_RUNNER)
 
     host:register(self.player_controllers[SIDE_CORP])
 
@@ -137,18 +168,22 @@ function game:onInit()
         deck:shuffle()
 
         board:deckAppend("corp_rnd", deck)
-        board:cardAppend("corp_hand", db:card(1094))
-        board:cardAppend("corp_hand", db:card(1095))
-        board:cardAppend("corp_hand", db:card(1056))
-        board:cardAppend("corp_hand", db:card(1083))
-        board:cardAppend("corp_hand", db:card(1103))
-        board:cardAppend("corp_hand", db:card(1098))
-        board:cardAppend("corp_hand", db:card(1060))
-        board:cardAppend("corp_hand", db:card(1073))
     end
 
     info("Game ready!")
     self:cycle()
+end
+
+function game:onTick(dt)
+    if dt - self.last_ui_update > 1 then
+        local text = ""
+        for _, v in pairs(self.interaction_stack.stack) do
+            text = string.format("%s\n%s [%s]", text, v.type, v.side)
+        end
+
+        alert_label:setText(text)
+        self.last_ui_update = dt
+    end
 end
 
 host:register(game)

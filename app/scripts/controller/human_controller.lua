@@ -1,12 +1,14 @@
 --- @class HumanController: PlayerController
 HumanController = class(PlayerController)
 
+--- @param side string
 --- @return HumanController
-function HumanController:New()
-    return construct(self, PlayerController:New(), {
+function HumanController:New(side)
+    local t = construct(self, PlayerController:New(side), {
         last_update = 0,
-        alert_until = 0,
     })
+
+    return t
 end
 
 function HumanController:handle(phase)
@@ -32,11 +34,6 @@ function HumanController:onTick(dt)
                 game.corp.score,
                 game.corp.bad_publicity
         ))
-
-        if self.alert_until > dt then
-            verbose("Alert expired")
-            alert_label:setText("")
-        end
 
         self.last_update = dt
     end
@@ -90,24 +87,52 @@ function HumanController:onInteraction(type, descr)
                         info("Corp installing %s", descr.card.uid)
                         game:pushPhase(InstallPhase:New(ph.side, descr.slot, descr.card))
                         return self:delegated()
-                    elseif card_play_type == "play" and game.corp:actionOperation(descr.card, descr.slot) then
-                        info("Corp played %s", descr.card.uid)
-                        return self:handled()
+                    elseif card_play_type == "play" then
+                        if game.corp:payOperation(descr.card, descr.slot) then
+                            info("Corp played %s", descr.card.uid)
+                            game.corp:actionOperation(descr.card, descr.slot)
+                            return self:handled()
+                        else
+                            info("Corp unable to pay for %d", descr.card.uid)
+                        end
                     else
-                        error("Uknown play type %s", card_play_type)
+                        error("Unknown play type %s", card_play_type)
                     end
                 end
             elseif type == "altclick" then
-                if isSlotRemote(descr.slot) and game.corp:actionAdvance(descr.card, descr.slot) then
+                if descr.card and game.corp:actionAdvance(descr.card, descr.slot, false) then
+                    info("Corp advanced %d from %s", descr.card.uid, descr.slot)
                     return self:handled()
                 end
             end
 
         elseif ph.type == InstallPhase.Type then
             if type == "click" then
+                if cardspec:canInstallTo(ph.card.meta, descr.slot) then
+                    local handled = false
+                    if cardspec:isCardRemote(ph.card.meta) then
+                        handled = game.corp:actionInstallRemote(ph.card, ph.slot, descr.slot)
+                    else
+                        handled = game.corp:actionInstallIce(ph.card, ph.slot, descr.slot)
+                    end
+
+                    if handled then
+                        return self:handled(2)
+                    else
+                        info("Corp failed to install card %d into %s", ph.card.uid, descr.slot)
+                    end
+                else
+                    info("Invalid slot for install %s", descr.slot)
+                end
+            elseif type == "cancel" then
+                info("Corp cancelled install")
+                return self:handled()
+            end
+        elseif ph.type == FreeInstallPhase.Type then
+            if type == "click" then
                 if isSlotRemote(descr.slot) then
                     if game.corp:actionInstallRemote(ph.card, ph.slot, descr.slot) then
-                        return self:handled(2)
+                        return self:handled()
                     else
                         info("Corp failed to actionInstallRemote")
                     end
@@ -115,6 +140,21 @@ function HumanController:onInteraction(type, descr)
                     info("Invalid slot for install %s", descr.slot)
                 end
             elseif type == "cancel" then
+                info("Corp cancelled free installation")
+                return self:handled()
+            end
+        elseif ph.type == FreeAdvancePhase.Type then
+            if type == "altclick" then
+                print(1)
+                if descr.card and ph.cb(descr.card) then
+                    info("Corp selected %d from %s for free advance", descr.card.uid, descr.slot)
+                    if game.corp:actionAdvance(descr.card, descr.slot, true) then
+                        info("Corp free advanced %d", descr.card.uid)
+                        return self:handled()
+                    end
+                end
+            elseif type == "cancel" then
+                info("Corp cancelled free advance")
                 return self:handled()
             end
         elseif ph.type == SelectFromDeckPhase.Type then
@@ -134,11 +174,31 @@ function HumanController:onInteraction(type, descr)
                         return self:handled()
                     end
                 end
+            elseif type == "cancel" then
+                info("Corp cancelled select from deck")
+                card_select_widget.hidden = true
+                return self:handled()
             end
-        elseif ph.type == SelectFromStackPhase.Type then
-            --- @yype SelectFromStackPhase
+        elseif ph.type == SelectFromSlotPhase.Type then
+            --- @type SelectFromSlotPhase
             local sel_ph = ph
-
+            if type == "click" and descr.card then
+                if descr.slot ~= sel_ph.slot then
+                    info("Corp selected %d from %s - invalid slot (needed to be %s)", descr.card.uid, descr.slot, sel_ph.slot)
+                elseif not sel_ph.cb(descr.card) then
+                    info("Corp selected %d from %s - forbidden by cardspec", descr.card.uid, descr.slot)
+                else
+                    info("Corp selected %d from %s, %d left", descr.card.uid, descr.slot, sel_ph.amount - 1)
+                    sel_ph.amount = sel_ph.amount - 1
+                    if sel_ph.amount <= 0 then
+                        info("Corp finished selecting cards")
+                        return self:handled()
+                    end
+                end
+            elseif type == "cancel" then
+                info("Corp cancelled select from slot")
+                return self:handled()
+            end
         end
     end
 end

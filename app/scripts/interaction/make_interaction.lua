@@ -22,13 +22,13 @@ end
 --- @param side string
 --- @param card userdata Card
 --- @return boolean
-function make_interaction:promptFreeInstall(side, card)
-    return true
+function make_interaction:promptFreeInstall(side, slot, card)
+    game:pushPhase(FreeInstallPhase:New(side, slot, card))
 end
 
 --- @param side string
---- @param cb function accepting Card
+--- @param cb function returning bool
 --- @return boolean
 function make_interaction:promptFreeAdvance(side, cb)
-    return true
+    game:pushPhase(FreeAdvancePhase:New(side, cb))
 end

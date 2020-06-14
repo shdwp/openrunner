@@ -20,7 +20,7 @@ public:
 
     string debugDescription() override { return format("{} CardSelectWidget", Entity::debugDescription()); }
 
-    void setDeck(Deck *deck, size_t limit);
+    void setDeck(Deck *deck, int limit);
 
     void removeCard(Card *card);
 

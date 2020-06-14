@@ -33,7 +33,7 @@ function Corp:actionDrawCard()
     return true
 end
 
---- @param card userdata Card
+--- @param card Card
 --- @param from string
 --- @param to string
 --- @return boolean
@@ -55,10 +55,28 @@ function Corp:actionInstallRemote(card, from, to)
     return true
 end
 
+--- @param card Card
+--- @param from string
+--- @param to string
+--- @return boolean
+function Corp:actionInstallIce(card, from, to)
+    if not card then
+        return false
+    end
+
+    local count = board:count(to)
+    if self:spendCredits(count) then
+        card.faceup = false
+        board:cardAppend(to, card)
+        board:cardPop(from, card)
+    end
+end
+
 --- @param card userdata Card
 --- @param from string
+--- @param free boolean
 --- @return boolean
-function Corp:actionAdvance(card, from)
+function Corp:actionAdvance(card, from, free)
     if not card then
         return false
     end
@@ -68,7 +86,7 @@ function Corp:actionAdvance(card, from)
         return false
     end
 
-    if self:spendCredits(1) then
+    if self:spendCredits(free and 0 or 1) then
         card.meta.adv = card.meta.adv + 1
         return true
     end
@@ -87,6 +105,7 @@ function Corp:actionScore(card, from)
     if card.meta.adv >= card.meta.info.advancement_cost then
         cardspec:onScore(card.meta)
         board:cardPop(from, card)
+        game.last_agenda_scored_turn_n = game.turn_n
         return true
     end
 
@@ -114,10 +133,10 @@ function Corp:actionRez(card, from)
     return false
 end
 
---- @param card userdata Card
+--- @param card Card
 --- @param from string
 --- @return boolean
-function Corp:actionOperation(card, from)
+function Corp:payOperation(card, from)
     if not card then
         return false
     end
@@ -127,10 +146,14 @@ function Corp:actionOperation(card, from)
     end
 
     if self:payPrice(card.meta) then
-        cardspec:onPlay(card.meta)
-        board:cardPop(from, card)
         return true
     end
+end
 
-    return false
+--- @param card Card
+--- @param from string
+--- @return boolean
+function Corp:actionOperation(card, from)
+    cardspec:onPlay(card.meta)
+    board:cardPop(from, card)
 end

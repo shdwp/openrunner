@@ -42,6 +42,8 @@ void Scripting::registerClasses() {
 
                 .addFunction("cardGet", &GameBoard::get<Card>)
                 .addFunction("deckGet", &GameBoard::get<Deck>)
+
+                .addFunction("count", &GameBoard::count)
                 .endClass();
     }
 
@@ -222,9 +224,17 @@ void Scripting::doScripts(const string &base_path) {
     DIR *handle = opendir(base_path.c_str());
     ASSERT(handle, "Failed to open base_path");
 
-    // @FIXME: this rely on readdir filename sorting
+    vector<string> names;
     while ((entry = readdir(handle))) {
-        auto filename = string(entry->d_name);
+        auto name = string(entry->d_name);
+        if (name.find('.') == string::npos) {
+            names.emplace_back(name);
+        } else{
+            names.emplace(names.begin(), name);
+        }
+    }
+
+    for (auto &filename : names) {
         auto path = format("{}/{}", base_path, filename);
 
         if (filename.find('.') == string::npos) {

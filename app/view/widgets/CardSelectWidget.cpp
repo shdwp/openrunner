@@ -6,8 +6,10 @@
 #include "CardSelectWidget.h"
 #include "../board/CardView.h"
 
-void CardSelectWidget::setDeck(Deck *deck, size_t limit) {
-    for (auto i = begin(*deck->cards); i != begin(*deck->cards) + limit; i++) {
+void CardSelectWidget::setDeck(Deck *deck, int limit) {
+    auto end_iter = limit == -1 || limit >= deck->cards->size() ? end(*deck->cards) : begin(*deck->cards) + limit;
+
+    for (auto i = begin(*deck->cards); i != end_iter; i++) {
         auto view = addChild(CardView::For(*i));
         UILayer::registerSceneEntity(view);
     }

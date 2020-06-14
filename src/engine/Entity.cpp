@@ -100,12 +100,13 @@ void Entity::updateHierarchy() {
 
 void Entity::drawHierarchy(const glm::mat4 parentLocal) {
     auto local = this->transform(parentLocal);
+
     if (!this->hidden) {
         this->draw(local);
-    }
 
-    for (auto &child: *children_) {
-        child->drawHierarchy(local);
+        for (auto &child: *children_) {
+            child->drawHierarchy(local);
+        }
     }
 }
 

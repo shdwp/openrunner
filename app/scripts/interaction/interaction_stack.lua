@@ -22,7 +22,7 @@ end
 --- @return InteractionPhase
 function InteractionStack:pop()
     local intr = self.stack[#self.stack]
-    self.stack[#self.stack] = nil
+    table.remove(self.stack, #self.stack)
     return intr
 end
 
@@ -34,6 +34,15 @@ end
 --- @return InteractionPhase
 function InteractionStack:top()
     return self.stack[#self.stack]
+end
+
+--- @param phase InteractionPhase
+function InteractionStack:remove(phase)
+    for k, v in pairs(self.stack) do
+        if v == phase then
+            table.remove(self.stack, k)
+        end
+    end
 end
 
 --- @param side string

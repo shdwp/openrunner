@@ -6,7 +6,12 @@ assets = {
 
         onNewTurn = function (meta)
             meta.credits_pool = meta.credits_pool - 3
-            game.corp.alterCredits(3)
+            game.corp:alterCredits(3)
+            if meta.credits_pool <= 0 then
+                return true
+            end
+
+            return false
         end,
     },
 
@@ -14,8 +19,8 @@ assets = {
         canAction = function (meta) return game.corp.clicks >= 3 end,
 
         onAction = function (meta)
-            game.corp.clicks = game.corp.clicks - 3
-            game.corp.credits = game.corp.credits + 7
+            game:alterClicks(SIDE_CORP, -3)
+            game.corp:alterCredits(7)
         end
     },
 }

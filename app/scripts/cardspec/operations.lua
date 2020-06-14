@@ -9,15 +9,20 @@ operations = {
 
     ["01059"] = { -- Biotic Labor
         onPlay = function (meta)
-            game.corp:alterClicks(2)
+            game:alterClicks(SIDE_CORP, 2)
         end
     },
 
     ["01060"] = { -- Shipment from MirrorMorph
         onPlay = function (meta)
             for _ = 0, 2 do
-                return make_interaction:promptSlotSelect(SIDE_CORP, SLOT_CORP_HAND, 1, function (card)
-                    return make_interaction:promptInstall(SIDE_CORP, card)
+                make_interaction:promptSlotSelect(SIDE_CORP, SLOT_CORP_HAND, 1, function (card)
+                    if not cardspec:canInstall(card.meta) then
+                        return false
+                    end
+
+                    make_interaction:promptFreeInstall(SIDE_CORP, SLOT_CORP_HAND, card)
+                    return true
                 end)
             end
         end
@@ -37,10 +42,8 @@ operations = {
         onPlay = function (meta)
             make_interaction:promptDeckSelect(SIDE_CORP, SLOT_CORP_RND, 5, 5, function (card)
                 card.faceup = false
-
                 local deck = board:deckGet(SLOT_CORP_RND, 0)
                 deck:append(card)
-
                 return true
             end)
         end
@@ -88,9 +91,9 @@ operations = {
             make_interaction:promptDeckSelect(SIDE_CORP, SLOT_CORP_RND, -1, 1, function (card)
                 card.faceup = true
                 board:cardAppend(SLOT_CORP_HAND, card)
+                board:deckGet(SLOT_CORP_RND, 0):shuffle()
+                return true
             end)
-
-            board:getDeck(SLOT_CORP_RND):shuffle()
         end
     },
 
@@ -111,11 +114,12 @@ operations = {
         onPlay = function (meta)
             local prev_card = nil
             local fn = function (card)
-                if prev_card == card then
+                if prev_card and prev_card.uid == card.uid then
                     return false
-                else
-                    card.meta.adv = card.meta.adv + 1
                 end
+
+                prev_card = card
+                return true
             end
 
             make_interaction:promptFreeAdvance(SIDE_CORP, fn)

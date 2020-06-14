@@ -63,8 +63,8 @@ int main() {
         gui_scene->addChild(status_label);
 
         auto alert_label = make_shared<Label>(font);
-        alert_label->setText("");
-        alert_label->position = glm::vec3(-400.f, 265.f, 0.f);
+        alert_label->setText("alert label");
+        alert_label->position = glm::vec3(200.f, 280.f, 0.f);
         gui_scene->addChild(alert_label);
 
         auto gui_card_zoomed_view = make_shared<ZoomCardView>(card_model);
@@ -100,7 +100,7 @@ int main() {
         scripting->setGlobal("board_view", board_view.get());
         scripting->setGlobal("card_select_widget", card_select_widget.get());
         scripting->setGlobal("status_label", status_label.get());
-        scripting->setGlobal("alert_label", status_label.get());
+        scripting->setGlobal("alert_label", alert_label.get());
 
         while (!glfwWindowShouldClose(window)) {
             scripting->reset();

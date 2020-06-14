@@ -37,6 +37,8 @@ end
 
 --- @class SelectFromSlotPhase: InteractionPhase
 --- @field slot string
+--- @field amount number
+--- @field cb function
 SelectFromSlotPhase = class(InteractionPhase, {Type = "select_from_slot"})
 
 --- @param side string
@@ -46,7 +48,7 @@ SelectFromSlotPhase = class(InteractionPhase, {Type = "select_from_slot"})
 function SelectFromSlotPhase:New(side, slot, amount, cb)
     return construct(self, InteractionPhase:New(self.Type, side), {
         slot = slot,
-        amount = number,
+        amount = amount,
         cb = cb,
     })
 end
@@ -59,9 +61,40 @@ InstallPhase = class(InteractionPhase, {Type = "install"})
 --- @param side string
 --- @param slot string
 --- @param card Card
+--- @return InstallPhase
 function InstallPhase:New(side, slot, card)
     return construct(self, InteractionPhase:New(self.Type, side), {
         card = card,
         slot = slot,
+    })
+end
+
+--- @class FreeInstallPhase: InteractionPhase
+--- @field card Card
+--- @field slot string
+FreeInstallPhase = class(InteractionPhase, {Type = "free_install"})
+
+--- @param side string
+--- @param slot string
+--- @param card Card
+--- @return FreeInstallPhase
+function FreeInstallPhase:New(side, slot, card)
+    return construct(self, InteractionPhase:New(self.Type, side), {
+        card = card,
+        slot = slot,
+    })
+end
+
+--- @class FreeAdvancePhase: InteractionPhase
+--- @field card Card
+--- @field slot string
+FreeAdvancePhase = class(InteractionPhase, {Type = "free_advance"})
+
+--- @param side string
+--- @param cb function returning bool
+--- @return FreeAdvancePhase
+function FreeAdvancePhase:New(side, cb)
+    return construct(self, InteractionPhase:New(self.Type, side), {
+        cb = cb and cb or function () return true end,
     })
 end

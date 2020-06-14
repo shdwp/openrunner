@@ -24,7 +24,7 @@ end
 
 function cardspec:interactionFromHand(meta)
     local t = meta.info.type_code
-    if t == "agenda" or t == "asset" then
+    if t == "agenda" or t == "asset" or t == "ice" then
         return "install"
     elseif t == "operation" then
         return "play"
@@ -53,27 +53,55 @@ function cardspec:canPlay(meta)
 end
 
 function cardspec:canInstall(meta)
+    return self:isCardRemote(meta) or self:isCardIce(meta)
+end
+
+--- @param meta userdata
+--- @param slot string
+--- @return boolean
+function cardspec:canInstallTo(meta, slot)
+    if not self:canInstall(meta) then
+        return false
+    end
+
+    if meta.info.type_code == "ice" then
+        return isSlotIce(slot)
+    else
+        return isSlotRemote(slot)
+    end
+end
+
+function cardspec:isCardRemote(meta)
     return meta.info.type_code == "asset" or meta.info.type_code == "agenda"
+end
+
+function cardspec:isCardIce(meta)
+    return meta.info.type_code == "ice"
 end
 
 -- events
 
 function cardspec:onRez(meta)
     local spec = self:_spec(meta)
-    if spec.onRez then spec.onRez(meta) end
+    if spec.onRez then return spec.onRez(meta) end
 end
 
 function cardspec:onPlay(meta)
     local spec = self:_spec(meta)
-    if spec.onPlay then spec.onPlay(meta) end
+    if spec.onPlay then return spec.onPlay(meta) end
 end
 
 function cardspec:onAction(meta)
     local spec = self:_spec(meta)
-    spec.onAction(meta)
+    return spec.onAction(meta)
 end
 
 function cardspec:onScore(meta)
     local spec = self:_spec(meta)
-    spec.onScore(meta)
+    return spec.onScore(meta)
+end
+
+function cardspec:onNewTurn(meta)
+    local spec = self:_spec(meta)
+    if spec and spec.onNewTurn then return spec.onNewTurn(meta) end
 end

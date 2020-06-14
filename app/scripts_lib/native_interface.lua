@@ -102,6 +102,9 @@ function _game_board:deckReplace(slot, from, to) end
 --- @return Deck
 function _game_board:deckGet(slot, idx) end
 
+--- @return number
+function _game_board:count(slot) end
+
 --[[
             Views
 ]]--

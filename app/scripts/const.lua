@@ -1,3 +1,8 @@
+-- general
+CLICK = "click"
+ALTCLICK = "altclick"
+CANCEL = "cancel"
+
 -- sides
 SIDE_CORP = "corp"
 SIDE_RUNNER = "runner"
