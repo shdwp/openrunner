@@ -9,6 +9,7 @@ Side = {}
 function Side:New(max_clicks)
     return construct(self, {
         max_clicks = max_clicks,
+        max_hand = 5,
         points = 0,
         score = 0,
         credits = 0,
@@ -43,4 +44,14 @@ function Side:payPrice(meta)
 end
 
 function Side:newTurn()
+end
+
+--- @param card Card
+--- @param from string
+function Side:actionDiscard(card, from)
+    board:cardPop(from, card)
+end
+
+function Side:actionDrawCard()
+    error("Not implemented.")
 end

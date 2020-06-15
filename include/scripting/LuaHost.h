@@ -25,7 +25,8 @@ public:
     explicit LuaHost() {
         L = luaL_newstate();
         luaL_openlibs(L);
-        this->bridgeEngine();
+        this->doFile("../app/scripts_lib/native_interface_engine.lua");
+        this->bridgeEngine();;
     }
 
     LuaHost(LuaHost &&o) noexcept {

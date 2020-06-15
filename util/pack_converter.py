@@ -1,7 +1,48 @@
 import json
 
+
 pack_name = "core"
 pack = json.load(open("../assets/netrunner-cards-json/pack/{}.json".format(pack_name)))
+
+limit_to = """Hostile Takeover
+Posted Bounty
+Priority Requisition
+Private Security Force
+Adonis Campaign
+Melange Mining Corp.
+PAD Campaign
+Anonymous Tip
+Beanstalk Royalties
+Hedge Fund
+Shipment from Kaguya
+Hadrian's Wall
+Ice Wall
+Wall of Static
+Enigma
+Tollbooth
+Archer
+Rototurret
+Shadow
+Diesel
+Easy Mark
+Infiltration
+Modded
+Sure Gamble
+The Maker's Eye
+Tinkering
+Akamatsu Mem Chip
+Cyberfeeder
+Rabbit Hole
+The Personal Touch
+The Toolbox
+Armitage Codebusting
+Sacrificial Construct
+Corroder
+Crypsis
+Femme Fatale
+Gordian Blade
+Ninja
+Magnum Opus""".split()
 
 buf = ""
 
@@ -22,6 +63,9 @@ def escape(item):
     
 
 def process_cardspec(item):
+    if limit_to and item not in limit_to:
+        return
+    
     output("cardspec.cards[{}] = ".format(int(item["code"])))
 
     output("{\n")

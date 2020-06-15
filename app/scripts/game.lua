@@ -76,25 +76,41 @@ function game:alterClicks(side, amount)
 end
 
 function game:newTurn()
-    if self.turn_n > 1 then
-        self.corp:newTurn()
-        self.runner:newTurn()
-    end
-
     local clicks = 0
+    local discard_amount = 0
+    local max_hand = 0
+
     if self.current_side == nil or self.current_side == SIDE_RUNNER then
+        -- corp next
         self.current_side = SIDE_CORP
         clicks = self.corp.max_clicks
+        max_hand = self.corp.max_hand
     else
+        -- runner next
         self.current_side = SIDE_RUNNER
         clicks = self.runner.max_clicks
+        max_hand = self.runner.max_hand
     end
+
 
     -- @TODO: remove
     self.current_side = SIDE_CORP
+    discard_amount = board:count(SLOT_CORP_HAND) - max_hand
+
+    if discard_amount > 0 then
+        self.interaction_stack:push(TurnEndPhase:New(self.current_side, discard_amount))
+    end
+
+    if self.current_side == SIDE_CORP then
+        self.corp:newTurn()
+        ui:focusCorp()
+    else
+        self.runner:newTurn()
+        ui:focusRunner()
+    end
 
     for _ = 0, clicks do
-        self.interaction_stack:push(TurnBasePhase:New(self.current_side))
+        self.interaction_stack:prepend(TurnBasePhase:New(self.current_side))
     end
 
     local slots = {
@@ -136,14 +152,11 @@ function game:onInit()
 
     self.interaction_stack = InteractionStack:New()
 
-    info("Loading packs...");
-    db:loadPack("core")
-
     if board:cardGet("corp_hq", 0) == nil then
         info("Dealing initial cards...");
-        board:cardAppend("corp_hq", db:card(1093))
+        board:cardAppend("corp_hq", cardspec:card(1093))
 
-        local deck = db:deck([[
+        local deck = cardspec:deck([[
 3 Hostile Takeover
 2 Posted Bounty
 3 Priority Requisition
@@ -168,6 +181,8 @@ function game:onInit()
         deck:shuffle()
 
         board:deckAppend("corp_rnd", deck)
+
+        board:cardAppend("corp_hand", cardspec:card(1064))
     end
 
     info("Game ready!")

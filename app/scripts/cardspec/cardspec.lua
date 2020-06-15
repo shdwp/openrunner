@@ -1,17 +1,48 @@
 cardspec = {
-
+    cards = {},
+    card_titles = {},
 }
 
 function cardspec:_spec(meta)
-    local t = meta.info.type_code
+    return meta.info
+end
 
-    if t == "agenda" then
-        return agendas[meta.info.code]
-    elseif t == "operation" then
-        return operations[meta.info.code]
-    elseif t == "asset" then
-        return assets[meta.info.code]
+function cardspec:buildDeckFromDescription(text)
+    local deck = {}
+    for line in text:gmatch("[^\n]+") do
+        local count = tonumber(line:sub(0, 1))
+        local title = line:sub(3)
+        for _ = 0, count do
+            table.insert(deck, self.cards[self.card_titles[title]])
+        end
     end
+
+    return deck
+end
+
+function cardspec:infoForCode(code)
+    local card = self.cards[code]
+    if not card then error("Failed to find card %s", code) end
+    return card
+end
+
+function cardspec:card(uid)
+    local meta = {
+        info = self:infoForCode(uid),
+    }
+
+    return Card(uid, meta)
+end
+
+function cardspec:deck(descr)
+    local deck = Deck()
+    for _, info in pairs(self:buildDeckFromDescription(descr)) do
+        local card = self:card(tonumber(info["code"]))
+        card.faceup = false
+        deck:append(card)
+    end
+
+    return deck
 end
 
 function cardspec:canAdvance(meta)

@@ -9,13 +9,16 @@ function TurnBasePhase:New(side)
     return construct(self, InteractionPhase:New(self.Type, side))
 end
 
---- @class TurnEndPhase: InteractionPhase
+--- @class HandDiscardPhase: InteractionPhase
 TurnEndPhase = class(InteractionPhase, {
-    Type = "turn_end"
+    Type = "hand_discard_phase"
 })
 
 --- @param side string
---- @return TurnEndPhase
-function TurnEndPhase:New(side)
-    return construct(self, InteractionPhase:New(self.Type, side))
+--- @param amount number
+--- @return HandDiscardPhase
+function TurnEndPhase:New(side, amount)
+    return construct(self, InteractionPhase:New(self.Type, side), {
+        amount = amount
+    })
 end

@@ -110,6 +110,10 @@ public:
     shared_ptr<Entity> childAt(size_t idx) {
         return children_->at(idx);
     }
+
+    size_t childCount() {
+        return children_->size();
+    }
 };
 
 #endif //GLPL_GOBJECT_H

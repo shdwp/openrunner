@@ -94,6 +94,7 @@ int main() {
         scripting->registerClasses();
         scripting->doScript("../app/scripts_lib/native_interface.lua");
 
+        scripting->setGlobal("main_camera", scene->camera.get());
         scripting->setGlobal("host", scripting.get());
         scripting->setGlobal("board", &gameboard);
         scripting->setGlobal("hand_view", hand_view.get());

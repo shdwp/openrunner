@@ -21,3 +21,10 @@ function isSlotIce(slot)
     return string.starts_with(slot, "corp_remote_") and string.ends_with(slot, "_ice")
 end
 
+function sideHandSlot(side)
+    if side == SIDE_CORP then
+        return SLOT_CORP_HAND
+    else
+        return SLOT_RUNNER_HAND
+    end
+end

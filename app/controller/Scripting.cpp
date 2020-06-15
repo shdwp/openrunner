@@ -12,13 +12,6 @@
 #include "../view/board/DeckView.h"
 #include "../view/widgets/CardSelectWidget.h"
 
-/*
-template <class T>
-std::function<string (const T *)> pass(const string &ref) {
-    return std::function<string(const T *)([ref] (const T *_) {return ref; });
-}
-*/
-
 #define TYPE_PROP(n) addProperty("type", std::function<string (const n *)>([](const n *) {return string(#n); }))
 
 void Scripting::registerClasses() {

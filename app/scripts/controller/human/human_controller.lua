@@ -1,4 +1,34 @@
+--- @class HumanControllerComponent
+--- @field side Side
+--- @field phaseType string
+--- @field restrictSlot function
+--- @field requireCard boolean
+HumanControllerComponent = class()
+
+function HumanControllerComponent:New(side, phaseType, restrictSlot, requireCard)
+    return construct(self, {
+        side = side == SIDE_CORP and game.corp or game.runner,
+        phaseType = phaseType,
+        restrictSlot = restrictSlot,
+        requireCard = requireCard and requireCard or false,
+    })
+end
+
+--- @param card Card
+--- @param slot string
+--- @return boolean
+function HumanControllerComponent:onClick(card, slot) return false end
+
+--- @param card Card
+--- @param slot string
+--- @return boolean
+function HumanControllerComponent:onAltClick(card, slot) return false end
+
+--- @return boolean
+function HumanControllerComponent:onCancel() return false end
+
 --- @class HumanController: PlayerController
+--- @field components table<number, HumanControllerComponent>
 HumanController = class(PlayerController)
 
 --- @param side string
@@ -7,6 +37,14 @@ function HumanController:New(side)
     local t = construct(self, PlayerController:New(side), {
         last_update = 0,
     })
+
+    t.components = {
+        HumanControllerDrawCardComponent(SIDE_CORP, TurnBasePhase.Type, isPlayDeckSlot, false),
+        HumanControllerPlayCardComponent(SIDE_CORP, TurnBasePhase.Type, isHandSlot, true),
+        HumanControllerAdvanceCardComponent(SIDE_CORP, TurnBasePhase.Type, isSlotRemote, true),
+
+        HumanControllerInstallCardComponent(SIDE_CORP, InstallPhase.Type, isSlotInstallable, false),
+    }
 
     return t
 end
@@ -25,7 +63,7 @@ function HumanController:handle(phase)
 end
 
 function HumanController:onTick(dt)
-    if dt - self.last_update > 1 then
+    if dt - self.last_update > 1 and self.phase then
         status_label:setText(string.format(
                 "%s, cl%d, cr%d, s%d, b%d",
                 self.phase.type,
@@ -70,6 +108,22 @@ function HumanController:onInteraction(type, descr)
 
     if not self:active() then
         return
+    end
+
+    for _, comp in pairs(self.components) do
+        if comp.phaseType == self.phase.type and comp.restrictSlot(descr.slot) then
+            local card_required = comp.requireCard
+
+            if descr.card and card_required or not descr.card and not card_required then
+                if type == "click" then
+                    comp:onClick(descr.card, descr.slot)
+                elseif type == "altclick" then
+                    comp:onClick(descr.card, descr.slot)
+                elseif type == "cancel" then
+                    comp:onCancel()
+                end
+            end
+        end
     end
 
     local ph = self.phase
@@ -198,6 +252,18 @@ function HumanController:onInteraction(type, descr)
             elseif type == "cancel" then
                 info("Corp cancelled select from slot")
                 return self:handled()
+            end
+        elseif ph.type == TurnEndPhase.Type then
+            print(descr.card)
+            print(descr.slot)
+            if type == "click" and descr.card and descr.slot == SLOT_CORP_HAND then
+                game.corp:actionDiscard(descr.card, descr.slot)
+                info("Corp discarded %d", descr.card.uid)
+                ph.amount = ph.amount - 1
+                if ph.amount <= 0 then
+                    info("Corp finished discarding cards")
+                    return self:handled()
+                end
             end
         end
     end

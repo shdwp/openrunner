@@ -194,3 +194,6 @@ status_label = nil
 
 --- @type Label
 alert_label = nil
+
+--- @type Camera
+main_camera = nil

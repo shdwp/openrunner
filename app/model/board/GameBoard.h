@@ -137,7 +137,17 @@ public:
 
     size_t count(const string &slotid) {
         auto vec = &(*cards_)[slotid];
-        return vec->size();
+        size_t c = 0;
+
+        for (auto i = vec->begin(); i != vec->end(); i++) {
+            if (auto stack = dynamic_pointer_cast<StackWidget>(*i)) {
+                c += stack->childCount();
+            } else {
+                c += 1;
+            }
+        }
+
+        return c;
     }
 };
 

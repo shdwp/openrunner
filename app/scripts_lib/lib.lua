@@ -32,11 +32,14 @@ function shallowcopy(orig)
     return copy
 end
 
---- @param _ table
---- @param pt table
-function table.withIndex(_, pt)
-    setmetatable(_, {__index = pt})
-    return _
+function table.contains(t, elem)
+    for _, v in ipairs(t) do
+        if v == elem then
+            return true
+        end
+    end
+
+    return false
 end
 
 --- Card debug description (for cpp)

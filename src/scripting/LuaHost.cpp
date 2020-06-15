@@ -42,6 +42,26 @@ void LuaHost::bridgeEngine() {
 
     {
         ns()
+                .beginClass<glm::vec3>("Vec3")
+                .addConstructor<void(*) (float, float, float)>()
+                .addProperty("x", std::function([](const glm::vec3 *vec) {return vec->x;}), std::function([](glm::vec3 *vec, float x) {vec->x = x;}))
+                .addProperty("y", std::function([](const glm::vec3 *vec) {return vec->y;}), std::function([](glm::vec3 *vec, float y) {vec->y = y;}))
+                .addProperty("z", std::function([](const glm::vec3 *vec) {return vec->z;}), std::function([](glm::vec3 *vec, float z) {vec->z = z;}))
+                .endClass();
+    }
+
+    {
+        ns()
+                .beginClass<Camera>("Camera")
+                .addProperty("position", &Camera::position)
+                .addProperty("direction", &Camera::direction)
+                //.addProperty("position", std::function([](const Camera *cam) {return cam->position; }))
+                //.addProperty("direction", std::function([](const Camera *cam) {return cam->position; }))
+                .endClass();
+    }
+
+    {
+        ns()
                 .beginClass<Debug>("_debug")
                 .endClass();
 

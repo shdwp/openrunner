@@ -23,7 +23,7 @@ function Corp:drawCard()
     local deck = board:deckGet("corp_rnd", 0)
     if deck.size > 0 then
         local card_info = deck:takeTop()
-        local card = db:card(card_info.uid)
+        local card = cardspec:card(card_info.uid)
         board:cardAppend("corp_hand", card)
     end
 end
@@ -60,16 +60,20 @@ end
 --- @param to string
 --- @return boolean
 function Corp:actionInstallIce(card, from, to)
-    if not card then
-        return false
-    end
+    assert(card)
+    assert(isSlotIce(to))
 
     local count = board:count(to)
     if self:spendCredits(count) then
         card.faceup = false
         board:cardAppend(to, card)
         board:cardPop(from, card)
+
+        ui:iceCardInstalled(card, to)
+        return true
     end
+
+    return false
 end
 
 --- @param card userdata Card
