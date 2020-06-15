@@ -4,7 +4,7 @@ Corp = class(Side)
 
 --- @return Corp
 function Corp:New()
-    return construct(self, Side:New(3), {
+    return construct(self, Side:New(SIDE_CORP, 3), {
         bad_publicity = 0
     })
 end
@@ -135,29 +135,4 @@ function Corp:actionRez(card, from)
     end
 
     return false
-end
-
---- @param card Card
---- @param from string
---- @return boolean
-function Corp:payOperation(card, from)
-    if not card then
-        return false
-    end
-
-    if not cardspec:canPlay(card.meta) then
-        return false
-    end
-
-    if self:payPrice(card.meta) then
-        return true
-    end
-end
-
---- @param card Card
---- @param from string
---- @return boolean
-function Corp:actionOperation(card, from)
-    cardspec:onPlay(card.meta)
-    board:cardPop(from, card)
 end

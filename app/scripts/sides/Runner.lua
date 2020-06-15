@@ -8,7 +8,7 @@ print(Side)
 
 --- @return Runner
 function Runner:New()
-    return construct(self, Side:New(4), {
+    return construct(self, Side:New(SIDE_RUNNER, 4), {
         tags = 0
     })
 end

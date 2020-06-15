@@ -1,4 +1,5 @@
 --- @class Side
+--- @field id string
 --- @field max_clicks number
 --- @field points number
 --- @field score number
@@ -6,8 +7,9 @@
 Side = {}
 
 --- @return Side
-function Side:New(max_clicks)
+function Side:New(id, max_clicks)
     return construct(self, {
+        id = id,
         max_clicks = max_clicks,
         max_hand = 5,
         points = 0,
@@ -54,4 +56,29 @@ end
 
 function Side:actionDrawCard()
     error("Not implemented.")
+end
+
+--- @param card Card
+--- @param from string
+--- @return boolean
+function Side:actionPayEvent(card, from)
+    if not card then
+        return false
+    end
+
+    if not cardspec:canPlay(card.meta) then
+        return false
+    end
+
+    if self:payPrice(card.meta) then
+        return true
+    end
+end
+
+--- @param card Card
+--- @param from string
+--- @return boolean
+function Side:actionPlayEvent(card, from)
+    cardspec:onPlay(card.meta)
+    board:cardPop(from, card)
 end

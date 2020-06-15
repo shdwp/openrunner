@@ -92,26 +92,23 @@ function game:newTurn()
         max_hand = self.runner.max_hand
     end
 
-
     -- @TODO: remove
     self.current_side = SIDE_CORP
-    discard_amount = board:count(SLOT_CORP_HAND) - max_hand
 
-    if discard_amount > 0 then
-        self.interaction_stack:push(TurnEndPhase:New(self.current_side, discard_amount))
-    end
-
-    if self.current_side == SIDE_CORP then
-        self.corp:newTurn()
-        ui:focusCorp()
-    else
-        self.runner:newTurn()
-        ui:focusRunner()
+    if self.turn_n > 1 then
+        if self.current_side == SIDE_CORP then
+            self.corp:newTurn()
+            ui:focusCorp()
+        else
+            self.runner:newTurn()
+            ui:focusRunner()
+        end
     end
 
     for _ = 0, clicks do
-        self.interaction_stack:prepend(TurnBasePhase:New(self.current_side))
+        self.interaction_stack:push(TurnBasePhase:New(self.current_side))
     end
+    self.interaction_stack:push(HandDiscardPhase:New(self.current_side))
 
     local slots = {
         "corp_remote_1",
@@ -181,7 +178,6 @@ function game:onInit()
         deck:shuffle()
 
         board:deckAppend("corp_rnd", deck)
-
         board:cardAppend("corp_hand", cardspec:card(1064))
     end
 

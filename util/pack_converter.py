@@ -42,7 +42,11 @@ Crypsis
 Femme Fatale
 Gordian Blade
 Ninja
-Magnum Opus""".split()
+Magnum Opus""".splitlines()
+
+
+limit_to = """Weyland Consortium: Building a Better World
+Kate "Mac" McCaffrey: Digital Tinker""".splitlines()
 
 buf = ""
 
@@ -63,7 +67,7 @@ def escape(item):
     
 
 def process_cardspec(item):
-    if limit_to and item not in limit_to:
+    if limit_to and item["title"] not in limit_to:
         return
     
     output("cardspec.cards[{}] = ".format(int(item["code"])))
@@ -79,6 +83,9 @@ def process_cardspec(item):
 for spec in pack:
     process_cardspec(spec)
 
+"""
 with open("../app/scripts/cardspec/packs/{}.lua".format(pack_name), "w") as f:
     f.write(buf)
     f.close()
+"""
+print(buf)
