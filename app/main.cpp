@@ -50,7 +50,8 @@ int main() {
     gui_scene->position = glm::vec3(400.f, 300.f, 0.f);
 
     shared_ptr<GameBoardView> board_view = nullptr;
-    shared_ptr<GameBoardView> hand_view = nullptr;
+    shared_ptr<GameBoardView> corp_hand_view = nullptr;
+    shared_ptr<GameBoardView> runner_hand_view = nullptr;
     unique_ptr<Scripting> scripting = nullptr;
 
     while (!glfwWindowShouldClose(window)) {
@@ -76,10 +77,15 @@ int main() {
         board_view->addModelSlots();
 
         float hand_scale = 500.f;
-        hand_view = gui_scene->addChild(GameBoardView());
-        hand_view->addSlot("corp_hand", glm::vec3(0.f), glm::vec4(-300.f, 250.f, 300.f, 250.f) * (1.f / hand_scale));
-        hand_view->rotation = glm::rotate(hand_view->rotation, glm::vec3((float)M_PI_2, 0.0f, 0.f));
-        hand_view->scale = glm::vec3(hand_scale);
+        corp_hand_view = gui_scene->addChild(GameBoardView());
+        corp_hand_view->addSlot("corp_hand", glm::vec3(0.f), glm::vec4(-300.f, 250.f, 300.f, 250.f) * (1.f / hand_scale));
+        corp_hand_view->rotation = glm::rotate(corp_hand_view->rotation, glm::vec3((float)M_PI_2, 0.0f, 0.f));
+        corp_hand_view->scale = glm::vec3(hand_scale);
+
+        runner_hand_view = gui_scene->addChild(GameBoardView());
+        runner_hand_view->addSlot("runner_hand", glm::vec3(0.f), glm::vec4(-300.f, 250.f, 300.f, 250.f) * (1.f / hand_scale));
+        runner_hand_view->rotation = glm::rotate(runner_hand_view->rotation, glm::vec3((float)M_PI_2, 0.0f, 0.f));
+        runner_hand_view->scale = glm::vec3(hand_scale);
 
         auto card_select_widget = make_shared<CardSelectWidget>();
         card_select_widget->rotation = glm::rotate(card_select_widget->rotation, glm::vec3((float)M_PI_2 + M_PI, 0.f, 0.f));
@@ -88,7 +94,7 @@ int main() {
 
         auto gameboard = GameBoard();
         gameboard.addView(board_view);
-        gameboard.addView(hand_view);
+        gameboard.addView(corp_hand_view);
 
         scripting = make_unique<Scripting>();
         scripting->registerClasses();
@@ -97,7 +103,8 @@ int main() {
         scripting->setGlobal("main_camera", scene->camera.get());
         scripting->setGlobal("host", scripting.get());
         scripting->setGlobal("board", &gameboard);
-        scripting->setGlobal("hand_view", hand_view.get());
+        scripting->setGlobal("corp_hand_view", corp_hand_view.get());
+        scripting->setGlobal("runner_hand_view", runner_hand_view.get());
         scripting->setGlobal("board_view", board_view.get());
         scripting->setGlobal("card_select_widget", card_select_widget.get());
         scripting->setGlobal("status_label", status_label.get());

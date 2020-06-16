@@ -8,13 +8,20 @@
 HumanControllerComponent = class()
 
 function HumanControllerComponent:New(controller, side, phaseType, restrictSlot, requireCard)
-    return construct(self, {
+    local t = construct(self, {
         controller = controller,
-        side = side == SIDE_CORP and game.corp or game.runner,
         phaseType = phaseType,
         restrictSlot = restrictSlot,
         requireCard = requireCard and requireCard or false,
     })
+
+    if side == SIDE_CORP then
+        t.side = game.corp
+    elseif side == SIDE_RUNNER then
+        t.side = game.runner
+    end
+
+    return t
 end
 
 function HumanControllerComponent:handled(amount)

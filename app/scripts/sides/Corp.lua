@@ -90,12 +90,14 @@ function Corp:actionAdvance(card, from, free)
         return false
     end
 
-    if self:spendCredits(free and 0 or 1) then
+    if card.meta.adv >= card.meta.info.advancement_cost then
+        return false
+    elseif self:spendCredits(free and 0 or 1) then
         card.meta.adv = card.meta.adv + 1
         return true
+    else
+        return false
     end
-
-    return false
 end
 
 --- @param card userdata Card

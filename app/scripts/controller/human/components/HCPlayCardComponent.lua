@@ -10,7 +10,7 @@ function HCPlayCardComponent:onClick(card, slot)
     elseif card_play_type == "play" then
         if self.side:actionPayEvent(card, slot) then
             info("%s played %s", self.side.id, card.uid)
-            self.side:actionOperation(card, slot)
+            self.side:actionPlayEvent(card, slot)
             return self:handled()
         else
             info("%s unable to pay for %d", self.side.id, card.uid)

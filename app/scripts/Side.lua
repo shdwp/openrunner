@@ -1,6 +1,7 @@
 --- @class Side
 --- @field id string
 --- @field max_clicks number
+--- @field max_hand number
 --- @field points number
 --- @field score number
 --- @field credits number

@@ -14,7 +14,7 @@ SLOT_CORP_ARCHIVES = "corp_archives"
 -- SLOT_CORP_ = "corp_"
 
 SLOT_RUNNER_HAND = "runner_hand"
-SLOT_RUNNER_HEAP = "runner_heap"
+SLOT_RUNNER_STACK = "runner_stack"
 
 function isSlotRemote(slot)
     return string.starts_with(slot, "corp_remote_") and not string.ends_with(slot, "_ice")
@@ -25,7 +25,7 @@ function isSlotIce(slot)
 end
 
 function isPlayDeckSlot(slot)
-    return slot == SLOT_CORP_RND or slot == SLOT_RUNNER_HEAP
+    return slot == SLOT_CORP_RND or slot == SLOT_RUNNER_STACK
 end
 
 function isHandSlot(slot)

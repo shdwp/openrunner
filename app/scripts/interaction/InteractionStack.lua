@@ -28,7 +28,7 @@ end
 
 --- @param phase InteractionPhase
 function InteractionStack:prepend(phase)
-    table.insert(self.stack, 1, phase)
+    table.insert(self.stack, 2, phase)
 end
 
 --- @return InteractionPhase

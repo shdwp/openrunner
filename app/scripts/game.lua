@@ -77,7 +77,6 @@ end
 
 function game:newTurn()
     local clicks = 0
-    local discard_amount = 0
     local max_hand = 0
 
     if self.current_side == nil or self.current_side == SIDE_RUNNER then
@@ -93,22 +92,20 @@ function game:newTurn()
     end
 
     -- @TODO: remove
-    self.current_side = SIDE_CORP
+    self.current_side = SIDE_RUNNER
 
-    if self.turn_n > 1 then
-        if self.current_side == SIDE_CORP then
-            self.corp:newTurn()
-            ui:focusCorp()
-        else
-            self.runner:newTurn()
-            ui:focusRunner()
-        end
+    if self.current_side == SIDE_CORP then
+        self.corp:newTurn()
+        ui:focusCorp()
+    else
+        self.runner:newTurn()
+        ui:focusRunner()
     end
 
+    self.interaction_stack:push(HandDiscardPhase:New(self.current_side))
     for _ = 0, clicks do
         self.interaction_stack:push(TurnBasePhase:New(self.current_side))
     end
-    self.interaction_stack:push(HandDiscardPhase:New(self.current_side))
 
     local slots = {
         "corp_remote_1",
@@ -146,6 +143,7 @@ function game:onInit()
     self.player_controllers[SIDE_RUNNER] = HumanController:New(SIDE_RUNNER)
 
     host:register(self.player_controllers[SIDE_CORP])
+    host:register(self.player_controllers[SIDE_RUNNER])
 
     self.interaction_stack = InteractionStack:New()
 
@@ -178,7 +176,33 @@ function game:onInit()
         deck:shuffle()
 
         board:deckAppend("corp_rnd", deck)
-        board:cardAppend("corp_hand", cardspec:card(1064))
+
+        deck = cardspec:deck([[
+3 Diesel
+3 Easy Mark
+3 Infiltration
+2 Modded
+3 Sure Gamble
+3 The Maker's Eye
+2 Tinkering
+2 Akamatsu Mem Chip
+3 Cyberfeeder
+2 Rabbit Hole
+2 The Personal Touch
+1 The Toolbox
+3 Armitage Codebusting
+2 Sacrificial Construct
+2 Corroder
+2 Crypsis
+1 Femme Fatale
+2 Gordian Blade
+2 Ninja
+2 Magnum Opus
+]])
+
+        deck:shuffle()
+
+        board:deckAppend(SLOT_RUNNER_STACK, deck)
     end
 
     info("Game ready!")
@@ -189,12 +213,16 @@ function game:onTick(dt)
     if dt - self.last_ui_update > 1 then
         local text = ""
         for _, v in pairs(self.interaction_stack.stack) do
-            text = string.format("%s\n%s [%s]", text, v.type, v.side)
+            text = string.format("%s\n%s %s", text, v.side, v.type)
         end
 
         alert_label:setText(text)
         self.last_ui_update = dt
     end
+end
+
+function game:onInteraction(...)
+    self.last_ui_update = 0
 end
 
 host:register(game)

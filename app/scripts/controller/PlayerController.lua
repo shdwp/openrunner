@@ -14,7 +14,7 @@ function PlayerController:active() return self.phase ~= nil end
 
 --- @param phase InteractionPhase
 function PlayerController:handle(phase)
-    info("Controller %s phase %s of %s", self, phase.type, phase.side)
+    info("Controller of %s phase %s of %s", self.side, phase.type, phase.side)
     self.phase = phase
 end
 
@@ -23,14 +23,14 @@ function PlayerController:handled(amount)
     amount = amount or 1
 
     if game:popIfTop(self.phase) then
-        info("Controller %s handled %d phases", self, amount)
+        info("Controller of %s handled %d phases", self.side, amount)
         self.phase = nil
 
         for _ = 2, amount do
             game:popPhase()
         end
     else
-        info("Controller %s handled phase %s (attempted %d)", self, self.phase.type, amount)
+        info("Controller of %s handled phase %s (attempted %d)", self.side, self.phase.type, amount)
         game:popPhase(self.phase)
     end
 

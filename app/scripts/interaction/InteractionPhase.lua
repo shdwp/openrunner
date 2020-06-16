@@ -98,3 +98,15 @@ function FreeAdvancePhase:New(side, cb)
         cb = cb and cb or function () return true end,
     })
 end
+
+--- @class FreeRezPhase: InteractionPhase
+FreeRezPhase = class(InteractionPhase, {Type = "free_rez"})
+
+--- @param side string
+--- @param cb function returning bool
+--- @return FreeRezPhase
+function FreeRezPhase:New(side, cb)
+    return construct(self, InteractionPhase:New(self.Type, side), {
+        cb = cb and cb or function () return true end,
+    })
+end

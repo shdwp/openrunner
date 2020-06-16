@@ -14,7 +14,7 @@ Debug::Debug() {
             }
     ));
 
-    font_ = make_shared<Font>(Font::LoadFace("../assets/fonts/Roboto-Medium.ttf", 18));
+    font_ = make_shared<Font>(Font::LoadFace("../assets/fonts/Roboto-Medium.ttf", 14));
     debug_label_ = make_unique<Label>(font_);
     debug_label_->scale = glm::vec3(0.002f);
     debug_label_->rotation = glm::rotate(debug_label_->rotation, glm::vec3((float)-M_PI_2, 0.f, 0.f));
