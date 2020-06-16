@@ -4,7 +4,7 @@
 --- @class Card
 --- @field uid number
 --- @field faceup boolean
---- @field meta table
+--- @field meta CardMeta
 _card = {}
 
 --[[
@@ -118,10 +118,11 @@ function _game_board:count(slot) end
 --- @field deck Deck
 ---
 --- @class GameBoardView
+--- @field vertical_offset number
 _game_board_view = {}
 
 --- @param slot string
---- @returns StackWidget
+--- @return StackWidget
 function _game_board_view:getSlotStackWidget(slot) end
 
 --- @class SlotInteractable
@@ -181,7 +182,10 @@ board = nil
 host = nil
 
 --- @type GameBoardView
-hand_view = nil
+corp_hand_view = nil
+
+--- @type GameBoardView
+runner_hand_view = nil
 
 --- @type GameBoardView
 board_view = nil

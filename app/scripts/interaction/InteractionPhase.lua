@@ -69,16 +69,16 @@ function InstallPhase:New(side, slot, card)
     })
 end
 
---- @class FreeInstallPhase: InteractionPhase
+--- @class DiscountedInstallPhase: InteractionPhase
 --- @field card Card
 --- @field slot string
-FreeInstallPhase = class(InteractionPhase, {Type = "free_install"})
+DiscountedInstallPhase = class(InteractionPhase, {Type = "discounted_install"})
 
 --- @param side string
 --- @param slot string
 --- @param card Card
---- @return FreeInstallPhase
-function FreeInstallPhase:New(side, slot, card)
+--- @return DiscountedInstallPhase
+function DiscountedInstallPhase:New(side, slot, card)
     return construct(self, InteractionPhase:New(self.Type, side), {
         card = card,
         slot = slot,

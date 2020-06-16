@@ -107,7 +107,9 @@ int main() {
         scripting->setGlobal("corp_hand_view", corp_hand_view.get());
         scripting->setGlobal("runner_hand_view", runner_hand_view.get());
         scripting->setGlobal("board_view", board_view.get());
+
         scripting->setGlobal("card_select_widget", card_select_widget.get());
+
         scripting->setGlobal("status_label", status_label.get());
         scripting->setGlobal("alert_label", alert_label.get());
 
@@ -199,7 +201,7 @@ int main() {
                 Input::Shared->reset();
             }
 
-            if (Input::Shared->keyDown(GLFW_KEY_R) && Input::Shared->keyDown(GLFW_KEY_LEFT_SHIFT)) {
+            if (Input::Shared->keyDown(GLFW_KEY_R) && Input::Shared->keyDown(GLFW_KEY_LEFT_CONTROL)) {
                 // force game restart
                 break;
             }

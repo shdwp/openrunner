@@ -2,21 +2,10 @@
 HCInstallCardComponent = class(HumanControllerComponent)
 
 function HCInstallCardComponent:onClick(card, slot)
-    if cardspec:canInstallTo(self.phase.card.meta, slot) then
-        local handled = false
-        if cardspec:isCardRemote(self.phase.card.meta) then
-            handled = game.corp:actionInstallRemote(self.phase.card, self.phase.slot, slot)
-        else
-            handled = game.corp:actionInstallIce(self.phase.card, self.phase.slot, slot)
-        end
-
-        if handled then
-            return self:handled(2)
-        else
-            info("Corp failed to install card %d into %s", self.phase.card.uid, slot)
-        end
+    if self.side:actionInstall(self.phase.card, self.phase.slot, slot) then
+        return self:handled(2)
     else
-        info("Invalid slot for install %s", descr.slot)
+        info("%s failed to install card %d into %s", self.side.id, self.phase.card.uid, slot)
     end
 end
 

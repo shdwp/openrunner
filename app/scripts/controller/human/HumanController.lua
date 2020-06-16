@@ -18,7 +18,7 @@ function HumanController:New(side_id)
             HCAdvanceCardComponent:New(t, SIDE_CORP, FreeAdvancePhase.Type, isSlotInstallable, true),
 
             HCInstallCardComponent:New(t, SIDE_CORP, InstallPhase.Type, isSlotInstallable, false),
-            HCInstallCardComponent:New(t, SIDE_CORP, FreeInstallPhase.Type, isSlotInstallable, false),
+            HCInstallCardComponent:New(t, SIDE_CORP, DiscountedInstallPhase.Type, isSlotInstallable, false),
             HCSelectFromDeckComponent:New(t, SIDE_CORP, SelectFromDeckPhase.Type, nil, true),
             HCSelectFromSlotComponent:New(t, SIDE_CORP, SelectFromSlotPhase.Type, nil, true),
 
@@ -31,6 +31,9 @@ function HumanController:New(side_id)
         t.components = {
             HCDrawCardComponent:New(t, SIDE_RUNNER, TurnBasePhase.Type, isPlayDeckSlot, false),
             HCPlayCardComponent:New(t, SIDE_RUNNER, TurnBasePhase.Type, isHandSlot, true),
+
+            HCInstallCardComponent:New(t, SIDE_RUNNER, InstallPhase.Type, isSlotInstallable, false),
+            HCInstallCardComponent:New(t, SIDE_RUNNER, DiscountedInstallPhase.Type, isSlotInstallable, false),
 
             HCSelectFromDeckComponent:New(t, SIDE_RUNNER, SelectFromDeckPhase.Type, nil, true),
             HCSelectFromSlotComponent:New(t, SIDE_RUNNER, SelectFromSlotPhase.Type, nil, true),
@@ -61,33 +64,48 @@ function HumanController:handle(phase)
 end
 
 function HumanController:onTick(dt)
-    if dt - self.last_update > 1 and self.phase then
-        status_label:setText(string.format(
-                "%s, cl%d, cr%d, s%d, b%d",
-                self.phase.type,
-                game:countClicks(self.side.id),
-                game.corp.credits,
-                game.corp.score,
-                game.corp.bad_publicity
-        ))
+    if self:active() and dt - self.last_update > 1 then
+        if self.side.id == SIDE_CORP then
+            status_label:setText(string.format(
+                    "%s, cl%d, cr%d, sc%d, bp%d",
+                    self.phase.type,
+                    game:countClicks(self.side.id),
+                    game.corp.credits,
+                    game.corp.score,
+                    game.corp.bad_publicity
+            ))
+        else
+            status_label:setText(string.format(
+                    "%s, cl%d, cr%d, rcr%d, sc%d, tag%d, mem%d",
+                    self.phase.type,
+                    game:countClicks(self.side.id),
+                    self.side.credits,
+                    game.runner.recurring.credits_for_icebreakers,
+                    self.side.score,
+                    game.runner.tags,
+                    game.runner.memory
+            ))
+        end
 
         self.last_update = dt
     end
 
-    local update = true
-    if Input:keyPressed(61) then
-        game.corp:alterCredits(1)
-    elseif Input:keyPressed(45) then
-        game.corp:alterCredits(-1)
-    elseif Input:keyPressed(48) then
-        game:alterClicks(self.side.id, 1)
-    elseif Input:keyPressed(57) then
-        game.corp:alterClicks(self.side.id, -1)
-    else
-        update = false
-    end
+    if self:active() then
+        local update = true
+        if Input:keyPressed(61) then
+            self.side:alterCredits(1)
+        elseif Input:keyPressed(45) then
+            self.side:alterCredits(-1)
+        elseif Input:keyPressed(48) then
+            game:alterClicks(self.side.id, 1)
+        elseif Input:keyPressed(57) then
+            self.side:alterClicks(self.side.id, -1)
+        else
+            update = false
+        end
 
-    if update then self.last_update = 0 end
+        if update then self.last_update = 0 end
+    end
 end
 
 --- @param type string

@@ -2,7 +2,6 @@
 --- @field id string
 --- @field max_clicks number
 --- @field max_hand number
---- @field points number
 --- @field score number
 --- @field credits number
 Side = {}
@@ -13,9 +12,8 @@ function Side:New(id, max_clicks)
         id = id,
         max_clicks = max_clicks,
         max_hand = 5,
-        points = 0,
         score = 0,
-        credits = 0,
+        credits = 25,
     })
 end
 

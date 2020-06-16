@@ -1,7 +1,22 @@
+--- @class cardspec
+--- @field cards table<number, CardInfo>
+--- @field card_titles table<string, number>
 cardspec = {
     cards = {},
     card_titles = {},
 }
+
+--- @class CardInfo
+
+--- @class CardMeta
+--- @field info CardInfo
+--- @field until_forever table
+--- @field until_turn_end table
+--- @field until_run_end table
+
+ACTION_PRIMARY = "primary"
+ACTION_SECONDARY = "secondary"
+ACTION_TERTIARY = "tertiary"
 
 function cardspec:_spec(meta)
     return meta.info
@@ -29,6 +44,9 @@ end
 function cardspec:card(uid)
     local meta = {
         info = self:infoForCode(uid),
+        until_turn_end = {},
+        until_run_end = {},
+        until_forever = {},
     }
 
     return Card(uid, meta)
@@ -55,9 +73,9 @@ end
 
 function cardspec:interactionFromHand(meta)
     local t = meta.info.type_code
-    if t == "agenda" or t == "asset" or t == "ice" then
+    if t == "agenda" or t == "asset" or t == "ice" or t == "resource" or t == "hardware" or t == "program" then
         return "install"
-    elseif t == "operation" then
+    elseif t == "operation" or t == "event" then
         return "play"
     end
 end
@@ -71,7 +89,7 @@ function cardspec:interactionFromTable(meta)
     end
 end
 
--- cans
+-- predicates
 
 function cardspec:canAction(meta)
     local spec = self:_spec(meta)
@@ -110,6 +128,28 @@ function cardspec:isCardIce(meta)
     return meta.info.type_code == "ice"
 end
 
+function cardspec:isCardIcebreaker(meta)
+    return meta.info.type_code == "icebreaker"
+end
+
+function cardspec:isCardProgram(meta)
+    return meta.info.type_code == "program"
+end
+
+function cardspec:isCardHardware(meta)
+    return meta.info.type_code == "hardware"
+end
+
+function cardspec:isCardResource(meta)
+    return meta.info.type_code == "resource"
+end
+
+function cardspec:isCardConsole(meta)
+    return meta.info.type_code == "hardware" and meta.info.keywords == "Console"
+end
+
+-- mods
+
 -- events
 
 function cardspec:onRez(meta)
@@ -127,12 +167,32 @@ function cardspec:onAction(meta)
     return spec.onAction(meta)
 end
 
+function cardspec:onInstall(meta)
+    local spec = self:_spec(meta)
+    if spec and spec.onInstall then return spec.onInstall(meta) end
+end
+
+function cardspec:onRemoval(meta)
+    local spec = self:_spec(meta)
+    if spec and spec.onRemoval then return spec.onRemoval(meta) end
+end
+
 function cardspec:onScore(meta)
     local spec = self:_spec(meta)
     return spec.onScore(meta)
 end
 
 function cardspec:onNewTurn(meta)
+    meta.until_turn_end = {}
+
     local spec = self:_spec(meta)
     if spec and spec.onNewTurn then return spec.onNewTurn(meta) end
+end
+
+function cardspec:onRunStart(meta)
+
+end
+
+function cardspec:onRunEnd(meta)
+
 end

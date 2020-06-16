@@ -76,6 +76,7 @@ void Scripting::registerClasses() {
         host_->ns()
                 .beginClass<GameBoardView>("GameBoardView")
                 .TYPE_PROP(GameBoardView)
+                .addProperty("vertical_offset", std::function([](const GameBoardView *ptr) {return ptr->position.y;}), std::function([](GameBoardView *ptr, float val) { ptr->position.y = val; }))
                 .addFunction("getSlotStackWidget", &GameBoardView::getUnownedSlotView<StackWidget>)
                 .endClass();
     }

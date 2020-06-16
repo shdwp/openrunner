@@ -15,6 +15,18 @@ SLOT_CORP_ARCHIVES = "corp_archives"
 
 SLOT_RUNNER_HAND = "runner_hand"
 SLOT_RUNNER_STACK = "runner_stack"
+SLOT_RUNNER_CONSOLE = "runner_console"
+SLOT_RUNNER_PROGRAMS = "runner_software"
+SLOT_RUNNER_HARDWARE = "runner_hardware"
+SLOT_RUNNER_RESOURCES = "runner_resources"
+
+RUNNER_BOARD_SLOTS = {
+    SLOT_RUNNER_STACK,
+    SLOT_RUNNER_CONSOLE,
+    SLOT_RUNNER_PROGRAMS,
+    SLOT_RUNNER_HARDWARE,
+    SLOT_RUNNER_RESOURCES,
+}
 
 function isSlotRemote(slot)
     return string.starts_with(slot, "corp_remote_") and not string.ends_with(slot, "_ice")
@@ -33,7 +45,7 @@ function isHandSlot(slot)
 end
 
 function isSlotInstallable(slot)
-    return isSlotIce(slot) or isSlotRemote(slot)
+    return isSlotIce(slot) or isSlotRemote(slot) or slot == SLOT_RUNNER_CONSOLE or slot == SLOT_RUNNER_PROGRAMS or slot == SLOT_RUNNER_HARDWARE or slot == SLOT_RUNNER_RESOURCES
 end
 
 function sideHandSlot(side)

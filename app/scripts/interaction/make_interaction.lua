@@ -21,9 +21,10 @@ end
 
 --- @param side string
 --- @param card userdata Card
+--- @param discount number
 --- @return boolean
-function make_interaction:promptFreeInstall(side, slot, card)
-    game:pushPhase(FreeInstallPhase:New(side, slot, card))
+function make_interaction:promptDiscountedInstall(side, slot, card, discount)
+    game:pushPhase(DiscountedInstallPhase:New(side, slot, card, discount and discount or -99))
 end
 
 --- @param side string

@@ -15,6 +15,11 @@ cardspec.cards[1005] = {
     title = "Cyberfeeder",
     type_code = "hardware",
     uniqueness = false,
+
+    --- @param meta CardMeta
+    onNewTurn = function (meta)
+        game.runner.recurring.credits_for_virus_or_icebreakers = game.runner.recurring.credits_for_virus_or_icebreakers + 1
+    end
 }
 cardspec.card_titles["Cyberfeeder"] = 1005
 
@@ -37,6 +42,13 @@ cardspec.cards[1007] = {
     title = "Corroder",
     type_code = "program",
     uniqueness = false,
+
+    --- @param meta CardMeta
+    onAction = function (meta)
+        if game.runner:spendCredits(1) then
+            meta.until_run_end.additional_strength = (meta.until_run_end.additional_strength or 0) + 1
+        end
+    end,
 }
 cardspec.card_titles["Corroder"] = 1007
 
@@ -57,6 +69,11 @@ cardspec.cards[1019] = {
     title = "Easy Mark",
     type_code = "event",
     uniqueness = false,
+
+    --- @param meta CardMeta
+    onPlay = function (meta)
+        game.runner:alterCredits(3)
+    end
 }
 cardspec.card_titles["Easy Mark"] = 1019
 
@@ -78,6 +95,20 @@ cardspec.cards[1026] = {
     title = "Femme Fatale",
     type_code = "program",
     uniqueness = false,
+
+    --- @param meta CardMeta
+    onPlay = function (meta)
+        make_interaction:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (card)
+            meta.selected_ice = card.uid
+        end)
+    end,
+
+    --- @param meta CardMeta
+    onAction = function (meta)
+        if game.runner:spendCredits(2) then
+            meta.until_run_end.additional_strength = (meta.until_run_end.additional_strength or 0) + 1
+        end
+    end
 }
 cardspec.card_titles["Femme Fatale"] = 1026
 
@@ -100,6 +131,13 @@ cardspec.cards[1027] = {
     title = "Ninja",
     type_code = "program",
     uniqueness = false,
+
+    --- @param meta CardMeta
+    onAction = function (meta)
+        if game.runner:spendCredits(3) then
+            meta.until_run_end.additional_strength = (meta.until_run_end.additional_strength or 0) + 5
+        end
+    end
 }
 cardspec.card_titles["Ninja"] = 1027
 
@@ -119,6 +157,13 @@ cardspec.cards[1034] = {
     title = "Diesel",
     type_code = "event",
     uniqueness = false,
+
+    --- @param meta CardMeta
+    onPlay = function (meta)
+        game.runner:actionDrawCard()
+        game.runner:actionDrawCard()
+        game.runner:actionDrawCard()
+    end,
 }
 cardspec.card_titles["Diesel"] = 1034
 
@@ -139,6 +184,13 @@ cardspec.cards[1035] = {
     title = "Modded",
     type_code = "event",
     uniqueness = false,
+
+    --- @param meta CardMeta
+    onPlay = function(meta)
+        make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_HAND, 1, function (card)
+            make_interaction:promptDiscountedInstall(SIDE_RUNNER, SLOT_RUNNER_HARDWARE, card, -3)
+        end)
+    end
 }
 cardspec.card_titles["Modded"] = 1035
 
@@ -179,6 +231,13 @@ cardspec.cards[1037] = {
     title = "Tinkering",
     type_code = "event",
     uniqueness = false,
+
+    --- @param meta CardMeta
+    onPlay = function (meta)
+        make_interaction:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (card)
+            card.meta.until_turn_end.additional_categories = "Sentry Code Gate Barrier"
+        end)
+    end
 }
 cardspec.card_titles["Tinkering"] = 1037
 
@@ -199,6 +258,16 @@ cardspec.cards[1038] = {
     title = "Akamatsu Mem Chip",
     type_code = "hardware",
     uniqueness = false,
+
+    --- @param meta CardMeta
+    onInstall = function (meta)
+        game.runner.memory = game.runner.memory + 1
+    end,
+
+    --- @param meta CardMeta
+    onRemoval = function (meta)
+        game.runner.memory = game.runner.memory - 1
+    end
 }
 cardspec.card_titles["Akamatsu Mem Chip"] = 1038
 
@@ -239,6 +308,18 @@ cardspec.cards[1040] = {
     title = "The Personal Touch",
     type_code = "hardware",
     uniqueness = false,
+
+    --- @param meta CardMeta
+    onInstall = function (meta)
+        make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_PROGRAMS, 1, function (card)
+            if cardspec:isCardIcebreaker(card) then
+                card.meta.until_forever.additional_strength = card.meta.until_forever.additional_strength + 1
+                return true
+            else
+                return false
+            end
+        end)
+    end
 }
 cardspec.card_titles["The Personal Touch"] = 1040
 
@@ -258,6 +339,23 @@ cardspec.cards[1041] = {
     title = "The Toolbox",
     type_code = "hardware",
     uniqueness = true,
+
+    --- @param meta CardMeta
+    onNewTurn = function (meta)
+        game.runner.recurring.credits_for_icebreakers = game.runner.recurring.credits_for_icebreakers + 2
+    end,
+
+    --- @param meta CardMeta
+    onInstall = function (meta)
+        game.runner.memory = game.runner.memory + 2
+        game.runner.link = game.runner.link + 2
+    end,
+
+    --- @param meta CardMeta
+    onRemoval = function (meta)
+        game.runner.memory = game.runner.memory - 2
+        game.runner.link = game.runner.link - 2
+    end
 }
 cardspec.card_titles["The Toolbox"] = 1041
 
@@ -280,6 +378,13 @@ cardspec.cards[1043] = {
     title = "Gordian Blade",
     type_code = "program",
     uniqueness = false,
+
+    --- @param meta CardMeta
+    onAction = function (meta)
+        if game.runner:spendCredits(1) then
+            meta.until_run_end.additional_strength = (meta.until_run_end.additional_strength or 0) + 1
+        end
+    end
 }
 cardspec.card_titles["Gordian Blade"] = 1043
 
@@ -300,6 +405,13 @@ cardspec.cards[1044] = {
     title = "Magnum Opus",
     type_code = "program",
     uniqueness = false,
+
+    action_click_cost = 1,
+
+    --- @param meta CardMeta
+    onAction = function (meta)
+        game.runner:alterCredits(2)
+    end
 }
 cardspec.card_titles["Magnum Opus"] = 1044
 
@@ -420,10 +532,12 @@ cardspec.cards[1056] = {
     type_code = "asset",
     uniqueness = false,
 
+    --- @param meta CardMeta
     onRez = function (meta)
         meta.credits_pool = 12
     end,
 
+    --- @param meta CardMeta
     onNewTurn = function (meta)
         meta.credits_pool = meta.credits_pool - 3
         game.corp:alterCredits(3)
@@ -474,6 +588,7 @@ cardspec.cards[1083] = {
     type_code = "operation",
     uniqueness = false,
 
+    --- @param meta CardMeta
     onPlay = function (meta)
         game.corp:drawCard()
         game.corp:drawCard()
@@ -521,6 +636,7 @@ cardspec.cards[1094] = {
     type_code = "agenda",
     uniqueness = false,
 
+    --- @param meta CardMeta
     onScore = function (meta)
         game.corp:alterCredits(7)
         game.corp:alterBadPublicity(1)
@@ -567,6 +683,7 @@ cardspec.cards[1098] = {
     type_code = "operation",
     uniqueness = false,
 
+    --- @param meta CardMeta
     onPlay = function (meta)
         game.corp:alterCredits(3)
     end,
@@ -590,6 +707,7 @@ cardspec.cards[1100] = {
     type_code = "operation",
     uniqueness = false,
 
+    --- @param meta CardMeta
     onPlay = function (meta)
         local prev_card = nil
         local fn = function (card)
@@ -751,8 +869,10 @@ cardspec.cards[1108] = {
     type_code = "asset",
     uniqueness = false,
 
+    --- @param meta CardMeta
     canAction = function (meta) return game.corp.clicks >= 3 end,
 
+    --- @param meta CardMeta
     onAction = function (meta)
         game:alterClicks(SIDE_CORP, -3)
         game.corp:alterCredits(7)
@@ -803,6 +923,7 @@ cardspec.cards[1110] = {
     type_code = "operation",
     uniqueness = false,
 
+    --- @param meta CardMeta
     onPlay = function (meta)
         game.corp:alterCredits(9)
     end

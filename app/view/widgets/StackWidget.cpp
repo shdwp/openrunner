@@ -74,6 +74,6 @@ void StackWidget::update() {
         }
 
         child->position = pos;
-        child->rotation = glm::rotate(child->rotation, glm::vec3(0.f, child_rotation, 0.f));
+        child->rotation = glm::qua(glm::vec3(0.f, child_rotation, 0.f));
     }
 }

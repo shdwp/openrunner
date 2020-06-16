@@ -38,42 +38,40 @@ end
 --- @param to string
 --- @return boolean
 function Corp:actionInstallRemote(card, from, to)
-    if not card then
+    assert(card)
+    assert(from)
+    assert(to)
+
+    if cardspec:isCardIce(card.meta) and not isSlotIce(to) then
+        return false
+    end
+
+    if cardspec:isCardRemote(card.meta) and not isSlotRemote(to) then
         return false
     end
 
     card.faceup = false
     card.meta.adv = 0
-    local existing_card = board:cardGet(to, 0)
-    if existing_card then
-        board:cardReplace(to, existing_card, card)
-    else
-        board:cardAppend(to, card)
+
+    local price = 0
+    if cardspec:isCardIce(card.meta) then
+        price = board:count(to)
     end
 
-    board:cardPop(from, card)
-    return true
-end
+    if self:spendCredits(price) then
+        local existing_card = board:cardGet(to, 0)
+        if isSlotRemote(to) and existing_card then
+            board:cardReplace(to, existing_card, card)
+        else
+            board:cardAppend(to, card)
+        end
 
---- @param card Card
---- @param from string
---- @param to string
---- @return boolean
-function Corp:actionInstallIce(card, from, to)
-    assert(card)
-    assert(isSlotIce(to))
-
-    local count = board:count(to)
-    if self:spendCredits(count) then
-        card.faceup = false
-        board:cardAppend(to, card)
         board:cardPop(from, card)
-
-        ui:iceCardInstalled(card, to)
+        ui:cardInstalled(card, slot)
         return true
+    else
+        return false
     end
-
-    return false
 end
 
 --- @param card userdata Card

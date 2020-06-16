@@ -96,11 +96,11 @@ function game:newTurn()
 
     if self.current_side == SIDE_CORP then
         self.corp:newTurn()
-        ui:focusCorp()
     else
         self.runner:newTurn()
-        ui:focusRunner()
     end
+
+    ui:focusCurrentPlayer()
 
     self.interaction_stack:push(HandDiscardPhase:New(self.current_side))
     for _ = 0, clicks do
