@@ -7,21 +7,14 @@
 --- @field requireCard boolean
 HumanControllerComponent = class()
 
-function HumanControllerComponent:New(controller, side, phaseType, restrictSlot, requireCard)
-    local t = construct(self, {
+function HumanControllerComponent:New(controller, side_id, phaseType, restrictSlot, requireCard)
+    return construct(self, {
         controller = controller,
         phaseType = phaseType,
         restrictSlot = restrictSlot,
         requireCard = requireCard and requireCard or false,
+        side = sideForId(side_id),
     })
-
-    if side == SIDE_CORP then
-        t.side = game.corp
-    elseif side == SIDE_RUNNER then
-        t.side = game.runner
-    end
-
-    return t
 end
 
 function HumanControllerComponent:handled(amount)

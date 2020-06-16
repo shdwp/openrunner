@@ -2,7 +2,7 @@
 HCSelectFromDeckComponent = class(HumanControllerComponent)
 
 function HCSelectFromDeckComponent:onClick(card, slot)
-    info("%s selected %d, %d left", self.side.id, descr.card.uid, sel_ph.amount - 1)
+    info("%s selected %d, %d left", self.side.id, card.uid, sel_ph.amount - 1)
 
     --- @type SelectFromDeckPhase
     local sel_ph = self.phase

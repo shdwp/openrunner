@@ -43,3 +43,11 @@ function sideHandSlot(side)
         return SLOT_RUNNER_HAND
     end
 end
+
+function sideForId(id)
+    if id == SIDE_CORP then
+        return game.corp
+    else
+        return game.runner
+    end
+end

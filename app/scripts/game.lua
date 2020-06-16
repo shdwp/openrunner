@@ -177,6 +177,8 @@ function game:onInit()
 
         board:deckAppend("corp_rnd", deck)
 
+        board:cardAppend("runner_id", cardspec:card(1033))
+
         deck = cardspec:deck([[
 3 Diesel
 3 Easy Mark

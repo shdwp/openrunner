@@ -20,11 +20,11 @@ function Corp:newTurn()
 end
 
 function Corp:drawCard()
-    local deck = board:deckGet("corp_rnd", 0)
+    local deck = board:deckGet(SLOT_CORP_RND, 0)
     if deck.size > 0 then
         local card_info = deck:takeTop()
         local card = cardspec:card(card_info.uid)
-        board:cardAppend("corp_hand", card)
+        board:cardAppend(SLOT_CORP_HAND, card)
     end
 end
 

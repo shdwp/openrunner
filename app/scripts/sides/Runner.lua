@@ -34,3 +34,11 @@ function Runner:trace(strength)
     return self.link < strength
 end
 
+function Runner:actionDrawCard()
+    local deck = board:deckGet(SLOT_RUNNER_STACK, 0)
+    if deck.size > 0 then
+        local card_info = deck:takeTop()
+        local card = cardspec:card(card_info.uid)
+        board:cardAppend(SLOT_RUNNER_HAND, card)
+    end
+end

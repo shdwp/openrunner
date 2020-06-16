@@ -95,6 +95,7 @@ int main() {
         auto gameboard = GameBoard();
         gameboard.addView(board_view);
         gameboard.addView(corp_hand_view);
+        gameboard.addView(runner_hand_view);
 
         scripting = make_unique<Scripting>();
         scripting->registerClasses();
