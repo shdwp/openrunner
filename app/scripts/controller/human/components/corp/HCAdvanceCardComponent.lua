@@ -3,7 +3,7 @@ HCAdvanceCardComponent = class(HumanControllerComponent)
 
 function HCAdvanceCardComponent:onAltClick(card, slot)
     local free = false
-    if self.phase.type == FreeAdvancePhase.Type then
+    if self.phase.type == FreeAdvanceDecision.Type then
         if not self.phase.cb(card) then
             info("Unable to free advance %d - cardspec forbids!", card.uid)
             return false

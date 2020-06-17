@@ -180,6 +180,15 @@ void Scripting::registerClasses() {
                 .endClass();
     }
 
+    // OptionInteractable
+    {
+        host_->ns()
+                .beginClass<OptionInteractable>("OptionInteractable")
+                .TYPE_PROP(OptionInteractable)
+                .addProperty("index", &OptionInteractable::index)
+                .endClass();
+    }
+
     // Label
     {
         host_->ns()
@@ -199,6 +208,18 @@ void Scripting::registerClasses() {
                 .addProperty("hidden",
                              std::function([](const CardSelectWidget *ptr) { return ptr->hidden; }),
                              std::function([](CardSelectWidget *ptr, bool value) { ptr->hidden = value; }))
+                .endClass();
+    }
+
+    // OptionSelectWidget
+    {
+        host_->ns()
+                .beginClass<OptionSelectWidget>("OptionSelectWidget")
+                .TYPE_PROP(OptionSelectWidget)
+                .addFunction("setOptions", &OptionSelectWidget::setOptions)
+                .addProperty("hidden",
+                             std::function([](const OptionSelectWidget *ptr) { return ptr->hidden; }),
+                             std::function([](OptionSelectWidget *ptr, bool value) { ptr->hidden = value; }))
                 .endClass();
     }
 

@@ -5,7 +5,7 @@ function HCPlayCardComponent:onClick(card, slot)
     local card_play_type = cardspec:interactionFromHand(card.meta)
     if card_play_type == "install" then
         info("%s installing %s", self.side.id, card.uid)
-        game:pushPhase(InstallPhase:New(self.side.id, slot, card))
+        game.decision_stack:push(InstallDecision:New(self.side.id, slot, card))
         return self:delegated()
     elseif card_play_type == "play" then
         if self.side:actionPayEvent(card, slot) then

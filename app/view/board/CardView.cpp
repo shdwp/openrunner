@@ -38,9 +38,9 @@ void CardView::draw(glm::mat4 transform) {
     }
 }
 
-std::tuple<glm::vec4, glm::vec4> CardView::interactableArea() {
+std::tuple<glm::vec4, glm::vec4, int> CardView::interactableArea() {
     auto a = uiTransform_ * glm::vec4(-0.65f, 0.f, -1.f, 1.f);
     auto b = uiTransform_ * glm::vec4(0.65f, 0.f, 1.f, 1.f);
-    return std::tuple<glm::vec4, glm::vec4>(a, b);
+    return std::tuple(a, b, ui_z_index);
 }
 

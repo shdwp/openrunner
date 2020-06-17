@@ -16,11 +16,11 @@ public:
 
     SlotInteractable(const string &slotid, glm::vec4 bbox): slotid(slotid), bbox(bbox) {}
 
-    std::tuple<glm::vec4, glm::vec4> interactableArea() override {
+    std::tuple<glm::vec4, glm::vec4, int> interactableArea() override {
         auto a = transform * glm::vec4(bbox.x, 0.f, bbox.y, 1.f);
         auto b = transform * glm::vec4(bbox.z, 0.f, bbox.w, 1.f);
 
-        return std::tuple<glm::vec4, glm::vec4>(a, b);
+        return std::tuple(a, b, 0);
     }
 };
 

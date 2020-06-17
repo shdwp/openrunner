@@ -7,22 +7,30 @@
 
 #include <engine/Entity.h>
 #include <render/Label.h>
+#include <ui/UILayer.h>
+
+class OptionInteractable: public UIInteractable {
+public:
+    int index;
+    glm::vec4 a, b;
+    glm::mat4 transform;
+
+    std::tuple<glm::vec4, glm::vec4, int> interactableArea() override {
+        return std::tuple(transform * a, transform * b, 10);
+    }
+};
 
 class OptionSelectWidget: public Entity {
 private:
-    unique_ptr<vector<string>> options_ = make_unique<vector<string>>();
+    unique_ptr<vector<shared_ptr<OptionInteractable>>> interactables_ = make_unique<vector<shared_ptr<OptionInteractable>>>();
     shared_ptr<Font> font_;
 
 public:
     OptionSelectWidget(shared_ptr<Font> font): Entity(), font_(font) {}
 
-    void setOptions(vector<string> options);
-
-    void update() override;
-
     void draw(glm::mat4 transform) override;
 
-public:
+    void setOptions(vector<string> options);
 };
 
 

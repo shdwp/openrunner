@@ -15,7 +15,7 @@ class Scene;
 
 class UIInteractable {
 public:
-    virtual std::tuple<glm::vec4, glm::vec4> interactableArea() = 0;
+    virtual std::tuple<glm::vec4, glm::vec4, int> interactableArea() = 0;
 };
 
 class UILayer {

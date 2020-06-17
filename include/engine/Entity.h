@@ -94,7 +94,6 @@ public:
 
     void removeChild(const int idx) {
         children_->erase(children_->begin() + idx);
-        auto fn = [](float a){};
     }
 
     template <typename T>
@@ -104,6 +103,12 @@ public:
                 children_->erase(i);
                 break;
             }
+        }
+    }
+
+    void removeAllChildren() {
+        while (!this->children_->empty()) {
+            this->removeChild(0);
         }
     }
 

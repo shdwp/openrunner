@@ -47,6 +47,7 @@ function cardspec:card(uid)
         until_turn_end = {},
         until_run_end = {},
         until_forever = {},
+        until_use = {},
     }
 
     return Card(uid, meta)
@@ -85,6 +86,8 @@ function cardspec:interactionFromTable(meta)
     if t == "agenda" then
         return "score"
     elseif t == "asset" then
+        return "rez"
+    elseif t == "ice" then
         return "rez"
     end
 end

@@ -8,6 +8,17 @@ function info(fmt, ...) host:log(1, string.format(fmt, ...)) end
 function verbose(fmt, ...) host:log(2, string.format(fmt, ...)) end
 function error(fmt, ...) host:log(0, string.format(fmt, ...)) end
 
+--- Cards
+--- @param slot string
+--- @param func function
+function iterCards(slot, func)
+    local c = board:count(slot)
+    for i = 0, c - 1 do
+        local card = board:cardGet(slot, i)
+        func(card)
+    end
+end
+
 --- String
 function string.starts_with(str, start)
     return str:sub(1, #start) == start
@@ -40,6 +51,19 @@ function table.contains(t, elem)
     end
 
     return false
+end
+
+function table.indexOf(t, elem)
+    for idx = 1, #t do
+
+        if type(elem) == "function" and elem(t[idx]) then
+            return idx
+        elseif t[idx] == elem then
+            return idx
+        end
+    end
+
+    return nil
 end
 
 --- Card debug description (for cpp)

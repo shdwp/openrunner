@@ -12,6 +12,7 @@
 #include "model/board/GameBoard.h"
 #include "view/board/ZoomCardView.h"
 #include "view/widgets/CardSelectWidget.h"
+#include "view/widgets/OptionSelectWidget.h"
 
 int main() {
     auto window = env_setup_window();
@@ -90,7 +91,12 @@ int main() {
         auto card_select_widget = make_shared<CardSelectWidget>();
         card_select_widget->rotation = glm::rotate(card_select_widget->rotation, glm::vec3((float)M_PI_2 + M_PI, 0.f, 0.f));
         card_select_widget->scale = glm::vec3(600.f);
+        card_select_widget->hidden = true;
         gui_scene->addChild(card_select_widget);
+
+        auto option_select_widget = make_shared<OptionSelectWidget>(font);
+        option_select_widget->hidden = true;
+        gui_scene->addChild(option_select_widget);
 
         auto gameboard = GameBoard();
         gameboard.addView(board_view);

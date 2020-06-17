@@ -2,7 +2,7 @@
 HCSelectFromSlotComponent = class(HumanControllerComponent)
 
 function HCSelectFromSlotComponent:onClick(card, slot)
-    --- @type SelectFromSlotPhase
+    --- @type SelectFromSlotDecision
     local sel_ph = ph
 
     if slot ~= sel_ph.slot then

@@ -11,34 +11,40 @@ function HumanController:New(side_id)
 
     if side_id == SIDE_CORP then
         t.components = {
-            HCDrawCardComponent:New(t, SIDE_CORP, TurnBasePhase.Type, isPlayDeckSlot, false),
-            HCPlayCardComponent:New(t, SIDE_CORP, TurnBasePhase.Type, isHandSlot, true),
+            HCDrawCardComponent:New(t, SIDE_CORP, TurnBaseDecision.Type, isPlayDeckSlot, false),
+            HCGetCreditComponent:New(t, SIDE_CORP, TurnBaseDecision.Type, isCreditsPoolSlot, false),
+            HCPlayCardComponent:New(t, SIDE_CORP, TurnBaseDecision.Type, isHandSlot, true),
 
-            HCAdvanceCardComponent:New(t, SIDE_CORP, TurnBasePhase.Type, isSlotInstallable, true),
-            HCAdvanceCardComponent:New(t, SIDE_CORP, FreeAdvancePhase.Type, isSlotInstallable, true),
+            HCAdvanceCardComponent:New(t, SIDE_CORP, TurnBaseDecision.Type, isSlotInstallable, true),
+            HCAdvanceCardComponent:New(t, SIDE_CORP, FreeAdvanceDecision.Type, isSlotInstallable, true),
 
-            HCInstallCardComponent:New(t, SIDE_CORP, InstallPhase.Type, isSlotInstallable, false),
-            HCInstallCardComponent:New(t, SIDE_CORP, DiscountedInstallPhase.Type, isSlotInstallable, false),
-            HCSelectFromDeckComponent:New(t, SIDE_CORP, SelectFromDeckPhase.Type, nil, true),
-            HCSelectFromSlotComponent:New(t, SIDE_CORP, SelectFromSlotPhase.Type, nil, true),
+            HCInstallCardComponent:New(t, SIDE_CORP, InstallDecision.Type, isSlotInstallable, false),
+            HCInstallCardComponent:New(t, SIDE_CORP, DiscountedInstallDecision.Type, isSlotInstallable, false),
+            HCSelectFromDeckComponent:New(t, SIDE_CORP, SelectFromDeckDecision.Type, nil, true),
+            HCSelectFromSlotComponent:New(t, SIDE_CORP, SelectFromSlotDecision.Type, nil, true),
 
-            HCTurnEndDiscardComponent:New(t, SIDE_CORP, HandDiscardPhase.Type, isHandSlot, true),
+            HCTurnEndDiscardComponent:New(t, SIDE_CORP, HandDiscardDecision.Type, isHandSlot, true),
 
             HCScoreCardComponent:New(t, nil, nil, isSlotRemote, true),
-            HCRezCardComponent:New(t, SIDE_CORP, nil, isSlotInstallable, true),
+            HCRezCardComponent:New(t, SIDE_CORP, RunIceRezDecision.Type, isSlotIce, true, true),
+            HCRezCardComponent:New(t, SIDE_CORP, nil, isSlotInstallable, true, false),
         }
     else
         t.components = {
-            HCDrawCardComponent:New(t, SIDE_RUNNER, TurnBasePhase.Type, isPlayDeckSlot, false),
-            HCPlayCardComponent:New(t, SIDE_RUNNER, TurnBasePhase.Type, isHandSlot, true),
+            HCDrawCardComponent:New(t, SIDE_RUNNER, TurnBaseDecision.Type, isPlayDeckSlot, false),
+            HCGetCreditComponent:New(t, SIDE_RUNNER, TurnBaseDecision.Type, isCreditsPoolSlot, false),
+            HCPlayCardComponent:New(t, SIDE_RUNNER, TurnBaseDecision.Type, isHandSlot, true),
 
-            HCInstallCardComponent:New(t, SIDE_RUNNER, InstallPhase.Type, isSlotInstallable, false),
-            HCInstallCardComponent:New(t, SIDE_RUNNER, DiscountedInstallPhase.Type, isSlotInstallable, false),
+            HCInstallCardComponent:New(t, SIDE_RUNNER, InstallDecision.Type, isSlotInstallable, false),
+            HCInstallCardComponent:New(t, SIDE_RUNNER, DiscountedInstallDecision.Type, isSlotInstallable, false),
 
-            HCSelectFromDeckComponent:New(t, SIDE_RUNNER, SelectFromDeckPhase.Type, nil, true),
-            HCSelectFromSlotComponent:New(t, SIDE_RUNNER, SelectFromSlotPhase.Type, nil, true),
+            HCSelectFromDeckComponent:New(t, SIDE_RUNNER, SelectFromDeckDecision.Type, nil, true),
+            HCSelectFromSlotComponent:New(t, SIDE_RUNNER, SelectFromSlotDecision.Type, nil, true),
 
-            HCTurnEndDiscardComponent:New(t, SIDE_RUNNER, HandDiscardPhase.Type, isHandSlot, true),
+            HCInitiateRunComponent:New(t, SIDE_RUNNER, TurnBaseDecision.Type, isSlotRemote, true),
+            HCApproachIceComponent:New(t, SIDE_RUNNER, RunIceApproachDecision.Type, isSlotIce, true),
+
+            HCTurnEndDiscardComponent:New(t, SIDE_RUNNER, HandDiscardDecision.Type, isHandSlot, true),
         }
     end
 
@@ -48,14 +54,14 @@ end
 function HumanController:handle(phase)
     PlayerController.handle(self, phase)
 
-    if phase.type == SelectFromDeckPhase.Type then
-        --- @type SelectFromDeckPhase
+    if phase.type == SelectFromDeckDecision.Type then
+        --- @type SelectFromDeckDecision
         local ph = phase
 
         local deck = board:deckGet(ph.slot, 0)
         card_select_widget:setDeck(deck, ph.limit)
         card_select_widget.hidden = false
-    elseif phase.type == HandDiscardPhase.Type then
+    elseif phase.type == HandDiscardDecision.Type then
         phase.amount = board:count(sideHandSlot(self.side.id)) - self.side.max_hand
         if phase.amount <= 0 then
             self:handled()
@@ -69,7 +75,7 @@ function HumanController:onTick(dt)
             status_label:setText(string.format(
                     "%s, cl%d, cr%d, sc%d, bp%d",
                     self.phase.type,
-                    game:countClicks(self.side.id),
+                    game.decision_stack:countClicks(self.side.id),
                     game.corp.credits,
                     game.corp.score,
                     game.corp.bad_publicity
@@ -78,7 +84,7 @@ function HumanController:onTick(dt)
             status_label:setText(string.format(
                     "%s, cl%d, cr%d, rcr%d, sc%d, tag%d, mem%d",
                     self.phase.type,
-                    game:countClicks(self.side.id),
+                    game.decision_stack:countClicks(self.side.id),
                     self.side.credits,
                     game.runner.recurring.credits_for_icebreakers,
                     self.side.score,
@@ -108,9 +114,7 @@ function HumanController:onTick(dt)
     end
 end
 
---- @param type string
---- @param descr SlotInteractable
-function HumanController:onInteraction(type, descr)
+function HumanController:interaction(type, descr)
     self.last_update = 0
 
     local result
@@ -141,6 +145,9 @@ function HumanController:onInteraction(type, descr)
 
     if not result then
         local interaction_descr = type == "cancel" and "" or string.format("%s (%s)", descr.slot, descr.card)
-        info("No component of %s to handle interaction: %s %s", self.side.id, type, interaction_descr)
+        info("No component of %s to handle decision: %s %s", self.side.id, type, interaction_descr)
+        return false
+    else
+        return true
     end
 end

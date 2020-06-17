@@ -10,6 +10,7 @@
 
 #include "../view/board/SlotInteractable.h"
 #include "../view/board/DeckView.h"
+#include "../view/widgets/OptionSelectWidget.h"
 
 enum InteractionEvent {
     InteractionEvent_Click,
@@ -93,6 +94,8 @@ public:
         for (auto &h : *interaction_handles_) {
             if (auto slot = dynamic_cast<SlotInteractable *>(object.get())) {
                 host_->doFunction(std::get<1>(h), std::get<0>(h), event_str, slot);
+            } else if (auto option = dynamic_cast<OptionInteractable *>(object.get())) {
+                host_->doFunction(std::get<1>(h), std::get<0>(h), event_str, option);
             } else if (auto deckview = dynamic_cast<DeckView *>(object.get())) {
                 host_->doFunction(std::get<1>(h), std::get<0>(h), event_str, deckview);
             } else if (auto cardview = dynamic_cast<CardView *>(object.get())) {

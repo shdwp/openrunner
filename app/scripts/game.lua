@@ -1,14 +1,12 @@
 --- @class game
---- @field interaction_stack InteractionStack
+--- @field decision_stack DecisionStack
 --- @field current_side string
 --- @field corp Corp
 --- @field runner Runner
+--- @field player_controllers table<number, PlayerController>
 game = {
     turn_n = 1,
-    current_side,
-
     player_controllers = {},
-    interaction_stack,
 
     last_run_turn_n = 0,
     last_successfull_run_turn_n = 0,
@@ -25,53 +23,23 @@ end
 
 function game:cycle()
     info("Game cycle")
-    if game.interaction_stack:empty() then
+    if game.decision_stack:empty() then
         game:newTurn()
     end
 
-    local phase = self.interaction_stack:top()
+    local phase = self.decision_stack:top()
     local ctrl = self:controllerFor(phase.side)
 
     ctrl:handle(phase)
-end
-
---- @param phase InteractionPhase
-function game:pushPhase(phase)
-    self.interaction_stack:push(phase)
-end
-
-function game:popPhase(phase)
-    if phase == nil then
-        self.interaction_stack:pop()
-    else
-        self.interaction_stack:remove(phase)
-    end
-end
-
---- @param phase InteractionPhase
---- @return boolean
-function game:popIfTop(phase)
-    if self.interaction_stack:top() == phase then
-        self:popPhase()
-        return true
-    end
-
-    return false
-end
-
---- @param side string
---- @return number
-function game:countClicks(side)
-    return self.interaction_stack:countClicks(side)
 end
 
 --- @param side string
 --- @param amount number
 function game:alterClicks(side, amount)
     if amount >= 0 then
-        self.interaction_stack:addClicks(side, amount)
+        self.decision_stack:addClicks(side, amount)
     elseif amount < 0 then
-        self.interaction_stack:removeClicks(side, amount)
+        self.decision_stack:removeClicks(side, amount)
     end
 end
 
@@ -102,9 +70,9 @@ function game:newTurn()
 
     ui:focusCurrentPlayer()
 
-    self.interaction_stack:push(HandDiscardPhase:New(self.current_side))
+    self.decision_stack:push(HandDiscardDecision:New(self.current_side))
     for _ = 0, clicks do
-        self.interaction_stack:push(TurnBasePhase:New(self.current_side))
+        self.decision_stack:push(TurnBaseDecision:New(self.current_side))
     end
 
     local slots = {
@@ -145,7 +113,7 @@ function game:onInit()
     host:register(self.player_controllers[SIDE_CORP])
     host:register(self.player_controllers[SIDE_RUNNER])
 
-    self.interaction_stack = InteractionStack:New()
+    self.decision_stack = DecisionStack:New()
 
     if board:cardGet("corp_hq", 0) == nil then
         info("Dealing initial cards...");
@@ -205,6 +173,15 @@ function game:onInit()
         deck:shuffle()
 
         board:deckAppend(SLOT_RUNNER_STACK, deck)
+
+        board:cardAppend(remoteSlot(1), cardspec:card(1094))
+        board:cardAppend(remoteIceSlot(1), cardspec:card(1101))
+        board:cardAppend(remoteIceSlot(1), cardspec:card(1111))
+        ui:cardInstalled(nil, remoteIceSlot(1))
+
+        board:cardAppend(SLOT_RUNNER_PROGRAMS, cardspec:card(1043))
+        board:cardAppend(SLOT_RUNNER_PROGRAMS, cardspec:card(1027))
+        ui:cardInstalled(nil, SLOT_RUNNER_PROGRAMS)
     end
 
     info("Game ready!")
@@ -214,7 +191,7 @@ end
 function game:onTick(dt)
     if dt - self.last_ui_update > 1 then
         local text = ""
-        for _, v in pairs(self.interaction_stack.stack) do
+        for _, v in pairs(self.decision_stack.stack) do
             text = string.format("%s\n%s %s", text, v.side, v.type)
         end
 
@@ -223,7 +200,12 @@ function game:onTick(dt)
     end
 end
 
-function game:onInteraction(...)
+function game:onInteraction(type, descr)
+    for _, ctrl in pairs(self.player_controllers) do
+        if ctrl:interaction(type, descr) then
+            break
+        end
+    end
     self.last_ui_update = 0
 end
 

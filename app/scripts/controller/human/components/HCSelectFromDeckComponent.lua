@@ -4,7 +4,7 @@ HCSelectFromDeckComponent = class(HumanControllerComponent)
 function HCSelectFromDeckComponent:onClick(card, slot)
     info("%s selected %d, %d left", self.side.id, card.uid, sel_ph.amount - 1)
 
-    --- @type SelectFromDeckPhase
+    --- @type SelectFromDeckDecision
     local sel_ph = self.phase
     if sel_ph.cb(card) then
         sel_ph.amount = sel_ph.amount - 1

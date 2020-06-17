@@ -1,6 +1,6 @@
 --- @class HumanControllerComponent
 --- @field controller HumanController
---- @field phase InteractionPhase
+--- @field phase Decision
 --- @field side Side
 --- @field phaseType string
 --- @field restrictSlot function
@@ -24,6 +24,11 @@ end
 
 function HumanControllerComponent:delegated()
     self.controller:delegated()
+    return true
+end
+
+function HumanControllerComponent:handledTo(type)
+    self.controller:handledTo(type)
     return true
 end
 

@@ -157,6 +157,13 @@ function _card_select_widget:setDeck(deck, limit) end
 --- @param card Card
 function _card_select_widget:removeCard(card) end
 
+--- @class OptionSelectWidget
+--- @field hidden boolean
+_option_select_widget = {}
+
+--- @param options table<number, string>
+function _option_select_widget:setOptions(options) end
+
 --[[
             Host
 ]]--
@@ -192,6 +199,9 @@ board_view = nil
 
 --- @type CardSelectWidget
 card_select_widget = nil
+
+--- @type OptionSelectWidget
+option_select_widget = nil
 
 --- @type Label
 status_label = nil

@@ -13,17 +13,24 @@ UILayer::UILayer(Scene *scene, glm::mat4 cursor_proj): scene_(scene), cursor_pro
 }
 
 shared_ptr<UIInteractable> UILayer::trace(glm::vec2 pos) {
+    shared_ptr<UIInteractable> result = nullptr;
+    int max_z_index = INT32_MIN;
+
     for (auto i = interactables_->rbegin(); i != interactables_->rend(); i++) {
         auto intr = *i;
         auto interactableZone = intr->interactableArea();
         auto zone = project(std::get<0>(interactableZone), std::get<1>(interactableZone));
+        auto z_index = std::get<2>(interactableZone);
 
         if (zone.x <= pos.x && zone.y <= pos.y && zone.z >= pos.x && zone.w >= pos.y) {
-            return intr;
+            if (max_z_index < z_index) {
+                result = intr;
+                max_z_index = z_index;
+            }
         }
     }
 
-    return nullptr;
+    return result;
 }
 
 shared_ptr<UIInteractable> UILayer::traceInputCursor() {

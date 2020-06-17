@@ -36,6 +36,10 @@ function isSlotIce(slot)
     return string.starts_with(slot, "corp_remote_") and string.ends_with(slot, "_ice")
 end
 
+function iceSlotOfRemote(slot)
+    return slot .. "_ice"
+end
+
 function isPlayDeckSlot(slot)
     return slot == SLOT_CORP_RND or slot == SLOT_RUNNER_STACK
 end
@@ -44,8 +48,20 @@ function isHandSlot(slot)
     return slot == SLOT_CORP_HAND or slot == SLOT_RUNNER_HAND
 end
 
+function isCreditsPoolSlot(slot)
+    return string.ends_with(slot, "_credits_pool")
+end
+
 function isSlotInstallable(slot)
     return isSlotIce(slot) or isSlotRemote(slot) or slot == SLOT_RUNNER_CONSOLE or slot == SLOT_RUNNER_PROGRAMS or slot == SLOT_RUNNER_HARDWARE or slot == SLOT_RUNNER_RESOURCES
+end
+
+function remoteSlot(n)
+    return "corp_remote_" .. n
+end
+
+function remoteIceSlot(n)
+    return "corp_remote_" .. n .. "_ice"
 end
 
 function sideHandSlot(side)

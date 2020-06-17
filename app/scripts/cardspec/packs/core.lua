@@ -46,7 +46,7 @@ cardspec.cards[1007] = {
     --- @param meta CardMeta
     onAction = function (meta)
         if game.runner:spendCredits(1) then
-            meta.until_run_end.additional_strength = (meta.until_run_end.additional_strength or 0) + 1
+            meta.until_use.additional_strength = (meta.until_use.additional_strength or 0) + 1
         end
     end,
 }
@@ -106,7 +106,7 @@ cardspec.cards[1026] = {
     --- @param meta CardMeta
     onAction = function (meta)
         if game.runner:spendCredits(2) then
-            meta.until_run_end.additional_strength = (meta.until_run_end.additional_strength or 0) + 1
+            meta.until_use.additional_strength = (meta.until_use.additional_strength or 0) + 1
         end
     end
 }
@@ -135,7 +135,7 @@ cardspec.cards[1027] = {
     --- @param meta CardMeta
     onAction = function (meta)
         if game.runner:spendCredits(3) then
-            meta.until_run_end.additional_strength = (meta.until_run_end.additional_strength or 0) + 5
+            meta.until_use.additional_strength = (meta.until_use.additional_strength or 0) + 5
         end
     end
 }

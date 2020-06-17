@@ -18,6 +18,7 @@ protected:
 public:
     shared_ptr<Card> card;
     bool force_faceup = false;
+    int ui_z_index = 1;
 
     using SlotView::SlotView;
 
@@ -38,7 +39,7 @@ public:
         card = item;
     }
 
-    std::tuple<glm::vec4, glm::vec4> interactableArea() override;
+    std::tuple<glm::vec4, glm::vec4, int> interactableArea() override;
 
     void update() override;
 

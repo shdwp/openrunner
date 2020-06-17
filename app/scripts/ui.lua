@@ -25,7 +25,7 @@ function ui:focusCorp()
     main_camera.position = Vec3(0, 1.2, 0.5)
     main_camera.direction = Vec3(0, -1, -0.001)
 
-    runner_hand_view.vertical_offset = 100
+    runner_hand_view.vertical_offset = -200
     corp_hand_view.vertical_offset = 0
 end
 
@@ -39,7 +39,7 @@ function ui:focusRunner()
     main_camera.direction = Vec3(0, -1, 0.001)
 
     runner_hand_view.vertical_offset = 0
-    corp_hand_view.vertical_offset = 100
+    corp_hand_view.vertical_offset = -200
 end
 
 function ui:zoomRunner()
@@ -56,17 +56,18 @@ function ui:focusCurrentPlayer()
 end
 
 function ui:onTick(dt)
-    if Input:keyDown(340) then
-        if game.current_side == SIDE_CORP then
-            ui:zoomRunner()
+    if Input:keyPressed(340) then
+        if self.view_zoomed then
+            self:focusCurrentPlayer()
+            self.view_zoomed = false
         else
-            ui:zoomCorp()
+            self.view_zoomed = true
+            if game.current_side == SIDE_CORP then
+                ui:zoomRunner()
+            else
+                ui:zoomCorp()
+            end
         end
-        self.view_zoomed = true
-    else if self.view_zoomed then
-        ui:focusCurrentPlayer()
-        self.view_zoomed = false
-    end
     end
 end
 
