@@ -29,7 +29,7 @@ function HumanController:New(side_id)
             HCRezCardComponent:New(t, SIDE_CORP, RunIceRezDecision.Type, isSlotIce, true, true),
             HCRezCardComponent:New(t, SIDE_CORP, nil, isSlotInstallable, true, false),
         }
-    else
+    elseif side_id == SIDE_RUNNER then
         t.components = {
             HCDrawCardComponent:New(t, SIDE_RUNNER, TurnBaseDecision.Type, isPlayDeckSlot, false),
             HCGetCreditComponent:New(t, SIDE_RUNNER, TurnBaseDecision.Type, isCreditsPoolSlot, false),
@@ -43,6 +43,7 @@ function HumanController:New(side_id)
 
             HCInitiateRunComponent:New(t, SIDE_RUNNER, TurnBaseDecision.Type, isSlotRemote, true),
             HCApproachIceComponent:New(t, SIDE_RUNNER, RunIceApproachDecision.Type, isSlotIce, true),
+            HCSubroutBreakComponent:New(t, SIDE_RUNNER, RunSubroutBreakDecision.Type, nil, true),
 
             HCTurnEndDiscardComponent:New(t, SIDE_RUNNER, HandDiscardDecision.Type, isHandSlot, true),
         }
@@ -51,20 +52,20 @@ function HumanController:New(side_id)
     return t
 end
 
-function HumanController:handle(phase)
-    PlayerController.handle(self, phase)
+function HumanController:handle(decision)
+    PlayerController.handle(self, decision)
 
-    if phase.type == SelectFromDeckDecision.Type then
+    if decision.type == SelectFromDeckDecision.Type then
         --- @type SelectFromDeckDecision
-        local ph = phase
+        local ph = decision
 
         local deck = board:deckGet(ph.slot, 0)
         card_select_widget:setDeck(deck, ph.limit)
         card_select_widget.hidden = false
-    elseif phase.type == HandDiscardDecision.Type then
-        phase.amount = board:count(sideHandSlot(self.side.id)) - self.side.max_hand
-        if phase.amount <= 0 then
-            self:handled()
+    elseif decision.type == HandDiscardDecision.Type then
+        decision.amount = board:count(sideHandSlot(self.side.id)) - self.side.max_hand
+        if decision.amount <= 0 then
+            decision:handledTop()
         end
     end
 end
@@ -74,7 +75,7 @@ function HumanController:onTick(dt)
         if self.side.id == SIDE_CORP then
             status_label:setText(string.format(
                     "%s, cl%d, cr%d, sc%d, bp%d",
-                    self.phase.type,
+                    self.decision.type,
                     game.decision_stack:countClicks(self.side.id),
                     game.corp.credits,
                     game.corp.score,
@@ -83,7 +84,7 @@ function HumanController:onTick(dt)
         else
             status_label:setText(string.format(
                     "%s, cl%d, cr%d, rcr%d, sc%d, tag%d, mem%d",
-                    self.phase.type,
+                    self.decision.type,
                     game.decision_stack:countClicks(self.side.id),
                     self.side.credits,
                     game.runner.recurring.credits_for_icebreakers,
@@ -117,18 +118,22 @@ end
 function HumanController:interaction(type, descr)
     self.last_update = 0
 
+    local interaction_descr = type == "cancel" and "" or string.format("%s (%s)", descr.slot, descr.card)
+
     local result
     for _, comp in pairs(self.components) do
         local does_require_card = comp.requireCard == true
         local does_restrict_slot = comp.restrictSlot ~= nil
 
-        local side_matches = not comp.side or comp.side.id == self.side.id
-        local phase_matches = not comp.phaseType or self.phase and comp.phaseType == self.phase.type
+        local side_matches = not comp.side or (self.decision and comp.side.id == self.decision.side_id)
+        local phase_matches = not comp.phaseType or self.decision and comp.phaseType == self.decision.type
         local slot_matches = type == "cancel" or not does_restrict_slot or comp.restrictSlot(descr.slot)
         local card_req_matches = type == "cancel" or (descr.card and does_require_card) or not (descr.card and does_require_card)
 
+        --print(comp.phaseType, comp.side.id, side_matches, comp.phaseType, phase_matches, "slot", slot_matches, "card_req", card_req_matches)
         if side_matches and phase_matches and slot_matches and card_req_matches then
-            comp.phase = self.phase
+            comp.decision = self.decision
+            info("Component of %s handling %s, passed event %s (%s) to %s", self.side.id, comp.decision, type, interaction_descr, comp)
             if type == "click" then
                 result = comp:onClick(descr.card, descr.slot)
             elseif type == "altclick" then
@@ -136,6 +141,7 @@ function HumanController:interaction(type, descr)
             elseif type == "cancel" then
                 result = comp:onCancel()
             end
+            comp.decision = nil
 
             if result == true then
                 break
@@ -144,7 +150,6 @@ function HumanController:interaction(type, descr)
     end
 
     if not result then
-        local interaction_descr = type == "cancel" and "" or string.format("%s (%s)", descr.slot, descr.card)
         info("No component of %s to handle decision: %s %s", self.side.id, type, interaction_descr)
         return false
     else

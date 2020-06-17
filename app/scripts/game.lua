@@ -28,18 +28,20 @@ function game:cycle()
     end
 
     local phase = self.decision_stack:top()
-    local ctrl = self:controllerFor(phase.side)
+    local ctrl = self:controllerFor(phase.side_id)
 
     ctrl:handle(phase)
 end
 
 --- @param side string
 --- @param amount number
+--- @return boolean
 function game:alterClicks(side, amount)
     if amount >= 0 then
         self.decision_stack:addClicks(side, amount)
+        return true
     elseif amount < 0 then
-        self.decision_stack:removeClicks(side, amount)
+        return self.decision_stack:removeClicks(side, amount)
     end
 end
 
@@ -83,17 +85,20 @@ function game:newTurn()
         "corp_remote_5",
         "corp_remote_6",
         "corp_hq",
+        SLOT_RUNNER_PROGRAMS,
+        SLOT_RUNNER_HARDWARE,
+        SLOT_RUNNER_RESOURCES,
+        SLOT_RUNNER_CONSOLE,
     }
 
     for _, slot in pairs(slots) do
-        for i = 0, board:count(slot) do
-            local card = board:cardGet(slot, i)
-            if card and card.faceup then
-                if cardspec:onNewTurn(card.meta) then
+        iterCards(slot, function (card)
+            if card.meta.rezzed then
+                if card.meta:onNewTurn() then
                     board:cardPop(slot, card)
                 end
             end
-        end
+        end)
     end
 
     self.turn_n = self.turn_n + 1
@@ -117,9 +122,9 @@ function game:onInit()
 
     if board:cardGet("corp_hq", 0) == nil then
         info("Dealing initial cards...");
-        board:cardAppend("corp_hq", cardspec:card(1093))
+        board:cardAppend("corp_hq", Db:card(1093))
 
-        local deck = cardspec:deck([[
+        local deck = Db:deck([[
 3 Hostile Takeover
 2 Posted Bounty
 3 Priority Requisition
@@ -145,9 +150,9 @@ function game:onInit()
 
         board:deckAppend("corp_rnd", deck)
 
-        board:cardAppend("runner_id", cardspec:card(1033))
+        board:cardAppend("runner_id", Db:card(1033))
 
-        deck = cardspec:deck([[
+        deck = Db:deck([[
 3 Diesel
 3 Easy Mark
 3 Infiltration
@@ -174,13 +179,13 @@ function game:onInit()
 
         board:deckAppend(SLOT_RUNNER_STACK, deck)
 
-        board:cardAppend(remoteSlot(1), cardspec:card(1094))
-        board:cardAppend(remoteIceSlot(1), cardspec:card(1101))
-        board:cardAppend(remoteIceSlot(1), cardspec:card(1111))
+        board:cardAppend(remoteSlot(1), Db:card(1094))
+        board:cardAppend(remoteIceSlot(1), Db:card(1101))
+        board:cardAppend(remoteIceSlot(1), Db:card(1111))
         ui:cardInstalled(nil, remoteIceSlot(1))
 
-        board:cardAppend(SLOT_RUNNER_PROGRAMS, cardspec:card(1043))
-        board:cardAppend(SLOT_RUNNER_PROGRAMS, cardspec:card(1027))
+        board:cardAppend(SLOT_RUNNER_PROGRAMS, Db:card(1043))
+        board:cardAppend(SLOT_RUNNER_PROGRAMS, Db:card(1027))
         ui:cardInstalled(nil, SLOT_RUNNER_PROGRAMS)
     end
 
@@ -192,7 +197,7 @@ function game:onTick(dt)
     if dt - self.last_ui_update > 1 then
         local text = ""
         for _, v in pairs(self.decision_stack.stack) do
-            text = string.format("%s\n%s %s", text, v.side, v.type)
+            text = string.format("%s\n%s %s", text, v.side_id, v.type)
         end
 
         alert_label:setText(text)

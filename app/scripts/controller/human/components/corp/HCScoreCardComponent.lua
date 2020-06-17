@@ -2,7 +2,7 @@
 HCScoreCardComponent = class(HumanControllerComponent)
 
 function HCScoreCardComponent:onAltClick(card, slot)
-    local i = cardspec:interactionFromTable(card.meta)
+    local i = card.meta:interactionFromBoard()
     if i == "score" then
         game.corp:actionScore(card, slot)
         return true

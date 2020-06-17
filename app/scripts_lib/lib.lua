@@ -10,7 +10,7 @@ function error(fmt, ...) host:log(0, string.format(fmt, ...)) end
 
 --- Cards
 --- @param slot string
---- @param func function
+--- @param func fun(card: Card)
 function iterCards(slot, func)
     local c = board:count(slot)
     for i = 0, c - 1 do

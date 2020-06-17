@@ -1,12 +1,12 @@
 --- @class RunIceApproachDecision: Decision
---- @field card Card
+--- @field meta CardMeta
 RunIceApproachDecision = class(Decision, { Type = "run_ice_approach"})
 
 --- @param side string
---- @param card Card
+--- @param meta CardMeta
 --- @return RunIceApproachDecision
-function RunIceApproachDecision:New(side, card)
+function RunIceApproachDecision:New(side, meta)
     return construct(self, Decision:New(self.Type, side), {
-        card = card,
+        meta = meta,
     })
 end

@@ -65,7 +65,7 @@ function Side:actionPayEvent(card, from)
         return false
     end
 
-    if not cardspec:canPlay(card.meta) then
+    if not card.meta:canPlay() then
         return false
     end
 
@@ -78,6 +78,6 @@ end
 --- @param from string
 --- @return boolean
 function Side:actionPlayEvent(card, from)
-    cardspec:onPlay(card.meta)
+    card.meta:onPlay()
     board:cardPop(from, card)
 end

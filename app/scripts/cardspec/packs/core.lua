@@ -1,4 +1,4 @@
-cardspec.cards[1005] = {
+Db.cards[1005] = {
     code = "01005",
     cost = 2,
     deck_limit = 3,
@@ -21,9 +21,9 @@ cardspec.cards[1005] = {
         game.runner.recurring.credits_for_virus_or_icebreakers = game.runner.recurring.credits_for_virus_or_icebreakers + 1
     end
 }
-cardspec.card_titles["Cyberfeeder"] = 1005
+Db.card_titles["Cyberfeeder"] = 1005
 
-cardspec.cards[1007] = {
+Db.cards[1007] = {
     code = "01007",
     cost = 2,
     deck_limit = 3,
@@ -50,9 +50,9 @@ cardspec.cards[1007] = {
         end
     end,
 }
-cardspec.card_titles["Corroder"] = 1007
+Db.card_titles["Corroder"] = 1007
 
-cardspec.cards[1019] = {
+Db.cards[1019] = {
     code = "01019",
     cost = 0,
     deck_limit = 3,
@@ -75,9 +75,9 @@ cardspec.cards[1019] = {
         game.runner:alterCredits(3)
     end
 }
-cardspec.card_titles["Easy Mark"] = 1019
+Db.card_titles["Easy Mark"] = 1019
 
-cardspec.cards[1026] = {
+Db.cards[1026] = {
     code = "01026",
     cost = 9,
     deck_limit = 3,
@@ -110,9 +110,9 @@ cardspec.cards[1026] = {
         end
     end
 }
-cardspec.card_titles["Femme Fatale"] = 1026
+Db.card_titles["Femme Fatale"] = 1026
 
-cardspec.cards[1027] = {
+Db.cards[1027] = {
     code = "01027",
     cost = 4,
     deck_limit = 3,
@@ -136,12 +136,15 @@ cardspec.cards[1027] = {
     onAction = function (meta)
         if game.runner:spendCredits(3) then
             meta.until_use.additional_strength = (meta.until_use.additional_strength or 0) + 5
+            return true
         end
+
+        return false
     end
 }
-cardspec.card_titles["Ninja"] = 1027
+Db.card_titles["Ninja"] = 1027
 
-cardspec.cards[1034] = {
+Db.cards[1034] = {
     code = "01034",
     cost = 0,
     deck_limit = 3,
@@ -165,9 +168,9 @@ cardspec.cards[1034] = {
         game.runner:actionDrawCard()
     end,
 }
-cardspec.card_titles["Diesel"] = 1034
+Db.card_titles["Diesel"] = 1034
 
-cardspec.cards[1035] = {
+Db.cards[1035] = {
     code = "01035",
     cost = 0,
     deck_limit = 3,
@@ -192,9 +195,9 @@ cardspec.cards[1035] = {
         end)
     end
 }
-cardspec.card_titles["Modded"] = 1035
+Db.card_titles["Modded"] = 1035
 
-cardspec.cards[1036] = {
+Db.cards[1036] = {
     code = "01036",
     cost = 2,
     deck_limit = 3,
@@ -212,9 +215,9 @@ cardspec.cards[1036] = {
     type_code = "event",
     uniqueness = false,
 }
-cardspec.card_titles["The Maker\'s Eye"] = 1036
+Db.card_titles["The Maker\'s Eye"] = 1036
 
-cardspec.cards[1037] = {
+Db.cards[1037] = {
     code = "01037",
     cost = 0,
     deck_limit = 3,
@@ -235,13 +238,13 @@ cardspec.cards[1037] = {
     --- @param meta CardMeta
     onPlay = function (meta)
         make_interaction:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (card)
-            card.meta.until_turn_end.additional_categories = "Sentry Code Gate Barrier"
+            card.meta.until_turn_end.additional_keywords = "Sentry Code Gate Barrier"
         end)
     end
 }
-cardspec.card_titles["Tinkering"] = 1037
+Db.card_titles["Tinkering"] = 1037
 
-cardspec.cards[1038] = {
+Db.cards[1038] = {
     code = "01038",
     cost = 1,
     deck_limit = 3,
@@ -269,9 +272,9 @@ cardspec.cards[1038] = {
         game.runner.memory = game.runner.memory - 1
     end
 }
-cardspec.card_titles["Akamatsu Mem Chip"] = 1038
+Db.card_titles["Akamatsu Mem Chip"] = 1038
 
-cardspec.cards[1039] = {
+Db.cards[1039] = {
     code = "01039",
     cost = 2,
     deck_limit = 3,
@@ -289,9 +292,9 @@ cardspec.cards[1039] = {
     type_code = "hardware",
     uniqueness = false,
 }
-cardspec.card_titles["Rabbit Hole"] = 1039
+Db.card_titles["Rabbit Hole"] = 1039
 
-cardspec.cards[1040] = {
+Db.cards[1040] = {
     code = "01040",
     cost = 2,
     deck_limit = 3,
@@ -312,7 +315,7 @@ cardspec.cards[1040] = {
     --- @param meta CardMeta
     onInstall = function (meta)
         make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_PROGRAMS, 1, function (card)
-            if cardspec:isCardIcebreaker(card) then
+            if card.meta:isCardIcebreaker() then
                 card.meta.until_forever.additional_strength = card.meta.until_forever.additional_strength + 1
                 return true
             else
@@ -321,9 +324,9 @@ cardspec.cards[1040] = {
         end)
     end
 }
-cardspec.card_titles["The Personal Touch"] = 1040
+Db.card_titles["The Personal Touch"] = 1040
 
-cardspec.cards[1041] = {
+Db.cards[1041] = {
     code = "01041",
     cost = 9,
     deck_limit = 3,
@@ -357,9 +360,9 @@ cardspec.cards[1041] = {
         game.runner.link = game.runner.link - 2
     end
 }
-cardspec.card_titles["The Toolbox"] = 1041
+Db.card_titles["The Toolbox"] = 1041
 
-cardspec.cards[1043] = {
+Db.cards[1043] = {
     code = "01043",
     cost = 4,
     deck_limit = 3,
@@ -380,15 +383,23 @@ cardspec.cards[1043] = {
     uniqueness = false,
 
     --- @param meta CardMeta
+    canBreakIce = function (meta)
+        return meta:keywordsInclude({"Code Gate"})
+    end,
+
+    --- @param meta CardMeta
     onAction = function (meta)
         if game.runner:spendCredits(1) then
             meta.until_run_end.additional_strength = (meta.until_run_end.additional_strength or 0) + 1
+            return true
         end
+
+        return false
     end
 }
-cardspec.card_titles["Gordian Blade"] = 1043
+Db.card_titles["Gordian Blade"] = 1043
 
-cardspec.cards[1044] = {
+Db.cards[1044] = {
     code = "01044",
     cost = 5,
     deck_limit = 3,
@@ -413,9 +424,9 @@ cardspec.cards[1044] = {
         game.runner:alterCredits(2)
     end
 }
-cardspec.card_titles["Magnum Opus"] = 1044
+Db.card_titles["Magnum Opus"] = 1044
 
-cardspec.cards[1048] = {
+Db.cards[1048] = {
     code = "01048",
     cost = 0,
     deck_limit = 3,
@@ -433,9 +444,9 @@ cardspec.cards[1048] = {
     type_code = "resource",
     uniqueness = false,
 }
-cardspec.card_titles["Sacrificial Construct"] = 1048
+Db.card_titles["Sacrificial Construct"] = 1048
 
-cardspec.cards[1049] = {
+Db.cards[1049] = {
     code = "01049",
     cost = 0,
     deck_limit = 3,
@@ -452,9 +463,9 @@ cardspec.cards[1049] = {
     type_code = "event",
     uniqueness = false,
 }
-cardspec.card_titles["Infiltration"] = 1049
+Db.card_titles["Infiltration"] = 1049
 
-cardspec.cards[1050] = {
+Db.cards[1050] = {
     code = "01050",
     cost = 5,
     deck_limit = 3,
@@ -471,9 +482,9 @@ cardspec.cards[1050] = {
     type_code = "event",
     uniqueness = false,
 }
-cardspec.card_titles["Sure Gamble"] = 1050
+Db.card_titles["Sure Gamble"] = 1050
 
-cardspec.cards[1051] = {
+Db.cards[1051] = {
     code = "01051",
     cost = 5,
     deck_limit = 3,
@@ -492,9 +503,9 @@ cardspec.cards[1051] = {
     type_code = "program",
     uniqueness = false,
 }
-cardspec.card_titles["Crypsis"] = 1051
+Db.card_titles["Crypsis"] = 1051
 
-cardspec.cards[1053] = {
+Db.cards[1053] = {
     code = "01053",
     cost = 1,
     deck_limit = 3,
@@ -512,9 +523,9 @@ cardspec.cards[1053] = {
     type_code = "resource",
     uniqueness = false,
 }
-cardspec.card_titles["Armitage Codebusting"] = 1053
+Db.card_titles["Armitage Codebusting"] = 1053
 
-cardspec.cards[1056] = {
+Db.cards[1056] = {
     code = "01056",
     cost = 4,
     deck_limit = 3,
@@ -548,9 +559,9 @@ cardspec.cards[1056] = {
         return false
     end,
 }
-cardspec.card_titles["Adonis Campaign"] = 1056
+Db.card_titles["Adonis Campaign"] = 1056
 
-cardspec.cards[1064] = {
+Db.cards[1064] = {
     code = "01064",
     cost = 4,
     deck_limit = 3,
@@ -569,9 +580,9 @@ cardspec.cards[1064] = {
     type_code = "ice",
     uniqueness = false,
 }
-cardspec.card_titles["Rototurret"] = 1064
+Db.card_titles["Rototurret"] = 1064
 
-cardspec.cards[1083] = {
+Db.cards[1083] = {
     code = "01083",
     cost = 0,
     deck_limit = 3,
@@ -595,9 +606,9 @@ cardspec.cards[1083] = {
         game.corp:drawCard()
     end,
 }
-cardspec.card_titles["Anonymous Tip"] = 1083
+Db.card_titles["Anonymous Tip"] = 1083
 
-cardspec.cards[1090] = {
+Db.cards[1090] = {
     code = "01090",
     cost = 8,
     deck_limit = 3,
@@ -616,9 +627,9 @@ cardspec.cards[1090] = {
     type_code = "ice",
     uniqueness = false,
 }
-cardspec.card_titles["Tollbooth"] = 1090
+Db.card_titles["Tollbooth"] = 1090
 
-cardspec.cards[1094] = {
+Db.cards[1094] = {
     advancement_cost = 2,
     agenda_points = 1,
     code = "01094",
@@ -643,9 +654,9 @@ cardspec.cards[1094] = {
         game.corp:alterScore(meta.info.agenda_points)
     end,
 }
-cardspec.card_titles["Hostile Takeover"] = 1094
+Db.card_titles["Hostile Takeover"] = 1094
 
-cardspec.cards[1095] = {
+Db.cards[1095] = {
     advancement_cost = 3,
     agenda_points = 1,
     code = "01095",
@@ -663,9 +674,9 @@ cardspec.cards[1095] = {
     type_code = "agenda",
     uniqueness = false,
 }
-cardspec.card_titles["Posted Bounty"] = 1095
+Db.card_titles["Posted Bounty"] = 1095
 
-cardspec.cards[1098] = {
+Db.cards[1098] = {
     code = "01098",
     cost = 0,
     deck_limit = 3,
@@ -688,9 +699,9 @@ cardspec.cards[1098] = {
         game.corp:alterCredits(3)
     end,
 }
-cardspec.card_titles["Beanstalk Royalties"] = 1098
+Db.card_titles["Beanstalk Royalties"] = 1098
 
-cardspec.cards[1100] = {
+Db.cards[1100] = {
     code = "01100",
     cost = 0,
     deck_limit = 3,
@@ -723,9 +734,9 @@ cardspec.cards[1100] = {
         make_interaction:promptFreeAdvance(SIDE_CORP, fn)
     end,
 }
-cardspec.card_titles["Shipment from Kaguya"] = 1100
+Db.card_titles["Shipment from Kaguya"] = 1100
 
-cardspec.cards[1101] = {
+Db.cards[1101] = {
     code = "01101",
     cost = 4,
     deck_limit = 3,
@@ -744,9 +755,9 @@ cardspec.cards[1101] = {
     type_code = "ice",
     uniqueness = false,
 }
-cardspec.card_titles["Archer"] = 1101
+Db.card_titles["Archer"] = 1101
 
-cardspec.cards[1102] = {
+Db.cards[1102] = {
     code = "01102",
     cost = 10,
     deck_limit = 3,
@@ -765,9 +776,9 @@ cardspec.cards[1102] = {
     type_code = "ice",
     uniqueness = false,
 }
-cardspec.card_titles["Hadrian\'s Wall"] = 1102
+Db.card_titles["Hadrian\'s Wall"] = 1102
 
-cardspec.cards[1103] = {
+Db.cards[1103] = {
     code = "01103",
     cost = 1,
     deck_limit = 3,
@@ -786,9 +797,9 @@ cardspec.cards[1103] = {
     type_code = "ice",
     uniqueness = false,
 }
-cardspec.card_titles["Ice Wall"] = 1103
+Db.card_titles["Ice Wall"] = 1103
 
-cardspec.cards[1104] = {
+Db.cards[1104] = {
     code = "01104",
     cost = 3,
     deck_limit = 3,
@@ -807,9 +818,9 @@ cardspec.cards[1104] = {
     type_code = "ice",
     uniqueness = false,
 }
-cardspec.card_titles["Shadow"] = 1104
+Db.card_titles["Shadow"] = 1104
 
-cardspec.cards[1106] = {
+Db.cards[1106] = {
     advancement_cost = 5,
     agenda_points = 3,
     code = "01106",
@@ -828,9 +839,9 @@ cardspec.cards[1106] = {
     type_code = "agenda",
     uniqueness = false,
 }
-cardspec.card_titles["Priority Requisition"] = 1106
+Db.card_titles["Priority Requisition"] = 1106
 
-cardspec.cards[1107] = {
+Db.cards[1107] = {
     advancement_cost = 4,
     agenda_points = 2,
     code = "01107",
@@ -849,9 +860,9 @@ cardspec.cards[1107] = {
     type_code = "agenda",
     uniqueness = false,
 }
-cardspec.card_titles["Private Security Force"] = 1107
+Db.card_titles["Private Security Force"] = 1107
 
-cardspec.cards[1108] = {
+Db.cards[1108] = {
     code = "01108",
     cost = 1,
     deck_limit = 3,
@@ -878,9 +889,9 @@ cardspec.cards[1108] = {
         game.corp:alterCredits(7)
     end
 }
-cardspec.card_titles["Melange Mining Corp."] = 1108
+Db.card_titles["Melange Mining Corp."] = 1108
 
-cardspec.cards[1109] = {
+Db.cards[1109] = {
     code = "01109",
     cost = 2,
     deck_limit = 3,
@@ -903,9 +914,9 @@ cardspec.cards[1109] = {
         game.corp:alterCredits(1)
     end
 }
-cardspec.card_titles["PAD Campaign"] = 1109
+Db.card_titles["PAD Campaign"] = 1109
 
-cardspec.cards[1110] = {
+Db.cards[1110] = {
     code = "01110",
     cost = 5,
     deck_limit = 3,
@@ -928,9 +939,9 @@ cardspec.cards[1110] = {
         game.corp:alterCredits(9)
     end
 }
-cardspec.card_titles["Hedge Fund"] = 1110
+Db.card_titles["Hedge Fund"] = 1110
 
-cardspec.cards[1111] = {
+Db.cards[1111] = {
     code = "01111",
     cost = 3,
     deck_limit = 3,
@@ -948,10 +959,26 @@ cardspec.cards[1111] = {
     title = "Enigma",
     type_code = "ice",
     uniqueness = false,
-}
-cardspec.card_titles["Enigma"] = 1111
 
-cardspec.cards[1113] = {
+    subroutine_descriptions = {
+        "The Runner loses [click], if able",
+        "End the run",
+    },
+
+    subroutines = {
+        function ()
+            game:alterClicks(SIDE_RUNNER, -1)
+            return false
+        end,
+
+        function ()
+            return true
+        end,
+    }
+}
+Db.card_titles["Enigma"] = 1111
+
+Db.cards[1113] = {
     code = "01113",
     cost = 3,
     deck_limit = 3,
@@ -970,8 +997,8 @@ cardspec.cards[1113] = {
     type_code = "ice",
     uniqueness = false,
 }
-cardspec.card_titles["Wall of Static"] = 1113
-cardspec.cards[1033] = {
+Db.card_titles["Wall of Static"] = 1113
+Db.cards[1033] = {
     base_link = 1,
     code = "01033",
     deck_limit = 1,
@@ -990,9 +1017,9 @@ cardspec.cards[1033] = {
     type_code = "identity",
     uniqueness = false,
 }
-cardspec.card_titles["Kate \"Mac\" McCaffrey: Digital Tinker"] = 1033
+Db.card_titles["Kate \"Mac\" McCaffrey: Digital Tinker"] = 1033
 
-cardspec.cards[1093] = {
+Db.cards[1093] = {
     code = "01093",
     deck_limit = 1,
     faction_code = "weyland-consortium",
@@ -1009,4 +1036,4 @@ cardspec.cards[1093] = {
     type_code = "identity",
     uniqueness = false,
 }
-cardspec.card_titles["Weyland Consortium: Building a Better World"] = 1093
+Db.card_titles["Weyland Consortium: Building a Better World"] = 1093

@@ -2,14 +2,11 @@
 HCApproachIceComponent = class(HumanControllerComponent)
 
 function HCApproachIceComponent:onClick(card, slot)
-    print(self.phase.card)
-    print(card)
-
-    if self.phase.card == card then
-        return self:handled()
+    if self.decision.meta == card.meta then
+        return self.decision:handledTop()
     end
 end
 
 function HCApproachIceComponent:onCancel()
-    return self:handledTo(RunAccessDecision.Type)
+    return self.decision:handledUpTo(RunEndDecision.Type)
 end

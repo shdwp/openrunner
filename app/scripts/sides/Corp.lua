@@ -23,7 +23,7 @@ function Corp:drawCard()
     local deck = board:deckGet(SLOT_CORP_RND, 0)
     if deck.size > 0 then
         local card_info = deck:takeTop()
-        local card = cardspec:card(card_info.uid)
+        local card = Db:card(card_info.uid)
         board:cardAppend(SLOT_CORP_HAND, card)
     end
 end
@@ -42,11 +42,11 @@ function Corp:actionInstallRemote(card, from, to)
     assert(from)
     assert(to)
 
-    if cardspec:isCardIce(card.meta) and not isSlotIce(to) then
+    if card.meta:isCardIce() and not isSlotIce(to) then
         return false
     end
 
-    if cardspec:isCardRemote(card.meta) and not isSlotRemote(to) then
+    if card.meta:isCardRemote() and not isSlotRemote(to) then
         return false
     end
 
@@ -54,7 +54,7 @@ function Corp:actionInstallRemote(card, from, to)
     card.meta.adv = 0
 
     local price = 0
-    if cardspec:isCardIce(card.meta) then
+    if card.meta:isCardIce() then
         price = board:count(to)
     end
 
@@ -74,7 +74,7 @@ function Corp:actionInstallRemote(card, from, to)
     end
 end
 
---- @param card userdata Card
+--- @param card Card
 --- @param from string
 --- @param free boolean
 --- @return boolean
@@ -83,7 +83,7 @@ function Corp:actionAdvance(card, from, free)
         return false
     end
 
-    if not cardspec:canAdvance(card.meta) then
+    if not card.meta:canAdvance() then
         info("cardspec forbids advance!")
         return false
     end
@@ -107,7 +107,7 @@ function Corp:actionScore(card, from)
     end
 
     if card.meta.adv >= card.meta.info.advancement_cost then
-        cardspec:onScore(card.meta)
+        card.meta:onScore()
         board:cardPop(from, card)
         game.last_agenda_scored_turn_n = game.turn_n
         return true
@@ -124,13 +124,14 @@ function Corp:actionRez(card, from)
         return false
     end
 
-    if card.faceup then
+    if card.meta.rezzed then
         return false
     end
 
     if self:payPrice(card.meta) then
-        cardspec:onRez(card.meta)
+        card.meta:onRez()
         card.faceup = true
+        card.meta.rezzed = true
         return true
     end
 

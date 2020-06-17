@@ -14,7 +14,7 @@ function HCSelectFromSlotComponent:onClick(card, slot)
         sel_ph.amount = sel_ph.amount - 1
         if sel_ph.amount <= 0 then
             info("Corp finished selecting cards")
-            return self:handled()
+            return self.decision:handled()
         else
             return true
         end
@@ -23,5 +23,5 @@ end
 
 function HCSelectFromSlotComponent:onCancel()
     info("%s cancelled select from slot", self.side.id)
-    return self:handled()
+    return self.decision:handled()
 end

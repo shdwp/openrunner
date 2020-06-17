@@ -5,7 +5,7 @@ function HCSelectFromDeckComponent:onClick(card, slot)
     info("%s selected %d, %d left", self.side.id, card.uid, sel_ph.amount - 1)
 
     --- @type SelectFromDeckDecision
-    local sel_ph = self.phase
+    local sel_ph = self.decision
     if sel_ph.cb(card) then
         sel_ph.amount = sel_ph.amount - 1
         card_select_widget:removeCard(card)
@@ -14,7 +14,7 @@ function HCSelectFromDeckComponent:onClick(card, slot)
         if sel_ph.amount <= 0 then
             info("%s finished selecting cards", self.side.id)
             card_select_widget.hidden = true
-            return self:handled()
+            return self.decision:handled()
         end
 
         return true
@@ -24,5 +24,5 @@ end
 function HCSelectFromDeckComponent:onCancel()
     info("%s cancelled select from deck", self.side.id)
     card_select_widget.hidden = true
-    return self:handled()
+    return self.decision:handled()
 end

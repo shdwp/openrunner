@@ -54,7 +54,7 @@ function Runner:actionDrawCard()
     local deck = board:deckGet(SLOT_RUNNER_STACK, 0)
     if deck.size > 0 then
         local card_info = deck:takeTop()
-        local card = cardspec:card(card_info.uid)
+        local card = Db:card(card_info.uid)
         board:cardAppend(SLOT_RUNNER_HAND, card)
     end
 end
@@ -64,25 +64,26 @@ function Runner:actionInstall(card, from, to)
     assert(from)
     assert(to)
 
-    if cardspec:isCardConsole(card.meta) and to ~= SLOT_RUNNER_CONSOLE then
+    if card.meta:isCardConsole() and to ~= SLOT_RUNNER_CONSOLE then
         return false
     end
 
-    if cardspec:isCardProgram(card.meta) and (to ~= SLOT_RUNNER_PROGRAMS or self.memory < card.meta.info.memory_cost) then
+    if card.meta:isCardProgram() and (to ~= SLOT_RUNNER_PROGRAMS or self.memory < card.meta.info.memory_cost) then
         return false
     end
 
-    if cardspec:isCardResource(card.meta) and to ~= SLOT_RUNNER_RESOURCES then
+    if card.meta:isCardResource() and to ~= SLOT_RUNNER_RESOURCES then
         return false
     end
 
     if self:spendCredits(card.meta.info.cost) then
         card.faceup = true
+        card.meta.rezzed = true
 
         local existing_card = board:cardGet(to, 0)
         if to == SLOT_RUNNER_CONSOLE and existing_card then
             board:cardReplace(to, existing_card, card)
-            cardspec:onRemoval(existing_card.meta)
+            existing_card.meta:onRemoval()
         else
             board:cardAppend(to, card)
         end
@@ -92,10 +93,37 @@ function Runner:actionInstall(card, from, to)
         end
 
         board:cardPop(from, card)
-        cardspec:onInstall(card.meta)
+        card.meta:onInstall()
         ui:cardInstalled(card, to)
         return true
     end
 
     return false
+end
+
+--- @param breaker CardMeta
+--- @param ice CardMeta
+--- @return boolean
+function Runner:actionBreakIce(breaker, ice)
+    local breaker_strength = breaker.info.strength
+    local ice_strength = ice.info.strength
+
+    breaker:iterModifications(function (t)
+        if t.additional_strength then
+            breaker_strength = breaker_strength + t.additional_strength
+        end
+    end)
+
+    ice:iterModifications(function (t)
+        if t.additional_strength then
+            ice_strength = ice_strength + t.additional_strength
+        end
+    end)
+
+    if breaker_strength >= ice_strength and breaker:canBreakIce(ice) then
+        breaker:onUse()
+        return true
+    else
+        return false
+    end
 end

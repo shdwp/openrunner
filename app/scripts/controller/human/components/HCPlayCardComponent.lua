@@ -1,17 +1,17 @@
 --- @class HCPlayCardComponent: HumanControllerComponent
+--- @field decision TurnBaseDecision
 HCPlayCardComponent = class(HumanControllerComponent)
 
 function HCPlayCardComponent:onClick(card, slot)
-    local card_play_type = cardspec:interactionFromHand(card.meta)
+    local card_play_type = card.meta:interactionFromHand()
     if card_play_type == "install" then
         info("%s installing %s", self.side.id, card.uid)
-        game.decision_stack:push(InstallDecision:New(self.side.id, slot, card))
-        return self:delegated()
+        return self.decision:install(self.side.id, card, slot)
     elseif card_play_type == "play" then
         if self.side:actionPayEvent(card, slot) then
             info("%s played %s", self.side.id, card.uid)
             self.side:actionPlayEvent(card, slot)
-            return self:handled()
+            return self.decision:handledTop()
         else
             info("%s unable to pay for %d", self.side.id, card.uid)
         end

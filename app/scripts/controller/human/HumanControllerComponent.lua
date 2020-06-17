@@ -1,6 +1,6 @@
 --- @class HumanControllerComponent
 --- @field controller HumanController
---- @field phase Decision
+--- @field decision Decision
 --- @field side Side
 --- @field phaseType string
 --- @field restrictSlot function
@@ -15,21 +15,6 @@ function HumanControllerComponent:New(controller, side_id, phaseType, restrictSl
         requireCard = requireCard and requireCard or false,
         side = sideForId(side_id),
     })
-end
-
-function HumanControllerComponent:handled(amount)
-    self.controller:handled(amount)
-    return true
-end
-
-function HumanControllerComponent:delegated()
-    self.controller:delegated()
-    return true
-end
-
-function HumanControllerComponent:handledTo(type)
-    self.controller:handledTo(type)
-    return true
 end
 
 --- @param card Card

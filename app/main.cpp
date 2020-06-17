@@ -66,7 +66,7 @@ int main() {
 
         auto alert_label = make_shared<Label>(font);
         alert_label->setText("alert label");
-        alert_label->position = glm::vec3(200.f, 280.f, 0.f);
+        alert_label->position = glm::vec3(80.f, 280.f, 0.f);
         gui_scene->addChild(alert_label);
 
         auto gui_card_zoomed_view = make_shared<ZoomCardView>(card_model);

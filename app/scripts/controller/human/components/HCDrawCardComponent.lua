@@ -3,5 +3,5 @@ HCDrawCardComponent = class(HumanControllerComponent)
 
 function HCDrawCardComponent:onClick(card, slot)
     self.side:actionDrawCard()
-    return self:handled()
+    return self.decision:handledTop()
 end
