@@ -36,8 +36,9 @@ set(LIB_SOURCES
         src/util/Debug.cpp
         src/render/Label.cpp
         src/font/Font.cpp
-        src/input/Input.cpp
-        src/input/UILayer.cpp include/util/Geom.h)
+        src/ui/Input.cpp
+        src/ui/UILayer.cpp
+        include/util/Geom.h src/ui/LayoutStack.cpp include/ui/LayoutStack.h)
 add_library(${LIB} ${LIB_SOURCES})
 target_include_directories(${LIB} PUBLIC include)
 

@@ -7,6 +7,7 @@
 #include <scripting/LuaHost.h>
 #include <ui/Input.h>
 #include <util/Debug.h>
+#include <ui/LayoutStack.h>
 
 #include "controller/Scripting.h"
 #include "model/board/GameBoard.h"
@@ -58,6 +59,11 @@ int main() {
     while (!glfwWindowShouldClose(window)) {
         scene->reset();
         gui_scene->reset();
+
+        auto test_widget = make_shared<LayoutStack>();
+        test_widget->addChild(Entity());
+        test_widget->addChild(Entity());
+        gui_scene->addChild(test_widget);
 
         auto status_label = make_shared<Label>(font);
         status_label->setText("");
