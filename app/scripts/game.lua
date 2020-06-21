@@ -119,32 +119,27 @@ function game:boardCardsIter()
         SLOT_RUNNER_RESOURCES,
         SLOT_RUNNER_CONSOLE,
     }
-    local slot_idx = 0
 
-    local cards_idx = 0
-    local cards_size = 0
+    local cards = {}
 
-    return function ()
-        if slot_idx >= #slots then
-            return nil
-        end
-
-        if cards_idx >= cards_size then
-            cards_size = 0
-
-            while cards_size == 0 do
-                slot_idx = slot_idx + 1
-                cards_size = board:count(slots[slot_idx])
+    for _, slot in pairs(slots) do
+        for i = 0, board:count(slot) do
+            local card = board:cardGet(slot, i)
+            if card then
+                table.insert(cards, card)
             end
         end
+    end
 
-        if slot_idx >= #slots then
+    local i = 0
+
+    return function ()
+        i = i + 1
+        if i > #cards then
             return nil
+        else
+            return cards[i]
         end
-
-        local value = board:cardGet(slots[slot_idx], cards_idx)
-        cards_idx = cards_idx + 1
-        return value
     end
 end
 

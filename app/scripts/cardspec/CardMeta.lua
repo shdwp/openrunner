@@ -215,7 +215,14 @@ end
 
 -- events
 
-function CardMeta:onRez() if self.info.onRez then return self.info.onRez(self:_ctx()) else return true end end
+function CardMeta:onRez()
+    if self.info.onRez then
+        return self.info.onRez(self:_ctx())
+    else
+        return true
+    end
+end
+
 function CardMeta:onPlay() if self.info.onPlay then return self.info.onPlay(self:_ctx()) end end
 function CardMeta:onAction() if self.info.onAction then return self.info.onAction(self:_ctx()) end end
 function CardMeta:onInstall() if self.info.onInstall then return self.info.onInstall(self:_ctx()) end end
@@ -226,7 +233,9 @@ function CardMeta:onPowerUp() return self.info.onPowerUp(self:_ctx()) end
 function CardMeta:onNewTurn()
     self.until_turn_end = {}
 
-    if self.info.onNewTurn then return self.info.onNewTurn(self:_ctx()) end
+    local result
+    if self.info.onNewTurn then result = self.info.onNewTurn(self:_ctx()) end
+    return result
 end
 
 function CardMeta:onUse()

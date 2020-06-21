@@ -581,12 +581,9 @@ Db.cards[1051] = {
     --- @param ctx Ctx
     onIceEncounterEnd = function (ctx)
         if ctx.meta.virus_tagged then
-            print("tagged %s", ctx.meta.virus_counter)
             if (ctx.meta.virus_counter or 0) > 0 then
-                print("virus -")
                 ctx.meta.virus_counter = ctx.meta.virus_counter - 1
             else
-                print("disco")
                 ctx.meta.discard = true
             end
         end
