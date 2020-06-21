@@ -1,5 +1,5 @@
 --- @class RunEndDecision: Decision
-RunEndDecision = class(Decision, { Type = "run_end"})
+RunEndDecision = class("RunEndDecision", Decision, { Type = "run_end"})
 
 --- @param side_id string
 --- @return RunEndDecision
@@ -9,6 +9,7 @@ end
 
 function RunEndDecision:autoHandle()
     for card in game:boardCardsIter() do
+        card.meta:onIceEncounterEnd()
         card.meta:onRunEnd()
     end
 

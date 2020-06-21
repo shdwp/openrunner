@@ -1,7 +1,8 @@
 --- @class HCApproachIceComponent: HumanControllerComponent
-HCApproachIceComponent = class(HumanControllerComponent)
+--- @field decision RunIceApproachDecision
+HCApproachIceComponent = class("HCApproachIceComponent", HumanControllerComponent)
 
-function HCApproachIceComponent:onClick(card, slot)
+function HCApproachIceComponent:onPrimary(card, slot)
     if self.decision.meta == card.meta then
         return self.decision:handledTop()
     end

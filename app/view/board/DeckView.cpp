@@ -6,14 +6,14 @@
 #include "DeckView.h"
 #include "CardView.h"
 
-DeckView::DeckView(shared_ptr<Deck> deck, const shared_ptr<Model> &model):
+DeckView::DeckView(luabridge::RefCountedPtr<Deck> deck, const shared_ptr<Model> &model):
         CardView(CardView::SharedModel),
         deck_(deck)
 {
     scale = glm::vec3(0.1f, 0.1f, 0.1f);
 }
 
-DeckView DeckView::For(shared_ptr<Deck> deck) {
+DeckView DeckView::For(luabridge::RefCountedPtr<Deck> deck) {
     return DeckView(deck, CardView::SharedModel);
 }
 
@@ -27,7 +27,7 @@ void DeckView::update() {
 void DeckView::draw(glm::mat4 transform) {
     CardView::draw(transform);
 
-    if (deck_ != nullptr) {
+    if (deck_.get() != nullptr) {
         auto mat = transform;
         mat = glm::translate(mat, glm::vec3(0.f, 2.f, 0.f));
         mat = glm::scale(mat, glm::vec3(10.f, 100.f, 10.f));

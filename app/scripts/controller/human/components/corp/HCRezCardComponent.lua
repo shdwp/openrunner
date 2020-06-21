@@ -1,26 +1,21 @@
 --- @class HCRezCardComponent: HumanControllerComponent
---- @field during_run boolean
 --- @field decision RunIceRezDecision
-HCRezCardComponent = class(HumanControllerComponent)
+HCRezCardComponent = class("HCRezCardComponent", HumanControllerComponent)
 
-function HCRezCardComponent:New(controller, side_id, phaseType, restrictSlot, requireCard, during_run)
-    return construct(self, HumanControllerComponent:New(controller, side_id, phaseType, restrictSlot, requireCard), {
-        during_run = during_run,
-    })
+function HCRezCardComponent:New(controller, side_id, phaseType, restrictSlot, requireCard)
+    return construct(self, HumanControllerComponent:New(controller, side_id, phaseType, restrictSlot, requireCard))
 end
 
-function HCRezCardComponent:onAltClick(card, slot)
-    if game.corp:actionRez(card, slot) then
+function HCRezCardComponent:onSecondary(card, slot)
+    if card.meta == self.decision.meta and game.corp:actionRez(card, slot) then
         if self.decision.type == RunIceRezDecision.Type then
-            return self.decision:iceRezzed(card, slot)
-        else
-            return self.decision:handledTop()
+            return self.decision:iceRezzed()
         end
     end
 end
 
 function HCRezCardComponent:onCancel()
-    if self.during_run then
+    if self.decision.type == RunIceRezDecision.Type then
         return self.decision:handledTop()
     end
 end

@@ -1,7 +1,7 @@
 --- @class DiscountedInstallDecision: Decision
 --- @field card Card
 --- @field slot string
-DiscountedInstallDecision = class(Decision, { Type = "discounted_install"})
+DiscountedInstallDecision = class("DiscountedInstallDecision", Decision, { Type = "discounted_install"})
 
 --- @param side string
 --- @param slot string

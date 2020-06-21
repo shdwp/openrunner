@@ -1,7 +1,7 @@
 --- @class HCScoreCardComponent: HumanControllerComponent
-HCScoreCardComponent = class(HumanControllerComponent)
+HCScoreCardComponent = class("HCScoreCardComponent", HumanControllerComponent)
 
-function HCScoreCardComponent:onAltClick(card, slot)
+function HCScoreCardComponent:onSecondary(card, slot)
     local i = card.meta:interactionFromBoard()
     if i == "score" then
         game.corp:actionScore(card, slot)

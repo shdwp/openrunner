@@ -1,8 +1,8 @@
 --- @class HCTurnEndDiscardComponent: HumanControllerComponent
 --- @field decision HandDiscardDecision
-HCTurnEndDiscardComponent = class(HumanControllerComponent)
+HCTurnEndDiscardComponent = class("HCTurnEndDiscardComponent", HumanControllerComponent)
 
-function HCTurnEndDiscardComponent:onClick(card, slot)
+function HCTurnEndDiscardComponent:onPrimary(card, slot)
     self.side:actionDiscard(card, slot)
     self.decision:discardedCard(card)
 

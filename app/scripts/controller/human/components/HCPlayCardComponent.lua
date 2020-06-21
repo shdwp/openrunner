@@ -1,8 +1,8 @@
 --- @class HCPlayCardComponent: HumanControllerComponent
 --- @field decision TurnBaseDecision
-HCPlayCardComponent = class(HumanControllerComponent)
+HCPlayCardComponent = class("HCPlayCardComponent", HumanControllerComponent)
 
-function HCPlayCardComponent:onClick(card, slot)
+function HCPlayCardComponent:onPrimary(card, slot)
     local card_play_type = card.meta:interactionFromHand()
     if card_play_type == "install" then
         info("%s installing %s", self.side.id, card.uid)

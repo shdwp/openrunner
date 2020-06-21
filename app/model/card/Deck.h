@@ -7,18 +7,19 @@
 
 
 #include <engine/Entity.h>
+#include <LuaBridge/RefCountedPtr.h>
 #include "Card.h"
 
 class Deck: public Item {
 private:
     static void Copy(Deck *a, const Deck &b) {
-        a->cards = make_unique<vector<shared_ptr<Card>>>(*b.cards);
+        a->cards = make_unique<vector<luabridge::RefCountedPtr<Card>>>(*b.cards);
     }
 
 public:
-    unique_ptr<vector<shared_ptr<Card>>> cards = nullptr;
+    unique_ptr<vector<luabridge::RefCountedPtr<Card>>> cards = nullptr;
 
-    Deck(): cards(make_unique<vector<shared_ptr<Card>>>()) {}
+    Deck(): cards(make_unique<vector<luabridge::RefCountedPtr<Card>>>()) {}
 
     Deck(const Deck &b) {
         Copy(this, b);
@@ -34,7 +35,7 @@ public:
             idx = cards->size();
         }
 
-        cards->insert(cards->begin() + idx, make_shared<Card>(card));
+        cards->insert(cards->begin() + idx, new Card(card));
     }
 
     void append(const Card &card) {
@@ -71,8 +72,8 @@ public:
         auto ptr = cards->back();
         cards->pop_back();
 
-        auto card = *ptr;
-        return card;
+        auto card = ptr.get();
+        return *card;
     }
 
     Card takeBottom() {
@@ -82,7 +83,7 @@ public:
 
         auto ptr = cards->front();
         cards->erase(cards->begin());
-        return *ptr;
+        return *ptr.get();
     }
 
     [[nodiscard]] Card *topUnowned() const {
@@ -93,7 +94,7 @@ public:
         }
     }
 
-    [[nodiscard]] shared_ptr<Card> top() const {
+    [[nodiscard]] luabridge::RefCountedPtr<Card> top() const {
         if (cards->empty()) {
             return nullptr;
         } else {

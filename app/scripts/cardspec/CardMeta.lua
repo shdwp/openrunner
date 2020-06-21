@@ -1,9 +1,14 @@
 --- @class CardMeta
+--- @field card Card
 --- @field info CardInfo
+--- @field rezzed boolean
+--- @field discard boolean
 --- @field until_forever table
 --- @field until_turn_end table
 --- @field until_run_end table
-CardMeta = class()
+--- @field until_encounter_end table
+--- @field until_use table
+CardMeta = class("CardMeta")
 
 --- @param info CardInfo
 --- @return CardMeta
@@ -11,12 +16,23 @@ function CardMeta:New(info)
     return construct(self, {
         info = info,
 
+        discard = false,
         rezzed = false,
         until_turn_end = {},
         until_run_end = {},
         until_forever = {},
+        until_encounter_end = {},
         until_use = {},
     })
+end
+
+--- @param card Card
+--- @return Ctx
+function CardMeta:_ctx()
+    return Ctx:New(
+            game.decision_stack:top(),
+            self
+    )
 end
 
 --- @return string
@@ -38,59 +54,6 @@ function CardMeta:interactionFromBoard()
         return "rez"
     elseif t == "ice" then
         return "rez"
-    end
-end
-
--- predicates
-
---- @return boolean
-function CardMeta:canAdvance()
-    if self.info.type_code == "agenda" then
-        return true
-    else
-        return false
-    end
-end
---- @return boolean
-function CardMeta:canAction()
-    if self.info.canAction then
-        return self.info.canAction(self)
-    else
-        return self.info.onAction ~= nil
-    end
-end
-
---- @return boolean
-function CardMeta:canPlay()
-    return self.info.canPlay == nil or self.info.canPlay(meta)
-end
-
---- @return boolean
-function CardMeta:canInstall()
-    return self:isCardRemote() or self:isCardIce()
-end
-
-function CardMeta:canBeSacrificed(card, slot)
-    return self.info.canBeSacrificed and self.info.canBeSacrificed(card, slot) or false
-end
-
---- @param meta CardMeta
---- @return boolean
-function CardMeta:canBreakIce(meta)
-    return self.info.canBreakIce(meta)
-end
-
---- @param slot string
---- @return boolean
-function CardMeta:canInstallTo(slot)
-    if not self:canInstall() then
-        return false
-    end
-
-    if self.info.type_code == "ice" then
-        return isSlotIce(slot)
-    else
-        return isSlotRemote(slot)
     end
 end
 
@@ -127,6 +90,11 @@ end
 --- @return boolean
 function CardMeta:isCardConsole()
     return self.info.type_code == "hardware" and self.info.keywords == "Console"
+end
+
+--- @return boolean
+function CardMeta:isCardAgenda()
+    return self.info.type_code == "agenda"
 end
 
 --- @param kws table<number, string>
@@ -179,26 +147,86 @@ function CardMeta:modificationsIter()
             return self.until_turn_end
         elseif i == 3 then
             return self.until_use
+        elseif i == 4 then
+            return self.until_encounter_end
         else
             return nil
         end
     end
 end
 
--- events
+-- predicates
 
-function CardMeta:onRez() if self.info.onRez then return self.info.onRez(self) else return true end end
-function CardMeta:onPlay() if self.info.onPlay then return self.info.onPlay(self) end end
-function CardMeta:onAction() if self.info.onAction then return self.info.onAction(self) end end
-function CardMeta:onInstall() if self.info.onInstall then return self.info.onInstall(self) end end
-function CardMeta:onRemoval() if self.info.onRemoval then return self.info.onRemoval(meta) end end
-function CardMeta:onScore() if self.info.onScore then return self.info.onScore(self) end end
+--- @return boolean
+function CardMeta:canAdvance()
+    if self.info.type_code == "agenda" then
+        return true
+    else
+        return false
+    end
+end
+--- @return boolean
+function CardMeta:canAction()
+    if self.info.canAction then
+        return self.info.canAction(self:_ctx())
+    else
+        return self.info.onAction ~= nil
+    end
+end
+
+--- @return boolean
+function CardMeta:canPowerUp()
+    return self.info.onPowerUp ~= nil
+end
+
+--- @return boolean
+function CardMeta:canPlay()
+    return self.info.canPlay == nil or self.info.canPlay(self:_ctx())
+end
+
+--- @return boolean
+function CardMeta:canInstall()
+    return self:isCardRemote() or self:isCardIce()
+end
+
+function CardMeta:canBeSacrificed(card, slot)
+    return self.info.canBeSacrificed and self.info.canBeSacrificed(self:_ctx(), card, slot) or false
+end
 
 --- @param meta CardMeta
-function CardMeta:onNewTurn(meta)
+--- @return boolean
+function CardMeta:onBreakIce(meta)
+    return self.info.onBreakIce(self:_ctx(), meta)
+end
+
+--- @param slot string
+--- @return boolean
+function CardMeta:canInstallTo(slot)
+    if not self:canInstall(self:_ctx()) then
+        return false
+    end
+
+    if self.info.type_code == "ice" then
+        return isSlotIce(slot)
+    else
+        return isSlotRemote(slot)
+    end
+end
+
+-- events
+
+function CardMeta:onRez() if self.info.onRez then return self.info.onRez(self:_ctx()) else return true end end
+function CardMeta:onPlay() if self.info.onPlay then return self.info.onPlay(self:_ctx()) end end
+function CardMeta:onAction() if self.info.onAction then return self.info.onAction(self:_ctx()) end end
+function CardMeta:onInstall() if self.info.onInstall then return self.info.onInstall(self:_ctx()) end end
+function CardMeta:onRemoval() if self.info.onRemoval then return self.info.onRemoval(self:_ctx()) end end
+function CardMeta:onScore() if self.info.onScore then return self.info.onScore(self:_ctx()) end end
+function CardMeta:onPowerUp() return self.info.onPowerUp(self:_ctx()) end
+
+function CardMeta:onNewTurn()
     self.until_turn_end = {}
 
-    if self.info.onNewTurn then return self.info.onNewTurn(self) end
+    if self.info.onNewTurn then return self.info.onNewTurn(self:_ctx()) end
 end
 
 function CardMeta:onUse()
@@ -207,4 +235,10 @@ end
 
 function CardMeta:onRunEnd()
     self.until_run_end = {}
+end
+
+function CardMeta:onIceEncounterEnd()
+    self.until_encounter_end = {}
+
+    if self.info.onIceEncounterEnd then return self.info.onIceEncounterEnd(self:_ctx()) end
 end

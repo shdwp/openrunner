@@ -1,6 +1,6 @@
 --- @class DecisionStack
 --- @field stack table<number, Decision>
-DecisionStack = class()
+DecisionStack = class("DecisionStack")
 
 --- @return DecisionStack
 function DecisionStack:New()

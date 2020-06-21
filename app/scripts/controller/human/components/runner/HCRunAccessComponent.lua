@@ -1,7 +1,7 @@
 --- @class HCRunAccessComponent: HumanControllerComponent
 --- @field decision RunAccessDecision
 --- @field deck Deck
-HCRunAccessComponent = class(HumanControllerComponent)
+HCRunAccessComponent = class("HCRunAccessComponent", HumanControllerComponent)
 
 function HCRunAccessComponent:onNewDecision()
     local deck = Deck()
@@ -15,7 +15,7 @@ function HCRunAccessComponent:onNewDecision()
     self.deck = deck
 end
 
-function HCRunAccessComponent:onClick(card, slot)
+function HCRunAccessComponent:onPrimary(card, slot)
     if self.deck.size <= 0 then
         card_select_widget.hidden = true
         return self.decision:handledTop()

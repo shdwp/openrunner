@@ -5,7 +5,7 @@
 #include <util/Debug.h>
 #include "ZoomCardView.h"
 
-void ZoomCardView::setCard(shared_ptr<Card> card_ptr, const string &str) {
+void ZoomCardView::setCard(luabridge::RefCountedPtr<Card> card_ptr, const string &str) {
     card = card_ptr;
     text = str;
 }

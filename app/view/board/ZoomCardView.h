@@ -14,7 +14,7 @@ public:
 
     using CardView::CardView;
 
-    void setCard(shared_ptr<Card> card, const string &description);
+    void setCard(luabridge::RefCountedPtr<Card> card, const string &description);
 
     void update() override;
 

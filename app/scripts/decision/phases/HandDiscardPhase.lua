@@ -1,5 +1,5 @@
 --- @class HandDiscardDecision: Decision
-HandDiscardDecision = class(Decision, {
+HandDiscardDecision = class("HandDiscardDecision", Decision, {
     Type = "hand_discard_phase"
 })
 

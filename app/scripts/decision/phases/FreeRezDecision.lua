@@ -1,5 +1,5 @@
 --- @class FreeRezDecision: Decision
-FreeRezDecision = class(Decision, { Type = "free_rez"})
+FreeRezDecision = class("FreeRezDecision", Decision, { Type = "free_rez"})
 
 --- @param side string
 --- @param cb function returning bool

@@ -1,6 +1,6 @@
 --- @class Corp: Side
 --- @field bad_publicity number
-Corp = class(Side)
+Corp = class("Corp", Side)
 
 --- @return Corp
 function Corp:New()
@@ -26,6 +26,12 @@ function Corp:drawCard()
         local card = Db:card(card_info.uid)
         board:cardAppend(SLOT_CORP_HAND, card)
     end
+end
+
+--- @param meta CardMeta
+function Corp:rez(meta)
+    meta.rezzed = true
+    meta.card.faceup = true
 end
 
 function Corp:actionDrawCard()
@@ -129,8 +135,7 @@ function Corp:actionRez(card, from)
     end
 
     if card.meta:onRez() and self:payPrice(card.meta) then
-        card.faceup = true
-        card.meta.rezzed = true
+        self:rez(card.meta)
         return true
     end
 

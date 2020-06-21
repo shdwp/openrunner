@@ -92,19 +92,27 @@ function construct(self, a, b)
         b[k] = v
     end
 
-    setmetatable(b, { __index = self})
+    local mt = getmetatable(self)
+    setmetatable(b, { __index = self, __tostring = mt.__tostring })
     return b
 end
 
-function class(parent, o)
+function class(typeid, parent, o)
+    parent = parent or {
+        debugDescription = function () return "" end
+    }
+
     local t = o or {}
+    local mt = {
+        __tostring = function (self)
+            return "<" .. typeid .. self:debugDescription() .. ">"
+        end
+    }
+
     if parent then
-        setmetatable(t, {__index = parent})
+        mt.__index = parent
     end
 
+    setmetatable(t, mt)
     return t
-end
-
-function parent(self)
-    return getmetatable(self)["__index"]["__index"]
 end

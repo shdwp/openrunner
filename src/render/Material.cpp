@@ -6,20 +6,20 @@
 
 #include <engine/Camera.h>
 
-Material::Material(unique_ptr<ShaderProgram> mShader, const shared_ptr<Texture2D> &_tex_albedo) {
-    shader_ = move(mShader);
+Material::Material(shared_ptr<ShaderProgram> mShader, const shared_ptr<Texture2D> &_tex_albedo) {
+    shader_ = mShader;
     tex_albedo = _tex_albedo;
 }
 
 Material Material::Base(glm::vec4 albedo) {
-    auto shader = make_unique<ShaderProgram>(vector<shader_argument_struct>(
+    auto shader = make_shared<ShaderProgram>(vector<shader_argument_struct>(
             {
                     shader_argument(ShaderType_Vertex, std::string("../src/shaders/base_vert.glsl")),
                     shader_argument(ShaderType_Fragment, std::string("../src/shaders/base_frag.glsl")),
             }
     ));
 
-    auto mat = Material(move(shader), nullptr);
+    auto mat = Material(shader, nullptr);
     mat.albedo = albedo;
     return mat;
 }

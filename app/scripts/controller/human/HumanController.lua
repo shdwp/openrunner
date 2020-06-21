@@ -1,6 +1,6 @@
 --- @class HumanController: PlayerController
 --- @field components table<number, HumanControllerComponent>
-HumanController = class(PlayerController)
+HumanController = class("HumanController", PlayerController)
 
 --- @param side_id string
 --- @return HumanController
@@ -26,8 +26,9 @@ function HumanController:New(side_id)
             HCTurnEndDiscardComponent:New(t, SIDE_CORP, HandDiscardDecision.Type, isHandSlot, true),
 
             HCScoreCardComponent:New(t, nil, nil, isSlotRemote, true),
-            HCRezCardComponent:New(t, SIDE_CORP, RunIceRezDecision.Type, isSlotIce, true, true),
-            HCRezCardComponent:New(t, SIDE_CORP, nil, isSlotInstallable, true, false),
+
+            HCRezCardComponent:New(t, SIDE_CORP, TurnBaseDecision.Type, isSlotInstallable, true),
+            HCRezCardComponent:New(t, SIDE_CORP, RunIceRezDecision.Type, isSlotInstallable, true),
         }
     elseif side_id == SIDE_RUNNER then
         t.components = {
@@ -61,7 +62,7 @@ function HumanController:_matchComponent(ignore_slot_card, slot, card, fn)
         local does_restrict_slot = comp.restrictSlot ~= nil
 
         local side_matches = not comp.side or (self.decision and comp.side.id == self.decision.side.id)
-        local phase_matches = not comp.phaseType or self.decision and comp.phaseType == self.decision.type
+        local phase_matches = not comp.supportedDecisionType or self.decision and comp.supportedDecisionType == self.decision.type
         local slot_matches = ignore_slot_card or not does_restrict_slot or comp.restrictSlot(slot)
         local card_req_matches = ignore_slot_card or (card and does_require_card) or not (card and does_require_card)
 
@@ -81,6 +82,7 @@ function HumanController:handle(decision)
     PlayerController.handle(self, decision)
 
     self:_matchComponent(true, nil, nil, function (comp)
+        info("Decision %s matched to component %s", decision, comp)
         comp:onNewDecision()
     end)
 end
@@ -134,17 +136,17 @@ function HumanController:interaction(type, descr)
     self.last_update = 0
 
     local result
-    local interaction_descr = type == "cancel" and "" or string.format("%s (%s)", descr.slot, descr.card)
+    local interaction_descr = type == INTERACTION_CANCEL and "" or string.format("%s (%s)", descr.slot, descr.card)
 
     local slot = descr and descr.slot
     local card = descr and descr.card
-    self:_matchComponent(type == "cancel", slot, card, function (comp)
+    self:_matchComponent(type == INTERACTION_CANCEL, slot, card, function (comp)
         info("Component of %s handling %s, passed event %s (%s) to %s", self.side.id, comp.decision, type, interaction_descr, comp)
-        if type == "click" then
-            result = comp:onClick(descr.card, descr.slot)
-        elseif type == "altclick" then
-            result = comp:onAltClick(descr.card, descr.slot)
-        elseif type == "cancel" then
+        if type == INTERACTION_PRIMARY then
+            result = comp:onPrimary(descr.card, descr.slot)
+        elseif type == INTERACTION_SECONDARY then
+            result = comp:onSecondary(descr.card, descr.slot)
+        elseif type == INTERACTION_CANCEL then
             result = comp:onCancel()
         end
 
@@ -152,7 +154,7 @@ function HumanController:interaction(type, descr)
     end)
 
     if not result then
-        info("No component of %s to handle decision: %s %s", self.side.id, type, interaction_descr)
+        info("No component of %s to handle decision %s interaction %s %s", self.side.id, self.decision, type, interaction_descr)
         return false
     else
         return true

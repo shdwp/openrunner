@@ -15,7 +15,7 @@ class Camera;
 
 class Material {
 protected:
-    unique_ptr<ShaderProgram> shader_;
+    shared_ptr<ShaderProgram> shader_;
     int texture_idx_;
 
 public:
@@ -27,7 +27,7 @@ public:
     glm::vec4 albedo = glm::vec4(0);
     float emission = 0.f;
 
-    Material(unique_ptr<ShaderProgram> mShader, const shared_ptr<Texture2D> &m_albedo);
+    Material(shared_ptr<ShaderProgram> mShader, const shared_ptr<Texture2D> &m_albedo);
 
     static Material Base(glm::vec4 albedo);
 

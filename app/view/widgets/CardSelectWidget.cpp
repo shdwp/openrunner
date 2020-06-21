@@ -7,6 +7,16 @@
 #include "../board/CardView.h"
 
 void CardSelectWidget::setDeck(Deck *deck, int limit) {
+    for (auto &child : *children_) {
+        UILayer::unregisterSceneEntity(child);
+    }
+
+    this->removeAllChildren();
+
+    if (deck == nullptr) {
+        return;
+    }
+
     auto end_iter = limit == -1 || limit >= deck->cards->size() ? end(*deck->cards) : begin(*deck->cards) + limit;
 
     for (auto i = begin(*deck->cards); i != end_iter; i++) {

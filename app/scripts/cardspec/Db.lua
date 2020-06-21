@@ -6,6 +6,18 @@ Db = {
     card_titles = {},
 }
 
+--- @class Ctx
+--- @field meta CardMeta
+--- @field decision Decision
+Ctx = class("Ctx")
+
+function Ctx:New(decision, meta)
+    return construct(self, {
+        meta = meta,
+        decision = decision,
+    })
+end
+
 --- @class CardInfo
 --- @field code string
 --- @field flavor string
@@ -38,7 +50,9 @@ function Db:card(uid)
         error("Failed to find card %d", uid)
     end
 
-    return Card(uid, CardMeta:New(info))
+    local card = Card(uid, CardMeta:New(info))
+    card.meta.card = card
+    return card
 end
 
 --- @param descr string

@@ -58,10 +58,11 @@ function sideSlots(id)
     end
 end
 
--- general
-CLICK = "click"
-ALTCLICK = "altclick"
-CANCEL = "cancel"
+-- interaction
+INTERACTION_PRIMARY = "primary"
+INTERACTION_SECONDARY = "secondary"
+INTERACTION_TERTIARY = "tertiary"
+INTERACTION_CANCEL = "cancel"
 
 -- sides
 SIDE_CORP = "corp"

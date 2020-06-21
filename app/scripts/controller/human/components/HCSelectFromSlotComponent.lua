@@ -1,8 +1,8 @@
 --- @class HCSelectFromSlotComponent: HumanControllerComponent
 --- @field decision SelectFromSlotDecision
-HCSelectFromSlotComponent = class(HumanControllerComponent)
+HCSelectFromSlotComponent = class("HCSelectFromSlotComponent", HumanControllerComponent)
 
-function HCSelectFromSlotComponent:onClick(card, slot)
+function HCSelectFromSlotComponent:onPrimary(card, slot)
     if self.decision:selected(card, slot) then
         info("%s selected %d from %s", self.side.id, card.uid, slot)
         return true

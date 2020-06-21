@@ -1,8 +1,8 @@
 --- @class HCSubroutBreakComponent: HumanControllerComponent
 --- @field decision RunSubroutBreakDecision
-HCSubroutBreakComponent = class(HumanControllerComponent)
+HCSubroutBreakComponent = class("HCSubroutBreakComponent", HumanControllerComponent)
 
-function HCSubroutBreakComponent:onClick(card, slot)
+function HCSubroutBreakComponent:onPrimary(card, slot)
     if game.runner:actionBreakIce(card.meta, self.decision.meta) then
         info("Runner broke ice %s subrout %s with %s", self.decision.meta, self.decision.description, card)
         return self.decision:subroutineBroken()
@@ -13,9 +13,9 @@ function HCSubroutBreakComponent:onClick(card, slot)
         return false
     end
 
-function HCSubroutBreakComponent:onAltClick(card, slot)
-    if card.meta:canAction() then
-        return card.meta:onAction()
+function HCSubroutBreakComponent:onSecondary(card, slot)
+    if card.meta:canPowerUp() then
+        return card.meta:onPowerUp()
     else
         info("Failed to handle alt click: no available action on card %d", card.uid)
         return false

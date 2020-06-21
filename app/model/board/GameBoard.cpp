@@ -8,7 +8,7 @@
 
 GameBoard::GameBoard():
         views(make_shared<vector<shared_ptr<GameBoardView>>>()),
-        cards_(make_unique<std::unordered_map<string, vector<shared_ptr<Item>>>>())
+        cards_(make_unique<std::unordered_map<string, vector<luabridge::RefCountedPtr<Item>>>>())
 {
 }
 

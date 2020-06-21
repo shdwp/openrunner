@@ -2,14 +2,14 @@
 --- @field slot string
 --- @field slot_pred fun(slot: string): boolean
 --- @field amount number
---- @field cb function
+--- @field cb fun(decision: SelectFromSlotDecision, card: Card, slot: string)
 --- @field force boolean
-SelectFromSlotDecision = class(Decision, { Type = "select_from_slot"})
+SelectFromSlotDecision = class("SelectFromSlotDecision", Decision, { Type = "select_from_slot"})
 
 --- @param side string
 --- @param slot any
 --- @param amount number
---- @param cb function
+--- @param cb fun(decision: SelectFromSlotDecision, card: Card, slot: string)
 --- @param force boolean
 function SelectFromSlotDecision:New(side, slot, amount, cb, force)
     return construct(self, Decision:New(self.Type, side), {
@@ -38,7 +38,7 @@ end
 --- @return boolean
 function SelectFromSlotDecision:selected(card, slot)
     if self:allowsSlot(slot) then
-        if self.cb(card, slot) then
+        if self.cb(self, card, slot) then
             self.amount = self.amount - 1
             if self.amount <= 0 then
                 return self:handledTop()

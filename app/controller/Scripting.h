@@ -13,8 +13,9 @@
 #include "../view/widgets/OptionSelectWidget.h"
 
 enum InteractionEvent {
-    InteractionEvent_Click,
-    InteractionEvent_AltClick,
+    InteractionEvent_Primary,
+    InteractionEvent_Secondary,
+    InteractionEvent_Tertiary,
     InteractionEvent_Drag,
     InteractionEvent_Release,
     InteractionEvent_Cancel,
@@ -83,8 +84,9 @@ public:
     void onInteraction(interaction_event_t event, shared_ptr<T> object = nullptr) {
         string event_str;
         switch (event) {
-            case InteractionEvent_Click: event_str = "click"; break;
-            case InteractionEvent_AltClick: event_str = "altclick"; break;
+            case InteractionEvent_Primary: event_str = "primary"; break;
+            case InteractionEvent_Secondary: event_str = "secondary"; break;
+            case InteractionEvent_Tertiary: event_str = "tertiary"; break;
             case InteractionEvent_Drag: event_str = "drag"; break;
             case InteractionEvent_Release: event_str = "release"; break;
             case InteractionEvent_Cancel: event_str = "cancel"; break;

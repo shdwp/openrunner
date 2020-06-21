@@ -4,7 +4,7 @@
 --- @field max_hand number
 --- @field score number
 --- @field credits number
-Side = {}
+Side = class("Side")
 
 --- @return Side
 function Side:New(id, max_clicks)

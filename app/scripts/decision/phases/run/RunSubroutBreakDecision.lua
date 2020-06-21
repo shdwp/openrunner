@@ -2,7 +2,7 @@
 --- @field meta CardMeta
 --- @field description string
 --- @field resolve_decision RunSubroutResolveDecision
-RunSubroutBreakDecision = class(Decision, { Type = "run_subrout_break"})
+RunSubroutBreakDecision = class("RunSubroutBreakDecision", Decision, { Type = "run_subrout_break"})
 
 --- @param side string
 --- @param meta CardMeta

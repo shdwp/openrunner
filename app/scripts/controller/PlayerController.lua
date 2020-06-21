@@ -1,7 +1,7 @@
 --- @class PlayerController
 --- @field decision Decision
 --- @field side Side
-PlayerController = class()
+PlayerController = class("PlayerController")
 
 --- @param side_id string
 --- @return PlayerController

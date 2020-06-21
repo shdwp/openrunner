@@ -1,6 +1,6 @@
 --- @class RunIceRezDecision: Decision
 --- @field meta CardMeta
-RunIceRezDecision = class(Decision, { Type = "run_ice_rez"})
+RunIceRezDecision = class("RunIceRezDecision", Decision, { Type = "run_ice_rez"})
 
 --- @param side string
 --- @param meta CardMeta
@@ -11,20 +11,24 @@ function RunIceRezDecision:New(side, meta)
     })
 end
 
---- @param card Card
---- @param slot string
-function RunIceRezDecision:iceRezzed(card, slot)
+function RunIceRezDecision:autoHandle()
+    if self.meta.rezzed == true then
+        return self:iceRezzed()
+    end
+end
+
+function RunIceRezDecision:iceRezzed()
     local resolve_decisions = {}
 
-    for descr, fn in card.meta:subroutinesReversedIter() do
+    for descr, fn in self.meta:subroutinesReversedIter() do
         local decision = RunSubroutResolveDecision:New(SIDE_RUNNER, fn, descr)
         table.insert(resolve_decisions, 1, decision)
         game.decision_stack:push(decision)
     end
 
-    for descr, _ in card.meta:subroutinesReversedIter() do
+    for descr, _ in self.meta:subroutinesReversedIter() do
         local resolve_decision = resolve_decisions[#resolve_decisions]
-        game.decision_stack:push(RunSubroutBreakDecision:New(SIDE_RUNNER, card.meta, descr, resolve_decision))
+        game.decision_stack:push(RunSubroutBreakDecision:New(SIDE_RUNNER, self.meta, descr, resolve_decision))
         table.remove(resolve_decisions, #resolve_decisions)
     end
 

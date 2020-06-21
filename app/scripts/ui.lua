@@ -29,11 +29,6 @@ function ui:focusCorp()
     corp_hand_view.vertical_offset = 0
 end
 
-function ui:zoomCorp()
-    main_camera.position = Vec3(0, 1.2, 0.03)
-    main_camera.direction = Vec3(0, -1, 0.001)
-end
-
 function ui:focusRunner()
     main_camera.position = Vec3(0, 1.2, -0.5)
     main_camera.direction = Vec3(0, -1, 0.001)
@@ -45,6 +40,11 @@ end
 function ui:zoomRunner()
     main_camera.position = Vec3(0, 1.2, 0.1)
     main_camera.direction = Vec3(0, -1, -0.001)
+end
+
+function ui:zoomCorp()
+    main_camera.position = Vec3(0, 1.2, 0.03)
+    main_camera.direction = Vec3(0, -1, 0.001)
 end
 
 function ui:focusCurrentPlayer()

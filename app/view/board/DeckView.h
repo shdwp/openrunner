@@ -6,20 +6,21 @@
 #define OPENRUNNER_DECKVIEW_H
 
 #include <ui/UILayer.h>
+#include <LuaBridge/RefCountedPtr.h>
 #include "../../model/card/Deck.h"
 #include "CardView.h"
 
 class DeckView: public CardView {
 private:
-    shared_ptr<Deck> deck_;
+    luabridge::RefCountedPtr<Deck> deck_;
     glm::mat4 uiTransform_;
 
 public:
     using CardView::CardView;
 
-    explicit DeckView(shared_ptr<Deck> deck, const shared_ptr<Model>& model);
+    explicit DeckView(luabridge::RefCountedPtr<Deck> deck, const shared_ptr<Model>& model);
 
-    static DeckView For(shared_ptr<Deck> deck);
+    static DeckView For(luabridge::RefCountedPtr<Deck> deck);
 
     [[nodiscard]] Deck *getUnownedDeckPtr() const { return deck_.get(); }
 

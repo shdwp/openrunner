@@ -133,6 +133,7 @@ int main() {
 
             while (!glfwWindowShouldClose(window)) {
                 glClearColor(0.1f, 0.1f, 0.1f, 1.f);
+                glStencilMask(0xff);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
                 // glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
@@ -173,24 +174,26 @@ int main() {
                 if (Input::Shared->keyPressed(GLFW_MOUSE_BUTTON_LEFT)) {
                     shared_ptr<UIInteractable> intr;
                     if ((intr = gui_scene->ui_layer->traceInputCursor()) || (intr = scene->ui_layer->traceInputCursor())) {
-                        scripting->onInteraction(InteractionEvent_Click, intr);
+                        scripting->onInteraction(InteractionEvent_Primary, intr);
                     }
                 }
 
                 if (Input::Shared->keyPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
                     shared_ptr<UIInteractable> intr;
                     if ((intr = gui_scene->ui_layer->traceInputCursor()) || (intr = scene->ui_layer->traceInputCursor())) {
-                        scripting->onInteraction(InteractionEvent_AltClick, intr);
+                        scripting->onInteraction(InteractionEvent_Secondary, intr);
+                    }
+                }
+
+                if (Input::Shared->keyPressed(GLFW_MOUSE_BUTTON_MIDDLE)) {
+                    shared_ptr<UIInteractable> intr;
+                    if ((intr = gui_scene->ui_layer->traceInputCursor()) || (intr = scene->ui_layer->traceInputCursor())) {
+                        scripting->onInteraction(InteractionEvent_Tertiary, intr);
                     }
                 }
 
                 if (Input::Shared->keyPressed(GLFW_KEY_ESCAPE)) {
                     scripting->onInteraction<UIInteractable>(InteractionEvent_Cancel);
-                }
-
-                if (Input::Shared->keyPressed(GLFW_KEY_R)) {
-                    // force game restart
-                    break;
                 }
 
                 if (Input::Shared->keyDown(GLFW_KEY_LEFT_ALT)) {
@@ -205,6 +208,11 @@ int main() {
                     }
                 } else {
                     gui_card_zoomed_view->hidden = true;
+                }
+
+                if (Input::Shared->keyPressed(GLFW_KEY_R)) {
+                    // force game reload
+                    break;
                 }
 
                 Input::Shared->reset();

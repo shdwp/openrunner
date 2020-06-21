@@ -7,6 +7,7 @@
 
 
 #include <ui/UILayer.h>
+#include <LuaBridge/RefCountedPtr.h>
 #include "SlotView.h"
 #include "../../model/card/Card.h"
 #include "../materials/CardMaterial.h"
@@ -16,17 +17,17 @@ protected:
     glm::mat4 uiTransform_ = glm::mat4(0.f);
 
 public:
-    shared_ptr<Card> card;
+    luabridge::RefCountedPtr<Card> card;
     bool force_faceup = false;
     int ui_z_index = 1;
 
     using SlotView::SlotView;
 
-    CardView(shared_ptr<Card> card, const shared_ptr<Model>& model);
+    CardView(luabridge::RefCountedPtr<Card> card, const shared_ptr<Model>& model);
 
     static shared_ptr<Model> SharedModel;
     static shared_ptr<CardMaterial> SharedMaterial;
-    static CardView For(shared_ptr<Card> card);
+    static CardView For(luabridge::RefCountedPtr<Card> card);
 
     [[nodiscard]] Card *getUnownedCardPtr() const { return card.get(); }
 

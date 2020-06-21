@@ -2,7 +2,7 @@
 --- @field Type string
 --- @field type string
 --- @field side Side
-Decision = class()
+Decision = class("Decision")
 
 --- @param type string type identifier
 --- @param side_id string side
@@ -12,6 +12,10 @@ function Decision:New(type, side_id)
         type = type,
         side = sideForId(side_id),
     })
+end
+
+function Decision:debugDescription()
+    return self.type .. " for " .. self.side.id
 end
 
 function Decision:autoHandle()
@@ -41,6 +45,7 @@ function Decision:handledTop(amount)
         game.decision_stack:remove(self)
     end
 
+    --- defer call in order to clear the stack
     game:cycle()
     return true
 end

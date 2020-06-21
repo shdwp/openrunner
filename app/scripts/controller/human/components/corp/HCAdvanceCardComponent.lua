@@ -1,7 +1,7 @@
 --- @class HCAdvanceCardComponent: HumanControllerComponent
-HCAdvanceCardComponent = class(HumanControllerComponent)
+HCAdvanceCardComponent = class("HCAdvanceCardComponent", HumanControllerComponent)
 
-function HCAdvanceCardComponent:onAltClick(card, slot)
+function HCAdvanceCardComponent:onSecondary(card, slot)
     local free = false
     if self.decision.type == FreeAdvanceDecision.Type then
         if not self.decision.cb(card) then

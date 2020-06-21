@@ -32,6 +32,11 @@ function game:cycle()
     end
 
     local decision = self.decision_stack:top()
+    if self.current_side ~= decision.side.id then
+        self.current_side = decision.side.id
+        ui:focusCurrentPlayer()
+    end
+
     if decision:autoHandle() then
         return
     end
@@ -143,16 +148,6 @@ function game:boardCardsIter()
     end
 end
 
---- @param fn fun(slot: string, card: Card)
-function game:iterateCardsOnBoard(fn)
-
-    for _, slot in pairs(slots) do
-        for card in cardsIter(slot) do
-            fn(slot, card)
-        end
-    end
-end
-
 function game:onInit()
     info("Game init")
     self.corp = Corp:New()
@@ -230,12 +225,16 @@ function game:onInit()
 
         board:cardAppend(remoteSlot(1), Db:card(1094))
         board:cardAppend(remoteIceSlot(1), Db:card(1101))
-        --board:cardAppend(remoteIceSlot(1), Db:card(1111))
+        board:cardAppend(remoteIceSlot(1), Db:card(1111))
         ui:cardInstalled(nil, remoteIceSlot(1))
 
         board:cardAppend(SLOT_RUNNER_PROGRAMS, Db:card(1043))
         board:cardAppend(SLOT_RUNNER_PROGRAMS, Db:card(1027))
+        board:cardAppend(SLOT_RUNNER_PROGRAMS, Db:card(1051))
         ui:cardInstalled(nil, SLOT_RUNNER_PROGRAMS)
+
+        board:cardAppend(SLOT_CORP_HAND, Db:card(1094))
+        board:cardAppend(SLOT_RUNNER_HAND, Db:card(1039))
     end
 
     info("Game ready!")

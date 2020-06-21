@@ -5,14 +5,21 @@
 #include "CardMaterial.h"
 
 CardMaterial CardMaterial::Material(const shared_ptr<Texture2D> &tex) {
-    auto shader = make_unique<ShaderProgram>(vector<shader_argument_struct>(
+    auto card_shader = make_shared<ShaderProgram>(vector<shader_argument_struct>(
             {
                     shader_argument(ShaderType_Vertex, std::string("../app/shaders/card/card_vert.glsl")),
                     shader_argument(ShaderType_Fragment, std::string("../app/shaders/card/card_frag.glsl")),
             }
     ));
 
-    return CardMaterial(move(shader), tex);
+    auto highlight_shader = make_shared<ShaderProgram>(vector<shader_argument_struct>(
+            {
+                    shader_argument(ShaderType_Vertex, std::string("../app/shaders/card/card_vert.glsl")),
+                    shader_argument(ShaderType_Fragment, std::string("../app/shaders/card/card_highlight_frag.glsl")),
+            }
+    ));
+
+    return CardMaterial(card_shader, highlight_shader, tex);
 }
 
 void CardMaterial::activate(glm::mat4 local) {
@@ -37,4 +44,10 @@ void CardMaterial::setupFor(const Card &card) {
         (*texture_cache_)[card.uid] = new_tex;
         current_card_tex_ = new_tex;
     }
+
+    shader_ = card_shader_;
+}
+
+void CardMaterial::setupForHighlight() {
+    shader_ = highlight_shader_;
 }

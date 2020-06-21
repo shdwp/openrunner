@@ -1,9 +1,9 @@
 --- @class HCInitiateRunComponent: HumanControllerComponent
 --- @field decision TurnBaseDecision
-HCInitiateRunComponent = class(HumanControllerComponent)
+HCInitiateRunComponent = class("HCInitiateRunComponent", HumanControllerComponent)
 
-function HCInitiateRunComponent:onClick(card, slot)
-    self.decision:initiateRun(card, slot)
+function HCInitiateRunComponent:onPrimary(card, slot)
+    self.decision:initiateRun(slot)
     return true
 end
 

@@ -1,7 +1,7 @@
 --- @class HCDrawCardComponent: HumanControllerComponent
-HCDrawCardComponent = class(HumanControllerComponent)
+HCDrawCardComponent = class("HCDrawCardComponent", HumanControllerComponent)
 
-function HCDrawCardComponent:onClick(card, slot)
+function HCDrawCardComponent:onPrimary(card, slot)
     self.side:actionDrawCard()
     return self.decision:handledTop()
 end

@@ -5,7 +5,7 @@
 --- @field meat_damage number
 --- @field brain_damage number
 --- @field recurring table
-Runner = class(Side)
+Runner = class("Runner", Side)
 print(Side)
 
 --- @return Runner
@@ -59,7 +59,7 @@ function Runner:actionDrawCard()
     end
 end
 
-function Runner:actionInstall(card, from, to)
+function Runner:actionInstall(card, from, to, suppress_events)
     assert(card)
     assert(from)
     assert(to)
@@ -93,7 +93,11 @@ function Runner:actionInstall(card, from, to)
         end
 
         board:cardPop(from, card)
-        card.meta:onInstall()
+        if suppress_events == true then
+            info("onInstall() suppressed due to suppress_events")
+        else
+            card.meta:onInstall()
+        end
         ui:cardInstalled(card, to)
         return true
     end
@@ -120,7 +124,7 @@ function Runner:actionBreakIce(breaker, ice)
         end
     end
 
-    if breaker_strength >= ice_strength and breaker:canBreakIce(ice) then
+    if breaker_strength >= ice_strength and breaker:onBreakIce(ice) then
         breaker:onUse()
         return true
     else

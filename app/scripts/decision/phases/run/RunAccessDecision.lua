@@ -1,13 +1,15 @@
 --- @class RunAccessDecision: Decision
 --- @field slot string
-RunAccessDecision = class(Decision, { Type = "run_access"})
+--- @field additional_amount number
+RunAccessDecision = class("RunAccessDecision", Decision, { Type = "run_access"})
 
 --- @param side string
 --- @param slot string
 --- @return RunAccessDecision
-function RunAccessDecision:New(side, slot)
+function RunAccessDecision:New(side, slot, additional_amount)
     return construct(self, Decision:New(self.Type, side), {
         slot = slot,
+        additional_amount = additional_amount,
     })
 end
 

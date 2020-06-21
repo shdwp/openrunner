@@ -1,7 +1,7 @@
 --- @class HCInstallCardComponent: HumanControllerComponent
-HCInstallCardComponent = class(HumanControllerComponent)
+HCInstallCardComponent = class("HCInstallCardComponent", HumanControllerComponent)
 
-function HCInstallCardComponent:onClick(card, slot)
+function HCInstallCardComponent:onPrimary(card, slot)
     if self.side:actionInstall(self.decision.card, self.decision.slot, slot) then
         self.decision:handledTop(2)
         return true

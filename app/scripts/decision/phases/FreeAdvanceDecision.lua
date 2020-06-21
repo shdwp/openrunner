@@ -1,7 +1,7 @@
 --- @class FreeAdvanceDecision: Decision
 --- @field card Card
 --- @field slot string
-FreeAdvanceDecision = class(Decision, { Type = "free_advance"})
+FreeAdvanceDecision = class("FreeAdvanceDecision", Decision, { Type = "free_advance"})
 
 --- @param side string
 --- @param cb function returning bool

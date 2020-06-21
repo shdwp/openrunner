@@ -1,7 +1,7 @@
 --- @class InstallDecision: Decision
 --- @field card Card
 --- @field slot string
-InstallDecision = class(Decision, { Type = "install"})
+InstallDecision = class("InstallDecision", Decision, { Type = "install"})
 
 --- @param side string
 --- @param slot string

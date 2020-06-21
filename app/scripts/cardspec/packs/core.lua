@@ -16,8 +16,8 @@ Db.cards[1005] = {
     type_code = "hardware",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    onNewTurn = function (meta)
+    --- @param ctx Ctx
+    onNewTurn = function (ctx)
         game.runner.recurring.credits_for_virus_or_icebreakers = game.runner.recurring.credits_for_virus_or_icebreakers + 1
     end
 }
@@ -43,10 +43,18 @@ Db.cards[1007] = {
     type_code = "program",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    onAction = function (meta)
+    --- @param ctx Ctx
+    onPowerUp = function (ctx)
         if game.runner:spendCredits(1) then
-            meta.until_use.additional_strength = (meta.until_use.additional_strength or 0) + 1
+            ctx.meta.until_use.additional_strength = (ctx.meta.until_use.additional_strength or 0) + 1
+        end
+    end,
+
+    --- @param ctx Ctx
+    --- @param ice_meta CardMeta
+    onBreakIce = function (ctx, ice_meta)
+        if game.runner:spendCredits(1) then
+            return ice_meta:keywordsInclude("Barrier")
         end
     end,
 }
@@ -70,8 +78,8 @@ Db.cards[1019] = {
     type_code = "event",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    onPlay = function (meta)
+    --- @param ctx Ctx
+    onPlay = function (ctx)
         game.runner:alterCredits(3)
     end
 }
@@ -96,17 +104,29 @@ Db.cards[1026] = {
     type_code = "program",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    onPlay = function (meta)
+    --- @param ctx Ctx
+    --- @param ice CardMeta
+    onBreakIce = function (ctx, ice)
+        if game.runner:spendCredits(1) then
+            if ctx.meta.selected_ice == ice then
+                return true
+            else
+                return ice:keywordsInclude("Sentry")
+            end
+        end
+    end,
+
+    --- @param ctx Ctx
+    onPlay = function (ctx)
         make_interaction:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (card, slot)
-            meta.selected_ice = card.uid
+            ctx.meta.selected_ice = card.uid
         end)
     end,
 
-    --- @param meta CardMeta
-    onAction = function (meta)
+    --- @param ctx Ctx
+    onPowerUp = function (ctx)
         if game.runner:spendCredits(2) then
-            meta.until_use.additional_strength = (meta.until_use.additional_strength or 0) + 1
+            ctx.meta.until_use.additional_strength = (ctx.meta.until_use.additional_strength or 0) + 1
         end
     end
 }
@@ -132,19 +152,21 @@ Db.cards[1027] = {
     type_code = "program",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    onAction = function (meta)
+    --- @param ctx Ctx
+    onPowerUp = function (ctx)
         if game.runner:spendCredits(3) then
-            meta.until_use.additional_strength = (meta.until_use.additional_strength or 0) + 5
+            ctx.meta.until_use.additional_strength = (ctx.meta.until_use.additional_strength or 0) + 5
             return true
         end
 
         return false
     end,
 
-    --- @param meta CardMeta
-    canBreakIce = function (meta)
-        return meta:keywordsInclude({"Sentry"})
+    --- @param ctx Ctx
+    onBreakIce = function (ctx)
+        if game.runner:spendCredits(1) then
+            return ctx.meta:keywordsInclude({"Sentry"})
+        end
     end,
 }
 Db.card_titles["Ninja"] = 1027
@@ -166,8 +188,8 @@ Db.cards[1034] = {
     type_code = "event",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    onPlay = function (meta)
+    --- @param ctx Ctx
+    onPlay = function (ctx)
         game.runner:actionDrawCard()
         game.runner:actionDrawCard()
         game.runner:actionDrawCard()
@@ -193,8 +215,8 @@ Db.cards[1035] = {
     type_code = "event",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    onPlay = function(meta)
+    --- @param ctx Ctx
+    onPlay = function(ctx)
         make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_HAND, 1, function (card, slot)
             make_interaction:promptDiscountedInstall(SIDE_RUNNER, SLOT_RUNNER_HARDWARE, card, -3)
         end)
@@ -219,6 +241,11 @@ Db.cards[1036] = {
     title = "The Maker\'s Eye",
     type_code = "event",
     uniqueness = false,
+
+    --- @param ctx Ctx
+    onPlay = function (ctx)
+        TurnBaseDecision.InitiateRun(SLOT_CORP_RND, 2)
+    end
 }
 Db.card_titles["The Maker\'s Eye"] = 1036
 
@@ -240,8 +267,8 @@ Db.cards[1037] = {
     type_code = "event",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    onPlay = function (meta)
+    --- @param ctx Ctx
+    onPlay = function (ctx)
         make_interaction:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (card, slot)
             card.meta.until_turn_end.additional_keywords = "Sentry Code Gate Barrier"
         end)
@@ -267,13 +294,13 @@ Db.cards[1038] = {
     type_code = "hardware",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    onInstall = function (meta)
+    --- @param ctx Ctx
+    onInstall = function (ctx)
         game.runner.memory = game.runner.memory + 1
     end,
 
-    --- @param meta CardMeta
-    onRemoval = function (meta)
+    --- @param ctx Ctx
+    onRemoval = function (ctx)
         game.runner.memory = game.runner.memory - 1
     end
 }
@@ -296,6 +323,15 @@ Db.cards[1039] = {
     title = "Rabbit Hole",
     type_code = "hardware",
     uniqueness = false,
+
+    --- @param ctx Ctx
+    onInstall = function (ctx)
+        make_interaction:promptDeckSelect(SIDE_RUNNER, SLOT_RUNNER_STACK, -1, 1, function (card)
+            if card.uid == 1039 and game.runner:actionInstall(card, SLOT_RUNNER_STACK, SLOT_RUNNER_HARDWARE, true) then
+                return true
+            end
+        end)
+    end,
 }
 Db.card_titles["Rabbit Hole"] = 1039
 
@@ -317,8 +353,8 @@ Db.cards[1040] = {
     type_code = "hardware",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    onInstall = function (meta)
+    --- @param ctx Ctx
+    onInstall = function (ctx)
         make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_PROGRAMS, 1, function (card, slot)
             if card.meta:isCardIcebreaker() then
                 card.meta.until_forever.additional_strength = card.meta.until_forever.additional_strength + 1
@@ -348,20 +384,20 @@ Db.cards[1041] = {
     type_code = "hardware",
     uniqueness = true,
 
-    --- @param meta CardMeta
-    onNewTurn = function (meta)
+    --- @param ctx Ctx
+    onNewTurn = function (ctx)
         game.runner.recurring.credits_for_icebreakers = game.runner.recurring.credits_for_icebreakers + 2
     end,
 
-    --- @param meta CardMeta
-    onInstall = function (meta)
+    --- @param ctx Ctx
+    onInstall = function (ctx)
         game.runner.memory = game.runner.memory + 2
         game.runner.link = game.runner.link + 2
         game.runner.recurring.credits_for_icebreakers = game.runner.recurring.credits_for_icebreakers + 2
     end,
 
-    --- @param meta CardMeta
-    onRemoval = function (meta)
+    --- @param ctx Ctx
+    onRemoval = function (ctx)
         game.runner.memory = game.runner.memory - 2
         game.runner.link = game.runner.link - 2
     end
@@ -388,15 +424,17 @@ Db.cards[1043] = {
     type_code = "program",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    canBreakIce = function (meta)
-        return meta:keywordsInclude({"Code Gate"})
+    --- @param ctx Ctx
+    onBreakIce = function (ctx)
+        if game.runner:spendCredits(1) then
+            return ctx.meta:keywordsInclude({"Code Gate"})
+        end
     end,
 
-    --- @param meta CardMeta
-    onAction = function (meta)
+    --- @param ctx Ctx
+    onPowerUp = function (ctx)
         if game.runner:spendCredits(1) then
-            meta.until_run_end.additional_strength = (meta.until_run_end.additional_strength or 0) + 1
+            ctx.meta.until_run_end.additional_strength = (ctx.meta.until_run_end.additional_strength or 0) + 1
             return true
         end
 
@@ -425,8 +463,8 @@ Db.cards[1044] = {
 
     action_click_cost = 1,
 
-    --- @param meta CardMeta
-    onAction = function (meta)
+    --- @param ctx Ctx
+    onAction = function (ctx)
         game.runner:alterCredits(2)
     end
 }
@@ -491,6 +529,10 @@ Db.cards[1050] = {
     title = "Sure Gamble",
     type_code = "event",
     uniqueness = false,
+
+    onPlay = function ()
+        game.runner:alterCredits(9)
+    end
 }
 Db.card_titles["Sure Gamble"] = 1050
 
@@ -512,6 +554,43 @@ Db.cards[1051] = {
     title = "Crypsis",
     type_code = "program",
     uniqueness = false,
+
+    --- @param ctx Ctx
+    onPowerUp = function (ctx)
+        if game.runner:spendCredits(1) then
+            ctx.meta.until_use.additional_strength = (ctx.meta.until_use.additional_strength or 0) + 1
+        end
+    end,
+
+    --- @param ctx Ctx
+    onAction = function (ctx)
+        if game:alterClicks(SIDE_RUNNER, -1) then
+            ctx.meta.virus_counter = (ctx.meta.virus_counter or 0) + 1
+        end
+    end,
+
+    --- @param ctx Ctx
+    --- @return boolean
+    onBreakIce = function (ctx)
+        if game.runner:spendCredits(1) then
+            ctx.meta.virus_tagged = true
+            return true
+        end
+    end,
+
+    --- @param ctx Ctx
+    onIceEncounterEnd = function (ctx)
+        if ctx.meta.virus_tagged then
+            print("tagged %s", ctx.meta.virus_counter)
+            if (ctx.meta.virus_counter or 0) > 0 then
+                print("virus -")
+                ctx.meta.virus_counter = ctx.meta.virus_counter - 1
+            else
+                print("disco")
+                ctx.meta.discard = true
+            end
+        end
+    end
 }
 Db.card_titles["Crypsis"] = 1051
 
@@ -532,6 +611,20 @@ Db.cards[1053] = {
     title = "Armitage Codebusting",
     type_code = "resource",
     uniqueness = false,
+
+    --- @param ctx Ctx
+    onInstall = function(ctx)
+        ctx.meta.credits = 12
+    end,
+
+    --- @param ctx Ctx
+    onAction = function (ctx)
+        game.runner:alterCredits(2)
+        ctx.meta.credits = ctx.meta.credits - 2
+        if ctx.meta.credits <= 0 then
+            ctx.meta.discard = true
+        end
+    end,
 }
 Db.card_titles["Armitage Codebusting"] = 1053
 
@@ -553,16 +646,16 @@ Db.cards[1056] = {
     type_code = "asset",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    onRez = function (meta)
-        meta.credits_pool = 12
+    --- @param ctx Ctx
+    onRez = function (ctx)
+        ctx.meta.credits_pool = 12
     end,
 
-    --- @param meta CardMeta
-    onNewTurn = function (meta)
-        meta.credits_pool = meta.credits_pool - 3
+    --- @param ctx Ctx
+    onNewTurn = function (ctx)
+        ctx.meta.credits_pool = ctx.meta.credits_pool - 3
         game.corp:alterCredits(3)
-        if meta.credits_pool <= 0 then
+        if ctx.meta.credits_pool <= 0 then
             return true
         end
 
@@ -609,8 +702,8 @@ Db.cards[1083] = {
     type_code = "operation",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    onPlay = function (meta)
+    --- @param ctx Ctx
+    onPlay = function (ctx)
         game.corp:drawCard()
         game.corp:drawCard()
         game.corp:drawCard()
@@ -657,11 +750,11 @@ Db.cards[1094] = {
     type_code = "agenda",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    onScore = function (meta)
+    --- @param ctx Ctx
+    onScore = function (ctx)
         game.corp:alterCredits(7)
         game.corp:alterBadPublicity(1)
-        game.corp:alterScore(meta.info.agenda_points)
+        game.corp:alterScore(ctx.meta.info.agenda_points)
     end,
 }
 Db.card_titles["Hostile Takeover"] = 1094
@@ -704,8 +797,8 @@ Db.cards[1098] = {
     type_code = "operation",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    onPlay = function (meta)
+    --- @param ctx Ctx
+    onPlay = function (ctx)
         game.corp:alterCredits(3)
     end,
 }
@@ -728,8 +821,8 @@ Db.cards[1100] = {
     type_code = "operation",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    onPlay = function (meta)
+    --- @param ctx Ctx
+    onPlay = function (ctx)
         local prev_card = nil
         local fn = function (card)
             if prev_card and prev_card.uid == card.uid then
@@ -783,6 +876,18 @@ Db.cards[1101] = {
     title = "Archer",
     type_code = "ice",
     uniqueness = false,
+
+    --- @param ctx Ctx
+    onRez = function (ctx)
+        make_interaction:promptSlotSelect(SIDE_CORP, SLOT_CORP_HAND, 1, function (decision, card, slot)
+            if card.meta:isCardAgenda() and game.corp:payPrice(ctx.meta) then
+                game.corp:rez(ctx.meta)
+                board:cardPop(slot, card)
+                decision:handledTop()
+                return true
+            end
+        end)
+    end,
 
     subroutine_descriptions = {
         "The Corp gains 2[credit]",
@@ -929,11 +1034,11 @@ Db.cards[1108] = {
     type_code = "asset",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    canAction = function (meta) return game.corp.clicks >= 3 end,
+    --- @param ctx Ctx
+    canAction = function (ctx) return game.corp.clicks >= 3 end,
 
-    --- @param meta CardMeta
-    onAction = function (meta)
+    --- @param ctx Ctx
+    onAction = function (ctx)
         game:alterClicks(SIDE_CORP, -3)
         game.corp:alterCredits(7)
     end
@@ -959,7 +1064,7 @@ Db.cards[1109] = {
     type_code = "asset",
     uniqueness = false,
 
-    onNewTurn = function (meta)
+    onNewTurn = function (ctx)
         game.corp:alterCredits(1)
     end
 }
@@ -983,8 +1088,8 @@ Db.cards[1110] = {
     type_code = "operation",
     uniqueness = false,
 
-    --- @param meta CardMeta
-    onPlay = function (meta)
+    --- @param ctx Ctx
+    onPlay = function (ctx)
         game.corp:alterCredits(9)
     end
 }
