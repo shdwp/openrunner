@@ -6,3 +6,12 @@ RunEndDecision = class(Decision, { Type = "run_end"})
 function RunEndDecision:New(side_id)
     return construct(self, Decision:New(self.Type, side_id))
 end
+
+function RunEndDecision:autoHandle()
+    for card in game:boardCardsIter() do
+        card.meta:onRunEnd()
+    end
+
+    return self:handledTop()
+end
+

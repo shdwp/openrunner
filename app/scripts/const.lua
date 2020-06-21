@@ -1,33 +1,3 @@
--- general
-CLICK = "click"
-ALTCLICK = "altclick"
-CANCEL = "cancel"
-
--- sides
-SIDE_CORP = "corp"
-SIDE_RUNNER = "runner"
-
--- slots
-SLOT_CORP_HAND = "corp_hand"
-SLOT_CORP_RND = "corp_rnd"
-SLOT_CORP_ARCHIVES = "corp_archives"
--- SLOT_CORP_ = "corp_"
-
-SLOT_RUNNER_HAND = "runner_hand"
-SLOT_RUNNER_STACK = "runner_stack"
-SLOT_RUNNER_CONSOLE = "runner_console"
-SLOT_RUNNER_PROGRAMS = "runner_software"
-SLOT_RUNNER_HARDWARE = "runner_hardware"
-SLOT_RUNNER_RESOURCES = "runner_resources"
-
-RUNNER_BOARD_SLOTS = {
-    SLOT_RUNNER_STACK,
-    SLOT_RUNNER_CONSOLE,
-    SLOT_RUNNER_PROGRAMS,
-    SLOT_RUNNER_HARDWARE,
-    SLOT_RUNNER_RESOURCES,
-}
-
 function isSlotRemote(slot)
     return string.starts_with(slot, "corp_remote_") and not string.ends_with(slot, "_ice")
 end
@@ -79,3 +49,63 @@ function sideForId(id)
         return game.runner
     end
 end
+
+function sideSlots(id)
+    if id == SIDE_CORP then
+        return CORP_SLOTS
+    else
+        return RUNNER_SLOTS
+    end
+end
+
+-- general
+CLICK = "click"
+ALTCLICK = "altclick"
+CANCEL = "cancel"
+
+-- sides
+SIDE_CORP = "corp"
+SIDE_RUNNER = "runner"
+
+-- slots
+SLOT_CORP_HAND = "corp_hand"
+SLOT_CORP_RND = "corp_rnd"
+SLOT_CORP_ARCHIVES = "corp_archives"
+SLOT_CORP_HQ = "corp_hq"
+-- SLOT_CORP_ = "corp_"
+
+SLOT_RUNNER_HAND = "runner_hand"
+SLOT_RUNNER_STACK = "runner_stack"
+SLOT_RUNNER_CONSOLE = "runner_console"
+SLOT_RUNNER_PROGRAMS = "runner_software"
+SLOT_RUNNER_HARDWARE = "runner_hardware"
+SLOT_RUNNER_RESOURCES = "runner_resources"
+
+RUNNER_SLOTS = {
+    SLOT_RUNNER_HAND,
+    SLOT_RUNNER_STACK,
+    SLOT_RUNNER_CONSOLE,
+    SLOT_RUNNER_PROGRAMS,
+    SLOT_RUNNER_HARDWARE,
+    SLOT_RUNNER_RESOURCES,
+}
+
+CORP_SLOTS = {
+    SLOT_CORP_HAND,
+    remoteSlot(1),
+    remoteSlot(2),
+    remoteSlot(3),
+    remoteSlot(4),
+    remoteSlot(5),
+    remoteSlot(6),
+    remoteIceSlot(1),
+    remoteIceSlot(2),
+    remoteIceSlot(3),
+    remoteIceSlot(4),
+    remoteIceSlot(5),
+    remoteIceSlot(6),
+    SLOT_CORP_HQ,
+    SLOT_CORP_RND,
+    SLOT_CORP_ARCHIVES,
+}
+

@@ -17,6 +17,9 @@ function HumanControllerComponent:New(controller, side_id, phaseType, restrictSl
     })
 end
 
+--- @return boolean
+function HumanControllerComponent:onNewDecision() return false end
+
 --- @param card Card
 --- @param slot string
 --- @return boolean

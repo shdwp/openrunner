@@ -58,10 +58,10 @@ end
 
 --- @param phase_type string
 --- @return boolean
-function DecisionStack:popTo(phase_type)
+function DecisionStack:popUpTo(phase_type)
     local idx = table.indexOf(self.stack, function (t) return t.Type == phase_type  end)
     if idx then
-        for k = #self.stack, idx, -1 do
+        for k = #self.stack, idx + 1, -1 do
             table.remove(self.stack, k)
         end
 
@@ -77,7 +77,7 @@ end
 function DecisionStack:countClicks(side)
     local n = 0
     for _, v in pairs(self.stack) do
-        if v.side_id == side and v.type == TurnBaseDecision.Type then
+        if v.side.id == side and v.type == TurnBaseDecision.Type then
             n = n + 1
         end
     end
@@ -96,14 +96,15 @@ end
 --- @param side string
 --- @param amount number
 function DecisionStack:removeClicks(side, amount)
-    for i = #self.stack, 1 do
-        if amount == 0 then
+    info("Removing %d clicks from %s", amount, side)
+    for i = #self.stack, 1, -1 do
+        if amount >= 0 then
             return true
         end
 
-        if self.stack[i].side_id == side then
-            self.stack[i] = nil
-            amount = amount - 1
+        if self.stack[i].type == TurnBaseDecision.Type and self.stack[i].side.id == side then
+            table.remove(self.stack, i)
+            amount = amount + 1
         end
     end
 

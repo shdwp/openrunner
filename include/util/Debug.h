@@ -21,6 +21,7 @@ enum DebugDrawOptions {
     DebugDraw_SS = 1 << 3,
     DebugDraw_WS = 1 << 4,
     DebugDraw_MinW = 1 << 5,
+    DebugDraw_SemiTransparent = 1 << 6,
 };
 
 typedef unsigned int debug_draw_options_t;
@@ -40,7 +41,7 @@ private:
                 opts & DebugDraw_Red ? 1.f : 0.f,
                 opts & DebugDraw_Green ? 1.f : 0.f,
                 opts & DebugDraw_Blue ? 1.f : 0.f,
-                1.f
+                opts & DebugDraw_SemiTransparent ? 0.2f : 1.f
         );
     }
 

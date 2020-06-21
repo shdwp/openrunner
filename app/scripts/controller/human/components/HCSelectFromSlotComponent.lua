@@ -1,27 +1,17 @@
 --- @class HCSelectFromSlotComponent: HumanControllerComponent
+--- @field decision SelectFromSlotDecision
 HCSelectFromSlotComponent = class(HumanControllerComponent)
 
 function HCSelectFromSlotComponent:onClick(card, slot)
-    --- @type SelectFromSlotDecision
-    local sel_ph = ph
-
-    if slot ~= sel_ph.slot then
-        info("%s selected %d from %s - invalid slot (needed to be %s)", self.side.id, card.uid, slot, sel_ph.slot)
-    elseif not sel_ph.cb(card) then
-        info("%s selected %d from %s - forbidden by cardspec", self.side.id, card.uid, slot)
+    if self.decision:selected(card, slot) then
+        info("%s selected %d from %s", self.side.id, card.uid, slot)
+        return true
     else
-        info("%s selected %d from %s, %d left", self.side.id, card.uid, slot, sel_ph.amount - 1)
-        sel_ph.amount = sel_ph.amount - 1
-        if sel_ph.amount <= 0 then
-            info("Corp finished selecting cards")
-            return self.decision:handled()
-        else
-            return true
-        end
+        info("%s selected %d from %s - invalid slot / forbidden by cardspec", self.side.id, card.uid, slot)
     end
 end
 
 function HCSelectFromSlotComponent:onCancel()
-    info("%s cancelled select from slot", self.side.id)
-    return self.decision:handled()
+    info("%s attempt to cancel select from slot", self.side.id)
+    return self.decision:cancelled()
 end

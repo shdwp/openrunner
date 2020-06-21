@@ -98,7 +98,7 @@ Db.cards[1026] = {
 
     --- @param meta CardMeta
     onPlay = function (meta)
-        make_interaction:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (card)
+        make_interaction:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (card, slot)
             meta.selected_ice = card.uid
         end)
     end,
@@ -140,7 +140,12 @@ Db.cards[1027] = {
         end
 
         return false
-    end
+    end,
+
+    --- @param meta CardMeta
+    canBreakIce = function (meta)
+        return meta:keywordsInclude({"Sentry"})
+    end,
 }
 Db.card_titles["Ninja"] = 1027
 
@@ -190,7 +195,7 @@ Db.cards[1035] = {
 
     --- @param meta CardMeta
     onPlay = function(meta)
-        make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_HAND, 1, function (card)
+        make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_HAND, 1, function (card, slot)
             make_interaction:promptDiscountedInstall(SIDE_RUNNER, SLOT_RUNNER_HARDWARE, card, -3)
         end)
     end
@@ -237,7 +242,7 @@ Db.cards[1037] = {
 
     --- @param meta CardMeta
     onPlay = function (meta)
-        make_interaction:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (card)
+        make_interaction:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (card, slot)
             card.meta.until_turn_end.additional_keywords = "Sentry Code Gate Barrier"
         end)
     end
@@ -314,7 +319,7 @@ Db.cards[1040] = {
 
     --- @param meta CardMeta
     onInstall = function (meta)
-        make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_PROGRAMS, 1, function (card)
+        make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_PROGRAMS, 1, function (card, slot)
             if card.meta:isCardIcebreaker() then
                 card.meta.until_forever.additional_strength = card.meta.until_forever.additional_strength + 1
                 return true
@@ -352,6 +357,7 @@ Db.cards[1041] = {
     onInstall = function (meta)
         game.runner.memory = game.runner.memory + 2
         game.runner.link = game.runner.link + 2
+        game.runner.recurring.credits_for_icebreakers = game.runner.recurring.credits_for_icebreakers + 2
     end,
 
     --- @param meta CardMeta
@@ -443,6 +449,10 @@ Db.cards[1048] = {
     title = "Sacrificial Construct",
     type_code = "resource",
     uniqueness = false,
+
+    canBeSacrificed = function (card, slot)
+        return slot == SLOT_RUNNER_PROGRAMS or slot == SLOT_RUNNER_HARDWARE
+    end,
 }
 Db.card_titles["Sacrificial Construct"] = 1048
 
@@ -736,6 +746,25 @@ Db.cards[1100] = {
 }
 Db.card_titles["Shipment from Kaguya"] = 1100
 
+_archer_trash_program_subroutine = function ()
+    make_interaction:promptSlotSelect(
+            SIDE_RUNNER,
+            function (slot) return slot == SLOT_RUNNER_PROGRAMS or slot == SLOT_RUNNER_RESOURCES end,
+            1,
+            function (card, slot)
+                if card.meta:canBeSacrificed(nil, SLOT_RUNNER_PROGRAMS) then
+                    board:cardPop(slot, card)
+                    return true
+                elseif slot == SLOT_RUNNER_PROGRAMS then
+                    board:cardPop(slot, card)
+                    return true
+                end
+
+                return false
+            end,
+            true)
+end
+
 Db.cards[1101] = {
     code = "01101",
     cost = 4,
@@ -754,6 +783,26 @@ Db.cards[1101] = {
     title = "Archer",
     type_code = "ice",
     uniqueness = false,
+
+    subroutine_descriptions = {
+        "The Corp gains 2[credit]",
+        "Trash 1 program",
+        "Trash 1 program",
+        "End the run",
+    },
+
+    subroutines = {
+        function ()
+            game.corp:alterCredits(2)
+        end,
+
+        _archer_trash_program_subroutine,
+        _archer_trash_program_subroutine,
+
+        function ()
+            game.decision_stack:popUpTo(RunEndDecision.Type)
+        end,
+    },
 }
 Db.card_titles["Archer"] = 1101
 
@@ -968,11 +1017,10 @@ Db.cards[1111] = {
     subroutines = {
         function ()
             game:alterClicks(SIDE_RUNNER, -1)
-            return false
         end,
 
         function ()
-            return true
+            game.decision_stack:popUpTo(RunEndDecision.Type)
         end,
     }
 }

@@ -18,6 +18,7 @@ function RunSubroutBreakDecision:New(side, meta, description, resolve_decision)
 end
 
 function RunSubroutBreakDecision:subroutineBroken()
+    info("Removing decision for subroutine %s", self.resolve_decision.descr)
     self:handledSpecific(self.resolve_decision)
-    self:handledTop()
+    return self:handledTop()
 end

@@ -34,7 +34,7 @@ void CardView::draw(glm::mat4 transform) {
         SharedMaterial->setupFor(*card);
         Entity::draw(transform);
 
-        Debug::Shared->drawText(glm::scale(transform, glm::vec3(10, 100, 10)), format("{}", card->uid));
+        // Debug::Shared->drawText(glm::scale(transform, glm::vec3(10, 100, 10)), format("{}", card->uid));
     }
 }
 

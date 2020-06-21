@@ -11,12 +11,12 @@ end
 
 function TurnBaseDecision:initiateRun(card, slot)
     game.decision_stack:push(RunEndDecision:New(SIDE_RUNNER))
-    game.decision_stack:push(RunAccessDecision:New(SIDE_RUNNER, card))
+    game.decision_stack:push(RunAccessDecision:New(SIDE_RUNNER, slot))
 
-    iterCards(iceSlotOfRemote(slot), function (c)
+    for c in cardsIter(iceSlotOfRemote(slot)) do
         game.decision_stack:push(RunIceRezDecision:New(SIDE_CORP, c.meta))
         game.decision_stack:push(RunIceApproachDecision:New(SIDE_RUNNER, c.meta))
-    end)
+    end
 
     return self:handledTop()
 end

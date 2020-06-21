@@ -116,7 +116,7 @@ function Corp:actionScore(card, from)
     return false
 end
 
---- @param card userdata Card
+--- @param card Card
 --- @param from string
 --- @return boolean
 function Corp:actionRez(card, from)
@@ -128,8 +128,7 @@ function Corp:actionRez(card, from)
         return false
     end
 
-    if self:payPrice(card.meta) then
-        card.meta:onRez()
+    if card.meta:onRez() and self:payPrice(card.meta) then
         card.faceup = true
         card.meta.rezzed = true
         return true

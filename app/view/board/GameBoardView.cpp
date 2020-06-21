@@ -62,16 +62,9 @@ void GameBoardView::draw(glm::mat4 transform) {
         tup.second->transform = transform;
     }
 
+    /*
     for (auto &vec : *slot_bounding_boxes_) {
         auto zone = vec.second;
-
-        /*
-        Debug::Shared->drawArea(
-                glm::vec3(zone.x, 0.0f, zone.y),
-                glm::vec3(zone.z, 0.0f, zone.w),
-                transform
-        );
-        */
 
         auto a = glm::vec3(zone.x, 0, zone.y);
         auto b = glm::vec3(zone.z, 0, zone.w);
@@ -81,4 +74,5 @@ void GameBoardView::draw(glm::mat4 transform) {
 
         Debug::Shared->drawText(mat, vec.first);
     }
+    */
 }

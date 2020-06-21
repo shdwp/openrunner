@@ -20,6 +20,10 @@ function PlayerController:active() return self.decision ~= nil end
 
 --- @param decision Decision
 function PlayerController:handle(decision)
-    info("Controller of %s decision %s of %s", self.side.id, decision.type, decision.side_id)
+    info("Controller of %s decision %s of %s", self.side.id, decision.type, decision.side.id)
     self.decision = decision
+end
+
+function PlayerController:clear()
+    self.decision = nil
 end

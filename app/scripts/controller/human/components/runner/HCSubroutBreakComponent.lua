@@ -5,10 +5,9 @@ HCSubroutBreakComponent = class(HumanControllerComponent)
 function HCSubroutBreakComponent:onClick(card, slot)
     if game.runner:actionBreakIce(card.meta, self.decision.meta) then
         info("Runner broke ice %s subrout %s with %s", self.decision.meta, self.decision.description, card)
-        self.decision:subroutineBroken()
-        return true
+        return self.decision:subroutineBroken()
     else
-        info("Runner failed to brake ice %s subrout %s with %s", self.decision.meta, self.decision.decision, card)
+        info("Runner failed to brake ice %s subrout %s with %s", self.decision.meta, self.decision.description, card)
     end
 
         return false

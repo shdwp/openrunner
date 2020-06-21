@@ -70,6 +70,10 @@ function CardMeta:canInstall()
     return self:isCardRemote() or self:isCardIce()
 end
 
+function CardMeta:canBeSacrificed(card, slot)
+    return self.info.canBeSacrificed and self.info.canBeSacrificed(card, slot) or false
+end
+
 --- @param meta CardMeta
 --- @return boolean
 function CardMeta:canBreakIce(meta)
@@ -135,11 +139,11 @@ function CardMeta:keywordsInclude(kws)
         end
 
         local result = false
-        self:iterModifications(function (t)
+        for t in self:modificationsIter() do
             if string.find(t.additional_keywords, kw) then
                 result = true
             end
-        end)
+        end
 
         if result then
             return true
@@ -149,23 +153,41 @@ function CardMeta:keywordsInclude(kws)
     return false
 end
 
---- @param func fun(description: string, effect: function)
-function CardMeta:iterSubroutines(func)
-    for i = 1, #self.info.subroutines do
-        func(self.info.subroutine_descriptions[i], self.info.subroutines[i])
+--- @return fun(): string, fun()
+function CardMeta:subroutinesReversedIter()
+    local i = #self.info.subroutines + 1
+
+    return function ()
+        i = i - 1
+        if i > 0 then
+            return self.info.subroutine_descriptions[i], self.info.subroutines[i]
+        end
     end
 end
 
---- @param func fun(t: table)
-function CardMeta:iterModifications(func)
-    func(self.until_forever)
-    func(self.until_turn_end)
-    func(self.until_run_end)
+--- @return fun(): table
+function CardMeta:modificationsIter()
+    local i = 0
+    return function ()
+        i = i + 1
+
+        if i == 0 then
+            return self.until_forever
+        elseif i == 1 then
+            return self.until_turn_end
+        elseif i == 2 then
+            return self.until_turn_end
+        elseif i == 3 then
+            return self.until_use
+        else
+            return nil
+        end
+    end
 end
 
 -- events
 
-function CardMeta:onRez() if self.info.onRez then return self.info.onRez(self) end end
+function CardMeta:onRez() if self.info.onRez then return self.info.onRez(self) else return true end end
 function CardMeta:onPlay() if self.info.onPlay then return self.info.onPlay(self) end end
 function CardMeta:onAction() if self.info.onAction then return self.info.onAction(self) end end
 function CardMeta:onInstall() if self.info.onInstall then return self.info.onInstall(self) end end
@@ -183,6 +205,6 @@ function CardMeta:onUse()
     self.until_use = {}
 end
 
-function CardMeta:onRunEnd(meta)
+function CardMeta:onRunEnd()
     self.until_run_end = {}
 end

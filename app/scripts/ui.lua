@@ -12,7 +12,7 @@ function ui:cardInstalled(card, slot)
             widget.child_padding = 1.25
             widget.child_rotation = math.pi / 2
 
-        elseif table.contains(RUNNER_BOARD_SLOTS, slot) then
+        elseif not isHandSlot(slot) and table.contains(RUNNER_SLOTS, slot) then
             local widget = board_view:getSlotStackWidget(slot)
             widget.child_rotation = math.pi
         end

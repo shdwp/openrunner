@@ -1,6 +1,7 @@
 --- @class Decision
+--- @field Type string
 --- @field type string
---- @field side_id string
+--- @field side Side
 Decision = class()
 
 --- @param type string type identifier
@@ -9,10 +10,23 @@ Decision = class()
 function Decision:New(type, side_id)
     return construct(self, {
         type = type,
-        side_id = side_id,
+        side = sideForId(side_id),
     })
 end
 
+function Decision:autoHandle()
+    return false
+end
+
+function Decision:handledSelf()
+    info("Decision %s handled self", self)
+    game.decision_stack:remove(self)
+    game:cycle()
+    return true
+end
+
+--- @param amount number
+--- @return boolean
 function Decision:handledTop(amount)
     amount = amount or 1
 
@@ -32,6 +46,7 @@ function Decision:handledTop(amount)
 end
 
 --- @param decision Decision
+--- @return boolean
 function Decision:handledSpecific(decision)
     assert(decision)
     info("Decision %s handled specific decision %s", self, decision.type)
@@ -40,8 +55,9 @@ function Decision:handledSpecific(decision)
 end
 
 --- @param type string type of last handled decision
+--- @return boolean
 function Decision:handledUpTo(type)
-    if game.decision_stack:popTo(type) then
+    if game.decision_stack:popUpTo(type) then
         info("Decision %s handled decisions up to %s", self, type)
     end
 

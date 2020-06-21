@@ -108,17 +108,17 @@ function Runner:actionBreakIce(breaker, ice)
     local breaker_strength = breaker.info.strength
     local ice_strength = ice.info.strength
 
-    breaker:iterModifications(function (t)
+    for t in breaker:modificationsIter() do
         if t.additional_strength then
             breaker_strength = breaker_strength + t.additional_strength
         end
-    end)
+    end
 
-    ice:iterModifications(function (t)
+    for t in ice:modificationsIter() do
         if t.additional_strength then
             ice_strength = ice_strength + t.additional_strength
         end
-    end)
+    end
 
     if breaker_strength >= ice_strength and breaker:canBreakIce(ice) then
         breaker:onUse()

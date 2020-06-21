@@ -3,6 +3,7 @@
 //
 
 #include "util/Debug.h"
+#include "render/Primitives.h"
 
 Debug* Debug::Shared;
 
@@ -32,11 +33,14 @@ void Debug::drawVBO(VertexBufferObject &vbo, glm::mat4 transform, debug_draw_opt
     vbo.bind();
 
     {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_CULL_FACE);
         vbo.draw(mode);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
+        glDisable(GL_BLEND);
     }
 
     vbo.unbind();
@@ -49,12 +53,20 @@ void Debug::drawArea(glm::vec3 a, glm::vec3 b, glm::mat4 transform, debug_draw_o
         a.y,
         a.z,
 
+        a.x,
+        b.y,
+        a.z,
+
         b.x,
         b.y,
-        b.z
-    });
+        b.z,
 
-    this->drawVBO(vbo, transform, opts, GL_LINES);
+        b.x,
+        a.y,
+        b.z,
+    }, {}, {}, {0,1,3, 1,2,3});
+
+    this->drawVBO(vbo, transform, opts | DebugDraw_SemiTransparent, GL_TRIANGLES);
 }
 
 void Debug::drawPoint(glm::vec3 pos, glm::mat4 transform, debug_draw_options_t opts) {

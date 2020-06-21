@@ -134,7 +134,7 @@ int main() {
             while (!glfwWindowShouldClose(window)) {
                 glClearColor(0.1f, 0.1f, 0.1f, 1.f);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-                //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+                // glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
                 scene->updateHierarchy();
 
@@ -159,9 +159,6 @@ int main() {
                     glDisable(GL_CULL_FACE);
                     gui_scene->unbind();
                 }
-
-                scene->ui_layer->debugDraw();
-                gui_scene->ui_layer->debugDraw();
 
                 std::this_thread::sleep_for(std::chrono::milliseconds(32));
                 glfwSwapBuffers(window);

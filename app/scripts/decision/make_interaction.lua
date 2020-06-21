@@ -13,10 +13,12 @@ end
 
 --- @param side string
 --- @param slot string
---- @param cb function accepting Card
+--- @param amount number
+--- @param cb fun(card: Card, slot: string): boolean
+--- @param forced boolean
 --- @return boolean
-function make_interaction:promptSlotSelect(side, slot, amount, cb)
-    game.decision_stack:push(SelectFromSlotDecision:New(side, slot, amount, cb))
+function make_interaction:promptSlotSelect(side, slot, amount, cb, forced)
+    game.decision_stack:push(SelectFromSlotDecision:New(side, slot, amount, cb, forced))
 end
 
 --- @param side string

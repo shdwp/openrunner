@@ -21,5 +21,5 @@ void ZoomCardView::draw(glm::mat4 transform) {
     mat = glm::translate(mat, glm::vec3(-1.4f, 0.f, 0.5f));
     mat = glm::scale(mat, glm::vec3(2.f));
     mat = glm::rotate(mat, (float)M_PI, glm::vec3(1.f, 0.f, 0.f));
-    Debug::Shared->drawText(mat, text, DebugDraw_Red | DebugDraw_Blue | DebugDraw_Green);
+    Debug::Shared->drawText(mat, text, DebugDraw_Red | DebugDraw_Green | DebugDraw_Blue);
 }

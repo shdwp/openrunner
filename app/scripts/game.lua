@@ -27,10 +27,17 @@ function game:cycle()
         game:newTurn()
     end
 
-    local phase = self.decision_stack:top()
-    local ctrl = self:controllerFor(phase.side_id)
+    for _, c in pairs(self.player_controllers) do
+        c:clear()
+    end
 
-    ctrl:handle(phase)
+    local decision = self.decision_stack:top()
+    if decision:autoHandle() then
+        return
+    end
+
+    local ctrl = self:controllerFor(decision.side.id)
+    ctrl:handle(decision)
 end
 
 --- @param side string
@@ -64,44 +71,86 @@ function game:newTurn()
     -- @TODO: remove
     self.current_side = SIDE_RUNNER
 
+    -- call newTurn for appropriate side
     if self.current_side == SIDE_CORP then
         self.corp:newTurn()
     else
         self.runner:newTurn()
     end
 
-    ui:focusCurrentPlayer()
-
+    -- construct decision stack for new player
     self.decision_stack:push(HandDiscardDecision:New(self.current_side))
     for _ = 0, clicks do
         self.decision_stack:push(TurnBaseDecision:New(self.current_side))
     end
 
+    -- call onNewTurn on rezzed cards
+    for card in self:boardCardsIter() do
+        if card.meta.rezzed then
+            if card.meta:onNewTurn() then
+                board:cardPop(slot, card)
+            end
+        end
+    end
+
+    self.turn_n = self.turn_n + 1
+
+    -- process UI
+    ui:focusCurrentPlayer()
+end
+
+--- @return fun(): Card
+function game:boardCardsIter()
     local slots = {
-        "corp_remote_1",
-        "corp_remote_2",
-        "corp_remote_3",
-        "corp_remote_4",
-        "corp_remote_5",
-        "corp_remote_6",
-        "corp_hq",
+        remoteSlot(1),
+        remoteSlot(2),
+        remoteSlot(3),
+        remoteSlot(4),
+        remoteSlot(5),
+        remoteSlot(6),
+        SLOT_CORP_HQ,
         SLOT_RUNNER_PROGRAMS,
         SLOT_RUNNER_HARDWARE,
         SLOT_RUNNER_RESOURCES,
         SLOT_RUNNER_CONSOLE,
     }
+    local slot_idx = 0
+
+    local cards_idx = 0
+    local cards_size = 0
+
+    return function ()
+        if slot_idx >= #slots then
+            return nil
+        end
+
+        if cards_idx >= cards_size then
+            cards_size = 0
+
+            while cards_size == 0 do
+                slot_idx = slot_idx + 1
+                cards_size = board:count(slots[slot_idx])
+            end
+        end
+
+        if slot_idx >= #slots then
+            return nil
+        end
+
+        local value = board:cardGet(slots[slot_idx], cards_idx)
+        cards_idx = cards_idx + 1
+        return value
+    end
+end
+
+--- @param fn fun(slot: string, card: Card)
+function game:iterateCardsOnBoard(fn)
 
     for _, slot in pairs(slots) do
-        iterCards(slot, function (card)
-            if card.meta.rezzed then
-                if card.meta:onNewTurn() then
-                    board:cardPop(slot, card)
-                end
-            end
-        end)
+        for card in cardsIter(slot) do
+            fn(slot, card)
+        end
     end
-
-    self.turn_n = self.turn_n + 1
 end
 
 function game:onInit()
@@ -181,7 +230,7 @@ function game:onInit()
 
         board:cardAppend(remoteSlot(1), Db:card(1094))
         board:cardAppend(remoteIceSlot(1), Db:card(1101))
-        board:cardAppend(remoteIceSlot(1), Db:card(1111))
+        --board:cardAppend(remoteIceSlot(1), Db:card(1111))
         ui:cardInstalled(nil, remoteIceSlot(1))
 
         board:cardAppend(SLOT_RUNNER_PROGRAMS, Db:card(1043))
@@ -197,7 +246,7 @@ function game:onTick(dt)
     if dt - self.last_ui_update > 1 then
         local text = ""
         for _, v in pairs(self.decision_stack.stack) do
-            text = string.format("%s\n%s %s", text, v.side_id, v.type)
+            text = string.format("%s\n%s %s", text, v.side.id, v.type)
         end
 
         alert_label:setText(text)

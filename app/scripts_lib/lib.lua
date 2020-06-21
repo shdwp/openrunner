@@ -10,12 +10,19 @@ function error(fmt, ...) host:log(0, string.format(fmt, ...)) end
 
 --- Cards
 --- @param slot string
---- @param func fun(card: Card)
-function iterCards(slot, func)
-    local c = board:count(slot)
-    for i = 0, c - 1 do
-        local card = board:cardGet(slot, i)
-        func(card)
+--- @return fun(): Card
+function cardsIter(slot)
+    local i = 0
+    local n = board:count(slot)
+
+    return function ()
+        if i >= n then
+            return nil
+        else
+            local value = board:cardGet(slot, i)
+            i = i + 1
+            return value
+        end
     end
 end
 

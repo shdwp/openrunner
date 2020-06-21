@@ -16,18 +16,17 @@ end
 function RunIceRezDecision:iceRezzed(card, slot)
     local resolve_decisions = {}
 
-    card.meta:iterSubroutines(function (descr, fn)
-        local decision = RunSubroutResolveDecision:New(SIDE_RUNNER, fn)
-        table.insert(resolve_decisions, decision)
+    for descr, fn in card.meta:subroutinesReversedIter() do
+        local decision = RunSubroutResolveDecision:New(SIDE_RUNNER, fn, descr)
+        table.insert(resolve_decisions, 1, decision)
         game.decision_stack:push(decision)
-    end)
+    end
 
-    card.meta:iterSubroutines(function (descr, fn)
+    for descr, _ in card.meta:subroutinesReversedIter() do
         local resolve_decision = resolve_decisions[#resolve_decisions]
         game.decision_stack:push(RunSubroutBreakDecision:New(SIDE_RUNNER, card.meta, descr, resolve_decision))
-
         table.remove(resolve_decisions, #resolve_decisions)
-    end)
+    end
 
     return self:handledTop()
 end
