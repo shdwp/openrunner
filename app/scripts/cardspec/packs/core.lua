@@ -19,7 +19,13 @@ Db.cards[1005] = {
     --- @param ctx Ctx
     onNewTurn = function (ctx)
         game.runner.recurring.credits_for_virus_or_icebreakers = game.runner.recurring.credits_for_virus_or_icebreakers + 1
+    end,
+
+    --- @param ctx Ctx
+    onInstall = function (ctx)
+        game.runner.recurring.credits_for_virus_or_icebreakers = game.runner.recurring.credits_for_virus_or_icebreakers + 1
     end
+
 }
 Db.card_titles["Cyberfeeder"] = 1005
 
@@ -118,8 +124,9 @@ Db.cards[1026] = {
 
     --- @param ctx Ctx
     onPlay = function (ctx)
-        make_interaction:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (card, slot)
+        make_interaction:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (decision, card, slot)
             ctx.meta.selected_ice = card.uid
+            return true
         end)
     end,
 
@@ -217,8 +224,9 @@ Db.cards[1035] = {
 
     --- @param ctx Ctx
     onPlay = function(ctx)
-        make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_HAND, 1, function (card, slot)
+        make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_HAND, 1, function (decision, card, slot)
             make_interaction:promptDiscountedInstall(SIDE_RUNNER, SLOT_RUNNER_HARDWARE, card, -3)
+            return true
         end)
     end
 }
@@ -269,8 +277,9 @@ Db.cards[1037] = {
 
     --- @param ctx Ctx
     onPlay = function (ctx)
-        make_interaction:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (card, slot)
+        make_interaction:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (decision, card, slot)
             card.meta.until_turn_end.additional_keywords = "Sentry Code Gate Barrier"
+            return true
         end)
     end
 }
@@ -355,7 +364,7 @@ Db.cards[1040] = {
 
     --- @param ctx Ctx
     onInstall = function (ctx)
-        make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_PROGRAMS, 1, function (card, slot)
+        make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_PROGRAMS, 1, function (decision, card, slot)
             if card.meta:isCardIcebreaker() then
                 card.meta.until_forever.additional_strength = card.meta.until_forever.additional_strength + 1
                 return true
@@ -841,7 +850,7 @@ _archer_trash_program_subroutine = function ()
             SIDE_RUNNER,
             function (slot) return slot == SLOT_RUNNER_PROGRAMS or slot == SLOT_RUNNER_RESOURCES end,
             1,
-            function (card, slot)
+            function (decision, card, slot)
                 if card.meta:canBeSacrificed(nil, SLOT_RUNNER_PROGRAMS) then
                     board:cardPop(slot, card)
                     return true

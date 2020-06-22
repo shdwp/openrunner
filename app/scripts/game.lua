@@ -113,6 +113,12 @@ function game:boardCardsIter()
         remoteSlot(4),
         remoteSlot(5),
         remoteSlot(6),
+        remoteIceSlot(1),
+        remoteIceSlot(2),
+        remoteIceSlot(3),
+        remoteIceSlot(4),
+        remoteIceSlot(5),
+        remoteIceSlot(6),
         SLOT_CORP_HQ,
         SLOT_RUNNER_PROGRAMS,
         SLOT_RUNNER_HARDWARE,
@@ -230,6 +236,7 @@ function game:onInit()
 
         board:cardAppend(SLOT_CORP_HAND, Db:card(1094))
         board:cardAppend(SLOT_RUNNER_HAND, Db:card(1039))
+        board:cardAppend(SLOT_RUNNER_HAND, Db:card(1005))
     end
 
     info("Game ready!")

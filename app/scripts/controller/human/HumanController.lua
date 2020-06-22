@@ -100,11 +100,12 @@ function HumanController:onTick(dt)
             ))
         else
             status_label:setText(string.format(
-                    "%s, cl%d, cr%d, rcr%d, sc%d, tag%d, mem%d",
+                    "%s, cl%d, cr%d, rcr%d/%d, sc%d, tag%d, mem%d",
                     self.decision.type,
                     game.decision_stack:countClicks(self.side.id),
                     self.side.credits,
                     game.runner.recurring.credits_for_icebreakers,
+                    game.runner.recurring.credits_for_virus_or_icebreakers,
                     self.side.score,
                     game.runner.tags,
                     game.runner.memory

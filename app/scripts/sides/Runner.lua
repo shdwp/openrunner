@@ -59,10 +59,11 @@ function Runner:actionDrawCard()
     end
 end
 
-function Runner:actionInstall(card, from, to, suppress_events)
+function Runner:actionInstall(card, from, to, suppress_events, discount)
     assert(card)
     assert(from)
     assert(to)
+    discount = discount or 0
 
     if card.meta:isCardConsole() and to ~= SLOT_RUNNER_CONSOLE then
         return false
@@ -76,7 +77,7 @@ function Runner:actionInstall(card, from, to, suppress_events)
         return false
     end
 
-    if self:spendCredits(card.meta.info.cost) then
+    if self:spendCredits(card.meta.info.cost - discount) then
         card.faceup = true
         card.meta.rezzed = true
 

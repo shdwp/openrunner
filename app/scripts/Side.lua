@@ -31,7 +31,10 @@ end
 --- @return boolean
 function Side:spendCredits(amount)
     if self.credits >= amount then
-        self:alterCredits(-amount)
+        if amount > 0 then
+            self:alterCredits(-amount)
+        end
+
         return true
     else
         return false
