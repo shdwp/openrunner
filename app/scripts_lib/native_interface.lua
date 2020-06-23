@@ -3,6 +3,7 @@
 ]]--
 --- @class Card
 --- @field uid number
+--- @field slotid string
 --- @field faceup boolean
 --- @field meta CardMeta
 _card = {}

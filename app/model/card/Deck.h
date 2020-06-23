@@ -30,15 +30,16 @@ public:
         return *this;
     }
 
-    void insert(const Card &card, int idx) {
+    void insert(Card &card, int idx) {
         if (idx == -1) {
             idx = cards->size();
         }
 
+        card.slotid = this->slotid;
         cards->insert(cards->begin() + idx, new Card(card));
     }
 
-    void append(const Card &card) {
+    void append(Card &card) {
         insert(card, -1);
     }
 

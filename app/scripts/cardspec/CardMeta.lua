@@ -69,7 +69,7 @@ end
 
 --- @return boolean
 function CardMeta:isCardIcebreaker()
-    return self.info.type_code == "icebreaker"
+    return self:keywordsInclude({"Icebreaker"})
 end
 
 --- @return boolean
@@ -102,13 +102,14 @@ end
 function CardMeta:keywordsInclude(kws)
     local str = self.info.keywords
     for _, kw in pairs(kws) do
-        if string.find(str, kw) then
+        print(str, string.find(str, kw))
+        if string.find(str, kw) ~= nil then
             return true
         end
 
         local result = false
         for t in self:modificationsIter() do
-            if string.find(t.additional_keywords, kw) then
+            if t.additional_keywords and string.find(t.additional_keywords, kw) ~= nil then
                 result = true
             end
         end
@@ -246,7 +247,7 @@ function CardMeta:onRunEnd()
     self.until_run_end = {}
 end
 
-function CardMeta:onIceEncounterEnd()
+function CardMeta:onEncounterEnd()
     self.until_encounter_end = {}
 
     if self.info.onIceEncounterEnd then return self.info.onIceEncounterEnd(self:_ctx()) end

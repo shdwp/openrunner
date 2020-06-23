@@ -3,7 +3,7 @@
 HCTurnEndDiscardComponent = class("HCTurnEndDiscardComponent", HumanControllerComponent)
 
 function HCTurnEndDiscardComponent:onPrimary(card, slot)
-    self.side:actionDiscard(card, slot)
+    self.side:actionDiscard(card)
     self.decision:discardedCard(card)
 
     return true

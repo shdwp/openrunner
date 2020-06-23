@@ -45,9 +45,13 @@ end
 --- @param uid number
 --- @return Card
 function Db:card(uid)
+    if type(uid) == "string" then
+        uid = self.card_titles[uid]
+    end
+
     local info = self.cards[uid]
     if not info then
-        error("Failed to find card %d", uid)
+        error("Failed to find card %s", uid)
     end
 
     local card = Card(uid, CardMeta:New(info))

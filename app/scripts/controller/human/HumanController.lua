@@ -147,6 +147,8 @@ function HumanController:interaction(type, descr)
             result = comp:onPrimary(descr.card, descr.slot)
         elseif type == INTERACTION_SECONDARY then
             result = comp:onSecondary(descr.card, descr.slot)
+        elseif type == INTERACTION_TERTIARY then
+            result = comp:onTertiary(descr.card, descr.slot)
         elseif type == INTERACTION_CANCEL then
             result = comp:onCancel()
         end

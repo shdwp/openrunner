@@ -46,10 +46,11 @@ void Scripting::registerClasses() {
                 .beginClass<Card>("Card")
                 .TYPE_PROP(Card)
                 .addConstructor<void(*) (int, luabridge::LuaRef)>()
-                .addProperty("uid", &Card::uid)
+                .addProperty("uid", &Card::uid, false)
                 .addProperty("faceup", &Card::faceup)
                 .addProperty("variant", &Card::variant)
-                .addProperty("meta", &Card::meta)
+                .addProperty("slotid", std::function([](const Card *ptr) {return ptr->slotid;}))
+                .addProperty("meta", &Card::meta, false)
                 .endClass();
     }
 

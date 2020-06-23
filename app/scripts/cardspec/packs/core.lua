@@ -135,6 +135,13 @@ Db.cards[1026] = {
         if game.runner:spendCredits(2) then
             ctx.meta.until_use.additional_strength = (ctx.meta.until_use.additional_strength or 0) + 1
         end
+    end,
+
+    onInstall = function (ctx)
+        make_interaction:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (decision, card, slot)
+            
+        end)
+        return true
     end
 }
 Db.card_titles["Femme Fatale"] = 1026
@@ -170,10 +177,10 @@ Db.cards[1027] = {
     end,
 
     --- @param ctx Ctx
-    onBreakIce = function (ctx)
-        if game.runner:spendCredits(1) then
-            return ctx.meta:keywordsInclude({"Sentry"})
-        end
+    --- @param ice_meta CardMeta
+    --- @return boolean
+    onBreakIce = function (ctx, ice_meta)
+        return ice_meta:keywordsInclude({"Sentry"}) and game.runner:spendCredits(1)
     end,
 }
 Db.card_titles["Ninja"] = 1027
@@ -366,7 +373,7 @@ Db.cards[1040] = {
     onInstall = function (ctx)
         make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_PROGRAMS, 1, function (decision, card, slot)
             if card.meta:isCardIcebreaker() then
-                card.meta.until_forever.additional_strength = card.meta.until_forever.additional_strength + 1
+                card.meta.until_forever.additional_strength = (card.meta.until_forever.additional_strength or 0) + 1
                 return true
             else
                 return false
@@ -434,13 +441,14 @@ Db.cards[1043] = {
     uniqueness = false,
 
     --- @param ctx Ctx
-    onBreakIce = function (ctx)
-        if game.runner:spendCredits(1) then
-            return ctx.meta:keywordsInclude({"Code Gate"})
-        end
+    --- @param ice_meta CardMeta
+    --- @return boolean
+    onBreakIce = function (ctx, ice_meta)
+        return ice_meta:keywordsInclude({"Code Gate"}) and game.runner:spendCredits(1)
     end,
 
     --- @param ctx Ctx
+    --- @return boolean
     onPowerUp = function (ctx)
         if game.runner:spendCredits(1) then
             ctx.meta.until_run_end.additional_strength = (ctx.meta.until_run_end.additional_strength or 0) + 1
@@ -519,6 +527,33 @@ Db.cards[1049] = {
     title = "Infiltration",
     type_code = "event",
     uniqueness = false,
+
+    --- @param ctx Ctx
+    onPlay = function (ctx)
+        local options = {
+            ["credits"] = "Gain 2[credit]",
+            ["expose"] = "Expose 1 card",
+        }
+
+        make_interaction:promptOptionSelect(SIDE_RUNNER, options, function (opt_id)
+            if opt_id == "credits" then
+                game.runner:alterCredits(2)
+            elseif opt_id == "expose" then
+                make_interaction:promptSlotSelect(SIDE_RUNNER, function () return true end, 1, function (decision, card, slot)
+                    if not card.faceup then
+                        make_interaction:displayFaceup(SIDE_RUNNER, card)
+                        return true
+                    end
+
+                    return false
+                end)
+            else
+                return false
+            end
+
+            return true
+        end)
+    end,
 }
 Db.card_titles["Infiltration"] = 1049
 
@@ -579,8 +614,9 @@ Db.cards[1051] = {
     end,
 
     --- @param ctx Ctx
+    --- @param ice_meta CardMeta
     --- @return boolean
-    onBreakIce = function (ctx)
+    onBreakIce = function (ctx, ice_meta)
         if game.runner:spendCredits(1) then
             ctx.meta.virus_tagged = true
             return true
@@ -593,7 +629,7 @@ Db.cards[1051] = {
             if (ctx.meta.virus_counter or 0) > 0 then
                 ctx.meta.virus_counter = ctx.meta.virus_counter - 1
             else
-                ctx.meta.discard = true
+                game.runner:actionDiscard(ctx.meta.card)
             end
         end
     end
@@ -888,7 +924,7 @@ Db.cards[1101] = {
         make_interaction:promptSlotSelect(SIDE_CORP, SLOT_CORP_HAND, 1, function (decision, card, slot)
             if card.meta:isCardAgenda() and game.corp:payPrice(ctx.meta) then
                 game.corp:rez(ctx.meta)
-                board:cardPop(slot, card)
+                game.corp:actionDiscard(card)
                 decision:handledTop()
                 return true
             end

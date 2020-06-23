@@ -167,9 +167,10 @@ function game:onInit()
 
     if board:cardGet("corp_hq", 0) == nil then
         info("Dealing initial cards...");
-        board:cardAppend("corp_hq", Db:card(1093))
 
-        local deck = Db:deck([[
+        -- CORP
+        board:cardAppend(SLOT_CORP_HQ, Db:card(1093))
+        local rnd_deck = Db:deck([[
 3 Hostile Takeover
 2 Posted Bounty
 3 Priority Requisition
@@ -191,13 +192,13 @@ function game:onInit()
 3 Shadow
 ]]
         )
-        deck:shuffle()
+        rnd_deck:shuffle()
+        board:deckAppend(SLOT_CORP_RND, rnd_deck)
+        board:deckAppend(SLOT_CORP_ARCHIVES, Deck())
 
-        board:deckAppend("corp_rnd", deck)
-
-        board:cardAppend("runner_id", Db:card(1033))
-
-        deck = Db:deck([[
+        -- RUNNER
+        board:cardAppend(SLOT_RUNNER_ID, Db:card(1033))
+        local stack = Db:deck([[
 3 Diesel
 3 Easy Mark
 3 Infiltration
@@ -220,13 +221,12 @@ function game:onInit()
 2 Magnum Opus
 ]])
 
-        deck:shuffle()
-
-        board:deckAppend(SLOT_RUNNER_STACK, deck)
+        stack:shuffle()
+        board:deckAppend(SLOT_RUNNER_STACK, stack)
+        board:deckAppend(SLOT_RUNNER_HEAP, Deck())
 
         board:cardAppend(remoteSlot(1), Db:card(1094))
         board:cardAppend(remoteIceSlot(1), Db:card(1101))
-        board:cardAppend(remoteIceSlot(1), Db:card(1111))
         ui:cardInstalled(nil, remoteIceSlot(1))
 
         board:cardAppend(SLOT_RUNNER_PROGRAMS, Db:card(1043))
@@ -234,9 +234,14 @@ function game:onInit()
         board:cardAppend(SLOT_RUNNER_PROGRAMS, Db:card(1051))
         ui:cardInstalled(nil, SLOT_RUNNER_PROGRAMS)
 
+        -- Hands
         board:cardAppend(SLOT_CORP_HAND, Db:card(1094))
+
         board:cardAppend(SLOT_RUNNER_HAND, Db:card(1039))
         board:cardAppend(SLOT_RUNNER_HAND, Db:card(1005))
+        board:cardAppend(SLOT_RUNNER_HAND, Db:card("Diesel"))
+        board:cardAppend(SLOT_RUNNER_HAND, Db:card("Diesel"))
+
     end
 
     info("Game ready!")

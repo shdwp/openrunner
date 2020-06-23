@@ -11,6 +11,8 @@
 
 class Item {
 public:
+    string slotid = "";
+
     virtual ~Item() = default;
 };
 
@@ -18,8 +20,10 @@ class Card: public Item {
 public:
     int uid = 0;
     int variant = 0;
+
     bool faceup = true;
     bool highlighted = false;
+
     luabridge::LuaRef meta = nullptr;
 
     Card(int uid, luabridge::LuaRef meta):

@@ -13,7 +13,7 @@ end
 
 function RunIceApproachDecision:autoHandle()
     for card in game:boardCardsIter() do
-        card.meta:onIceEncounterEnd()
+        card.meta:onEncounterEnd()
     end
 
     return false

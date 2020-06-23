@@ -67,6 +67,7 @@ public:
 
             auto card_view = stack_widget->addChild(V::For(ptr));
             card_view->slotid = slotid;
+            ptr->slotid = slotid;
             UILayer::registerSceneEntity(card_view);
         }
 
@@ -76,6 +77,7 @@ public:
     template <class T>
     int erase(const string &slotid, luabridge::RefCountedPtr<T> item) {
         auto vec = &(*cards_)[slotid];
+        item->slotid = "";
 
         for (auto i = vec->begin(); i != vec->end(); i++) {
             if (i->get() == item.get()) {

@@ -51,9 +51,12 @@ function Side:newTurn()
 end
 
 --- @param card Card
---- @param from string
-function Side:actionDiscard(card, from)
-    board:cardPop(from, card)
+function Side:actionDiscard(card)
+    board:cardPop(card.slotid, card)
+
+    local deck = board:deckGet(sideDiscardSlot(self.id), 0)
+    card.faceup = false
+    deck:append(card)
 end
 
 function Side:actionDrawCard()

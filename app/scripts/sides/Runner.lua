@@ -77,7 +77,7 @@ function Runner:actionInstall(card, from, to, suppress_events, discount)
         return false
     end
 
-    if self:spendCredits(card.meta.info.cost - discount) then
+    if self:spendCredits(card.meta.info.cost + discount) then
         card.faceup = true
         card.meta.rezzed = true
 
@@ -114,6 +114,7 @@ function Runner:actionBreakIce(breaker, ice)
     local ice_strength = ice.info.strength
 
     for t in breaker:modificationsIter() do
+        print(inspect(t))
         if t.additional_strength then
             breaker_strength = breaker_strength + t.additional_strength
         end

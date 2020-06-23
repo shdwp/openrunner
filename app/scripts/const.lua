@@ -42,6 +42,14 @@ function sideHandSlot(side)
     end
 end
 
+function sideDiscardSlot(side)
+    if side == SIDE_CORP then
+        return SLOT_CORP_ARCHIVES
+    else
+        return SLOT_RUNNER_HEAP
+    end
+end
+
 function sideForId(id)
     if id == SIDE_CORP then
         return game.corp
@@ -76,11 +84,13 @@ SLOT_CORP_HQ = "corp_hq"
 -- SLOT_CORP_ = "corp_"
 
 SLOT_RUNNER_HAND = "runner_hand"
+SLOT_RUNNER_ID = "runner_id"
 SLOT_RUNNER_STACK = "runner_stack"
 SLOT_RUNNER_CONSOLE = "runner_console"
 SLOT_RUNNER_PROGRAMS = "runner_software"
 SLOT_RUNNER_HARDWARE = "runner_hardware"
 SLOT_RUNNER_RESOURCES = "runner_resources"
+SLOT_RUNNER_HEAP = "runner_heap"
 
 RUNNER_SLOTS = {
     SLOT_RUNNER_HAND,
