@@ -12,6 +12,7 @@
 class OptionInteractable: public UIInteractable {
 public:
     int index;
+    string option;
     glm::vec4 a, b;
     glm::mat4 transform;
 
@@ -30,7 +31,7 @@ public:
 
     void draw(glm::mat4 transform) override;
 
-    void setOptions(vector<string> options);
+    void setOptions(std::map<string, string> options);
 };
 
 

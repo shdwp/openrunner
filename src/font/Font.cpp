@@ -11,7 +11,7 @@ Font::Font(FT_Library ft, FT_Face face, int size) {
     face_ = face;
     this->size = size;
 
-    atlas_size_ = (size + atlas_spacing_) * 32;
+    atlas_size_ = (size + atlas_spacing_) * 16;
     atlas_buf_ = make_unique<uint8_t[]>(atlas_size_ * atlas_size_);
     memset(atlas_buf_.get(), 0, sizeof(uint8_t) * atlas_size_ * atlas_size_);
 
@@ -40,19 +40,21 @@ unique_ptr<vector<atlas_meta_t>> Font::bake(const string &str) {
             if (FT_Load_Char(face_, ch, FT_LOAD_RENDER) == 0) {
                 auto g = face_->glyph;
 
-                if (atlas_x_offset_ + g->bitmap.width > atlas_size_) {
-                    atlas_y_offset_ += atlas_line_height_ * atlas_size_ + atlas_spacing_;
+                auto atlas_new_x = atlas_x_offset_ + g->bitmap.width + atlas_spacing_;
+                if (atlas_new_x > atlas_size_) {
+                    atlas_y_offset_ += atlas_line_height_ + atlas_spacing_;
+                    atlas_new_x -= atlas_x_offset_;
                     atlas_x_offset_ = 0;
                 }
 
-                if (atlas_y_offset_ > atlas_size_) {
+                if (atlas_y_offset_ >= atlas_size_) {
                     ERROR("Not enough space on atlas!");
                     break;
                 }
 
                 for (int i = 0; i < g->bitmap.rows; i++) {
                     auto x_offset = atlas_x_offset_;
-                    auto y_offset = atlas_y_offset_ + atlas_size_ * i;
+                    auto y_offset = (atlas_y_offset_ * atlas_size_) + atlas_size_ * i;
 
                     memcpy(
                             atlas_buf_.get() + x_offset + y_offset,
@@ -61,12 +63,12 @@ unique_ptr<vector<atlas_meta_t>> Font::bake(const string &str) {
                     );
                 }
 
+                /*
                 auto x = calloc(g->bitmap.rows * g->bitmap.width, sizeof(uint8_t));
                 memcpy(x, g->bitmap.buffer, g->bitmap.rows * g->bitmap.width * sizeof(uint8_t));
 
-                /*
-                  glTexSubImage2D(GL_TEXTURE_2D, 0, atlas_x_offset_, atlas_y_offset_ / size_, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, x);
-                  (straight copy was dropped since NV doesn't like NPOT subtex sizes)
+                glTexSubImage2D(GL_TEXTURE_2D, 0, atlas_x_offset_, atlas_y_offset_ / size_, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, x);
+                (straight copy was dropped since NV doesn't like NPOT subtex sizes)
                  */
 
                 auto x1 = (float)atlas_x_offset_;
@@ -84,7 +86,7 @@ unique_ptr<vector<atlas_meta_t>> Font::bake(const string &str) {
 
                 atlas_meta_->insert_or_assign(ch, meta);
                 atlas_line_height_ = std::max(atlas_line_height_, g->bitmap.rows);
-                atlas_x_offset_ += g->bitmap.width + atlas_spacing_;
+                atlas_x_offset_ = atlas_new_x;
 
                 result->emplace_back(meta);
             } else {
@@ -101,7 +103,8 @@ unique_ptr<vector<atlas_meta_t>> Font::bake(const string &str) {
     glGenerateMipmap(GL_TEXTURE_2D);
     atlas_tex_->unbind();
 
-    //stbi_write_png("../assets/atlas.png", atlas_size_, atlas_size_, 1, atlas_buf_.get(), atlas_size_);
+    //auto name = format("atlas_{}.png", (size_t)this);
+    //stbi_write_png(name.c_str(), atlas_size_, atlas_size_, 1, atlas_buf_.get(), atlas_size_);
 
     return result;
 }

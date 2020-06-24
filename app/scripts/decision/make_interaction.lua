@@ -8,7 +8,7 @@ make_interaction = {
 --- @param limit number limit to top N
 --- @param cb fun(card: Card): boolean
 function make_interaction:promptDeckSelect(side, slot, limit, amount, cb)
-    game.decision_stack:push(SelectFromDeckDecision:New(side, slot, limit, amount, cb))
+    game.decision_stack:push(SelectFromDeckDecision:New(side, board:deckGet(slot, 0), limit, amount, cb))
     game:cycle()
 end
 
@@ -46,4 +46,8 @@ function make_interaction:promptOptionSelect(side, options, cb)
 end
 
 function make_interaction:displayFaceup(side, card)
+    local deck = Deck()
+    deck:append(card)
+    game.decision_stack:push(SelectFromDeckDecision:New(side, deck, 1, 1, function (card) return true end))
+    game:cycle()
 end

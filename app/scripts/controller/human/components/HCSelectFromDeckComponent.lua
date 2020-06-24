@@ -1,11 +1,9 @@
 --- @class HCSelectFromDeckComponent: HumanControllerComponent
 --- @field decision SelectFromDeckDecision
---- @field deck Deck
 HCSelectFromDeckComponent = class("HCSelectFromDeckComponent", HumanControllerComponent)
 
 function HCSelectFromDeckComponent:onNewDecision()
-    self.deck = board:deckGet(self.decision.slot, 0)
-    card_select_widget:setDeck(self.deck, self.decision.limit)
+    card_select_widget:setDeck(self.decision.deck, self.decision.limit)
     card_select_widget.hidden = false
 end
 

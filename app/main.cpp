@@ -122,6 +122,7 @@ int main() {
 
         scripting->setGlobal("card_select_widget", card_select_widget.get());
 
+        scripting->setGlobal("option_select_widget", option_select_widget.get());
         scripting->setGlobal("status_label", status_label.get());
         scripting->setGlobal("alert_label", alert_label.get());
 

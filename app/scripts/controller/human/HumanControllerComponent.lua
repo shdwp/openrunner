@@ -32,6 +32,11 @@ function HumanControllerComponent:interactionDescriptions() return {} end
 --- @return boolean
 function HumanControllerComponent:onNewDecision() return false end
 
+--- @param type string
+--- @param option string
+--- @return boolean
+function HumanControllerComponent:onOptionSelect(type, option) return false end
+
 --- @param card Card
 --- @param slot string
 --- @return boolean

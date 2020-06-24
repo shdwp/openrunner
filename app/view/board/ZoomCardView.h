@@ -10,7 +10,7 @@
 
 class ZoomCardView: public CardView {
 public:
-    string text = "";
+    string description = "";
 
     using CardView::CardView;
 

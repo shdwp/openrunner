@@ -28,10 +28,10 @@ function Corp:drawCard()
     end
 end
 
---- @param meta CardMeta
-function Corp:rez(meta)
-    meta.rezzed = true
-    meta.card.faceup = true
+--- @param card Card
+function Corp:rez(card)
+    card.meta.rezzed = true
+    card.faceup = true
 end
 
 function Corp:actionDrawCard()
@@ -134,8 +134,8 @@ function Corp:actionRez(card, from)
         return false
     end
 
-    if card.meta:onRez() and self:payPrice(card.meta) then
-        self:rez(card.meta)
+    if card.meta:onRez(card) and self:payPrice(card.meta) then
+        self:rez(card)
         return true
     end
 

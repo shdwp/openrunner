@@ -45,7 +45,11 @@ function SelectFromSlotDecision:selected(card, slot)
             else
                 return true
             end
+        else
+            info("Cardspec forbids card: %s", card.uid)
         end
+    else
+        info("Cardspec forbids slot: %s", slot)
     end
 
     return false

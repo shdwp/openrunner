@@ -7,6 +7,8 @@
 #include <ui/Input.h>
 
 #include "dirent.h"
+#include <LuaBridge/Map.h>
+#include <LuaBridge/Vector.h>
 
 #include "../model/board/GameBoard.h"
 #include "../view/board/DeckView.h"
@@ -187,6 +189,7 @@ void Scripting::registerClasses() {
                 .beginClass<OptionInteractable>("OptionInteractable")
                 .TYPE_PROP(OptionInteractable)
                 .addProperty("index", &OptionInteractable::index)
+                .addProperty("option", &OptionInteractable::option)
                 .endClass();
     }
 

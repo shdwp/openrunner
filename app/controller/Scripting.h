@@ -64,6 +64,9 @@ public:
         try {
             return ref(ptr);
         } catch (luabridge::LuaException &ex) {
+            ERROR("Lua {}", ex.what());
+            host_->printTraceback();
+
             return "fail";
         }
     }

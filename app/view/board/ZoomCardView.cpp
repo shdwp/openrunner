@@ -7,7 +7,7 @@
 
 void ZoomCardView::setCard(luabridge::RefCountedPtr<Card> card_ptr, const string &str) {
     card = card_ptr;
-    text = str;
+    description = str;
 }
 
 void ZoomCardView::update() {
@@ -21,5 +21,9 @@ void ZoomCardView::draw(glm::mat4 transform) {
     mat = glm::translate(mat, glm::vec3(-1.4f, 0.f, 0.5f));
     mat = glm::scale(mat, glm::vec3(2.f));
     mat = glm::rotate(mat, (float)M_PI, glm::vec3(1.f, 0.f, 0.f));
-    Debug::Shared->drawText(mat, text, DebugDraw_Red | DebugDraw_Green | DebugDraw_Blue);
+
+    if (*this->card != nullptr) {
+        auto text = format("uid: {}\nslotid: {}\n{}", this->card->uid, this->card->slotid, this->description);
+        Debug::Shared->drawText(mat, text, DebugDraw_Red | DebugDraw_Green | DebugDraw_Blue);
+    }
 }

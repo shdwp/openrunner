@@ -9,46 +9,40 @@ function HumanController:New(side_id)
         last_update = 0,
     })
 
-    if side_id == SIDE_CORP then
-        t.components = {
-            HCDrawCardComponent:New(t, SIDE_CORP, TurnBaseDecision.Type, isPlayDeckSlot, false),
-            HCGetCreditComponent:New(t, SIDE_CORP, TurnBaseDecision.Type, isCreditsPoolSlot, false),
-            HCPlayCardComponent:New(t, SIDE_CORP, TurnBaseDecision.Type, isHandSlot, true),
+    t.components = {
+        HCDrawCardComponent:New(t, side_id, TurnBaseDecision.Type, isPlayDeckSlot, false),
+        HCGetCreditComponent:New(t, side_id, TurnBaseDecision.Type, isCreditsPoolSlot, false),
+        HCPlayCardComponent:New(t, side_id, TurnBaseDecision.Type, isHandSlot, true),
+        HCCardActionComponent:New(t, side_id, TurnBaseDecision.Type, isSlotInstallable, true),
 
+        HCInstallCardComponent:New(t, side_id, InstallDecision.Type, isSlotInstallable, false),
+        HCInstallCardComponent:New(t, side_id, DiscountedInstallDecision.Type, isSlotInstallable, false),
+
+        HCSelectFromDeckComponent:New(t, side_id, SelectFromDeckDecision.Type, nil, true),
+        HCSelectFromSlotComponent:New(t, side_id, SelectFromSlotDecision.Type, nil, true),
+        HCSelectFromOptionsComponent:New(t, side_id, SelectFromOptionsDecision.Type, nil, false),
+
+        HCTurnEndDiscardComponent:New(t, side_id, HandDiscardDecision.Type, isHandSlot, true),
+
+    }
+
+    if side_id == SIDE_CORP then
+        table.array_concat(t.components, {
             HCAdvanceCardComponent:New(t, SIDE_CORP, TurnBaseDecision.Type, isSlotInstallable, true),
             HCAdvanceCardComponent:New(t, SIDE_CORP, FreeAdvanceDecision.Type, isSlotInstallable, true),
-
-            HCInstallCardComponent:New(t, SIDE_CORP, InstallDecision.Type, isSlotInstallable, false),
-            HCInstallCardComponent:New(t, SIDE_CORP, DiscountedInstallDecision.Type, isSlotInstallable, false),
-            HCSelectFromDeckComponent:New(t, SIDE_CORP, SelectFromDeckDecision.Type, nil, true),
-            HCSelectFromSlotComponent:New(t, SIDE_CORP, SelectFromSlotDecision.Type, nil, true),
-
-            HCTurnEndDiscardComponent:New(t, SIDE_CORP, HandDiscardDecision.Type, isHandSlot, true),
 
             HCScoreCardComponent:New(t, nil, nil, isSlotRemote, true),
 
             HCRezCardComponent:New(t, SIDE_CORP, TurnBaseDecision.Type, isSlotInstallable, true),
             HCRezCardComponent:New(t, SIDE_CORP, RunIceRezDecision.Type, isSlotInstallable, true),
-        }
+        })
     elseif side_id == SIDE_RUNNER then
-        t.components = {
-            HCDrawCardComponent:New(t, SIDE_RUNNER, TurnBaseDecision.Type, isPlayDeckSlot, false),
-            HCGetCreditComponent:New(t, SIDE_RUNNER, TurnBaseDecision.Type, isCreditsPoolSlot, false),
-            HCPlayCardComponent:New(t, SIDE_RUNNER, TurnBaseDecision.Type, isHandSlot, true),
-
-            HCInstallCardComponent:New(t, SIDE_RUNNER, InstallDecision.Type, isSlotInstallable, false),
-            HCInstallCardComponent:New(t, SIDE_RUNNER, DiscountedInstallDecision.Type, isSlotInstallable, false),
-
-            HCSelectFromDeckComponent:New(t, SIDE_RUNNER, SelectFromDeckDecision.Type, nil, true),
-            HCSelectFromSlotComponent:New(t, SIDE_RUNNER, SelectFromSlotDecision.Type, nil, true),
-
+        table.array_concat(t.components, {
             HCInitiateRunComponent:New(t, SIDE_RUNNER, TurnBaseDecision.Type, isSlotRemote, true),
             HCApproachIceComponent:New(t, SIDE_RUNNER, RunIceApproachDecision.Type, isSlotIce, true),
             HCSubroutBreakComponent:New(t, SIDE_RUNNER, RunSubroutBreakDecision.Type, function (c) return c == SLOT_RUNNER_PROGRAMS end, true),
             HCRunAccessComponent:New(t, SIDE_RUNNER, RunAccessDecision.Type, nil, true),
-
-            HCTurnEndDiscardComponent:New(t, SIDE_RUNNER, HandDiscardDecision.Type, isHandSlot, true),
-        }
+        })
     end
 
     return t
@@ -63,10 +57,9 @@ function HumanController:_matchComponent(ignore_slot_card, slot, card, fn)
 
         local side_matches = not comp.side or (self.decision and comp.side.id == self.decision.side.id)
         local phase_matches = not comp.supportedDecisionType or self.decision and comp.supportedDecisionType == self.decision.type
-        local slot_matches = ignore_slot_card or not does_restrict_slot or comp.restrictSlot(slot)
+        local slot_matches = ignore_slot_card or not does_restrict_slot or (slot ~= nil and comp.restrictSlot(slot))
         local card_req_matches = ignore_slot_card or (card and does_require_card) or not (card and does_require_card)
 
-        --print(comp.phaseType, comp.side.id, side_matches, comp.phaseType, phase_matches, "slot", slot_matches, "card_req", card_req_matches)
         if side_matches and phase_matches and slot_matches and card_req_matches then
             comp.decision = self.decision;
             if fn(comp) then
@@ -143,7 +136,9 @@ function HumanController:interaction(type, descr)
     local card = descr and descr.card
     self:_matchComponent(type == INTERACTION_CANCEL, slot, card, function (comp)
         info("Component of %s handling %s, passed event %s (%s) to %s", self.side.id, comp.decision, type, interaction_descr, comp)
-        if type == INTERACTION_PRIMARY then
+        if descr and descr.type == "OptionInteractable" then
+            result = comp:onOptionSelect(type, descr.option)
+        elseif type == INTERACTION_PRIMARY then
             result = comp:onPrimary(descr.card, descr.slot)
         elseif type == INTERACTION_SECONDARY then
             result = comp:onSecondary(descr.card, descr.slot)

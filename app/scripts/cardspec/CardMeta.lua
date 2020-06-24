@@ -26,12 +26,17 @@ function CardMeta:New(info)
     })
 end
 
+function CardMeta:debugDescription()
+    return "uid " .. self.info.code .. " of " .. self.info.type_code
+end
+
 --- @param card Card
 --- @return Ctx
-function CardMeta:_ctx()
+function CardMeta:_ctx(card)
     return Ctx:New(
             game.decision_stack:top(),
-            self
+            self,
+            card
     )
 end
 
@@ -216,39 +221,39 @@ end
 
 -- events
 
-function CardMeta:onRez()
+function CardMeta:onRez(card)
     if self.info.onRez then
-        return self.info.onRez(self:_ctx())
+        return self.info.onRez(self:_ctx(card))
     else
         return true
     end
 end
 
-function CardMeta:onPlay() if self.info.onPlay then return self.info.onPlay(self:_ctx()) end end
-function CardMeta:onAction() if self.info.onAction then return self.info.onAction(self:_ctx()) end end
-function CardMeta:onInstall() if self.info.onInstall then return self.info.onInstall(self:_ctx()) end end
-function CardMeta:onRemoval() if self.info.onRemoval then return self.info.onRemoval(self:_ctx()) end end
-function CardMeta:onScore() if self.info.onScore then return self.info.onScore(self:_ctx()) end end
-function CardMeta:onPowerUp() return self.info.onPowerUp(self:_ctx()) end
+function CardMeta:onPlay(card) if self.info.onPlay then return self.info.onPlay(self:_ctx(card)) end end
+function CardMeta:onAction(card) if self.info.onAction then return self.info.onAction(self:_ctx(card)) end end
+function CardMeta:onInstall(card) if self.info.onInstall then return self.info.onInstall(self:_ctx(card)) end end
+function CardMeta:onRemoval(card) if self.info.onRemoval then return self.info.onRemoval(self:_ctx(card)) end end
+function CardMeta:onScore(card) if self.info.onScore then return self.info.onScore(self:_ctx(card)) end end
+function CardMeta:onPowerUp(card) return self.info.onPowerUp(self:_ctx(card)) end
 
-function CardMeta:onNewTurn()
+function CardMeta:onNewTurn(card)
     self.until_turn_end = {}
 
     local result
-    if self.info.onNewTurn then result = self.info.onNewTurn(self:_ctx()) end
+    if self.info.onNewTurn then result = self.info.onNewTurn(self:_ctx(card)) end
     return result
 end
 
-function CardMeta:onUse()
+function CardMeta:onUse(card)
     self.until_use = {}
 end
 
-function CardMeta:onRunEnd()
+function CardMeta:onRunEnd(card)
     self.until_run_end = {}
 end
 
-function CardMeta:onEncounterEnd()
+function CardMeta:onEncounterEnd(card)
     self.until_encounter_end = {}
 
-    if self.info.onIceEncounterEnd then return self.info.onIceEncounterEnd(self:_ctx()) end
+    if self.info.onIceEncounterEnd then return self.info.onIceEncounterEnd(self:_ctx(card)) end
 end

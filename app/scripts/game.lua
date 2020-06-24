@@ -92,9 +92,7 @@ function game:newTurn()
     -- call onNewTurn on rezzed cards
     for card in self:boardCardsIter() do
         if card.meta.rezzed then
-            if card.meta:onNewTurn() then
-                board:cardPop(slot, card)
-            end
+            card.meta:onNewTurn(card)
         end
     end
 
@@ -225,8 +223,8 @@ function game:onInit()
         board:deckAppend(SLOT_RUNNER_STACK, stack)
         board:deckAppend(SLOT_RUNNER_HEAP, Deck())
 
-        board:cardAppend(remoteSlot(1), Db:card(1094))
-        board:cardAppend(remoteIceSlot(1), Db:card(1101))
+        board:cardAppend(remoteSlot(1), Db:card("Hostile Takeover", {faceup = false}))
+        board:cardAppend(remoteIceSlot(1), Db:card("Enigma", {faceup = false}))
         ui:cardInstalled(nil, remoteIceSlot(1))
 
         board:cardAppend(SLOT_RUNNER_PROGRAMS, Db:card(1043))
@@ -235,12 +233,13 @@ function game:onInit()
         ui:cardInstalled(nil, SLOT_RUNNER_PROGRAMS)
 
         -- Hands
-        board:cardAppend(SLOT_CORP_HAND, Db:card(1094))
+        board:cardAppend(SLOT_CORP_HAND, Db:card("Hostile Takeover"))
 
-        board:cardAppend(SLOT_RUNNER_HAND, Db:card(1039))
-        board:cardAppend(SLOT_RUNNER_HAND, Db:card(1005))
+        board:cardAppend(SLOT_RUNNER_HAND, Db:card("Cyberfeeder"))
         board:cardAppend(SLOT_RUNNER_HAND, Db:card("Diesel"))
-        board:cardAppend(SLOT_RUNNER_HAND, Db:card("Diesel"))
+        board:cardAppend(SLOT_RUNNER_HAND, Db:card("Infiltration"))
+        board:cardAppend(SLOT_RUNNER_HAND, Db:card("The Personal Touch"))
+        board:cardAppend(SLOT_RUNNER_HAND, Db:card("Femme Fatale"))
 
     end
 

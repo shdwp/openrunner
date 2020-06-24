@@ -13,3 +13,15 @@ function SelectFromOptionsDecision:New(side_id, options, cb)
     })
 end
 
+--- @param option string
+--- @return boolean
+function SelectFromOptionsDecision:selected(option)
+    if self.cb(option) then
+        return self:handledTop()
+    end
+end
+
+--- @return boolean
+function SelectFromOptionsDecision:cancelled()
+    return true
+end

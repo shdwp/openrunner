@@ -59,6 +59,11 @@ function Runner:actionDrawCard()
     end
 end
 
+--- @param card Card
+--- @param from string
+--- @param to string
+--- @param suppress_events boolean
+--- @param discount number - or + amount
 function Runner:actionInstall(card, from, to, suppress_events, discount)
     assert(card)
     assert(from)
@@ -84,7 +89,7 @@ function Runner:actionInstall(card, from, to, suppress_events, discount)
         local existing_card = board:cardGet(to, 0)
         if to == SLOT_RUNNER_CONSOLE and existing_card then
             board:cardReplace(to, existing_card, card)
-            existing_card.meta:onRemoval()
+            existing_card.meta:onRemoval(existing_card)
         else
             board:cardAppend(to, card)
         end
@@ -97,7 +102,7 @@ function Runner:actionInstall(card, from, to, suppress_events, discount)
         if suppress_events == true then
             info("onInstall() suppressed due to suppress_events")
         else
-            card.meta:onInstall()
+            card.meta:onInstall(card)
         end
         ui:cardInstalled(card, to)
         return true
@@ -106,28 +111,28 @@ function Runner:actionInstall(card, from, to, suppress_events, discount)
     return false
 end
 
---- @param breaker CardMeta
---- @param ice CardMeta
+--- @param breaker_card Card
+--- @param breaker_meta CardMeta
+--- @param ice_meta CardMeta
 --- @return boolean
-function Runner:actionBreakIce(breaker, ice)
-    local breaker_strength = breaker.info.strength
-    local ice_strength = ice.info.strength
+function Runner:actionBreakIce(breaker_card, breaker_meta, ice_meta)
+    local breaker_strength = breaker_meta.info.strength
+    local ice_strength = ice_meta.info.strength
 
-    for t in breaker:modificationsIter() do
-        print(inspect(t))
+    for t in breaker_meta:modificationsIter() do
         if t.additional_strength then
             breaker_strength = breaker_strength + t.additional_strength
         end
     end
 
-    for t in ice:modificationsIter() do
+    for t in ice_meta:modificationsIter() do
         if t.additional_strength then
             ice_strength = ice_strength + t.additional_strength
         end
     end
 
-    if breaker_strength >= ice_strength and breaker:onBreakIce(ice) then
-        breaker:onUse()
+    if breaker_strength >= ice_strength and breaker_meta:onBreakIce(ice_meta) then
+        breaker_meta:onUse(breaker_card)
         return true
     else
         return false

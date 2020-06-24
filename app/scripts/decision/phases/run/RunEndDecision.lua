@@ -9,8 +9,8 @@ end
 
 function RunEndDecision:autoHandle()
     for card in game:boardCardsIter() do
-        card.meta:onEncounterEnd()
-        card.meta:onRunEnd()
+        card.meta:onEncounterEnd(card)
+        card.meta:onRunEnd(card)
     end
 
     return self:handledTop()

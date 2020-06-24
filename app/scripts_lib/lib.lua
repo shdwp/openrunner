@@ -36,7 +36,7 @@ function string.ends_with(str, ending)
 end
 
 --- Table
-function shallowcopy(orig)
+function table.shallowcopy(orig)
     local orig_type = type(orig)
     local copy
     if orig_type == 'table' then
@@ -73,11 +73,29 @@ function table.indexOf(t, elem)
     return nil
 end
 
+function table.array_concat(into, from)
+    for _, v in pairs(from) do
+        table.insert(into, v)
+    end
+end
+
 --- Card debug description (for cpp)
+function debugDescriptionTableCleanup(t)
+    for k, v in pairs(t) do
+        if k == "info" then
+            t[k] = nil
+        elseif k == "selected_ice" then
+            t[k] = string.format("<card with uid %s>", v.info.code)
+        elseif type(v) == "table" then
+            debugDescriptionTableCleanup(v)
+        end
+    end
+end
+
 function debugDescription(item)
     if item.type == "Card" then
-        local t = shallowcopy(item.meta)
-        t.info = nil
+        local t = table.shallowcopy(item.meta)
+        debugDescriptionTableCleanup(t)
         return inspect(t)
     end
 end
@@ -105,7 +123,7 @@ function class(typeid, parent, o)
     local t = o or {}
     local mt = {
         __tostring = function (self)
-            return "<" .. typeid .. self:debugDescription() .. ">"
+            return "<" .. typeid .. " " .. self:debugDescription() .. ">"
         end
     }
 

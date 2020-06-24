@@ -9,12 +9,18 @@ Db = {
 --- @class Ctx
 --- @field meta CardMeta
 --- @field decision Decision
+--- @field card Card
 Ctx = class("Ctx")
 
-function Ctx:New(decision, meta)
+--- @param decision Decision
+--- @param meta CardMeta
+--- @param card Card
+--- @return Ctx
+function Ctx:New(decision, meta, card)
     return construct(self, {
         meta = meta,
         decision = decision,
+        card = card,
     })
 end
 
@@ -44,7 +50,9 @@ end
 
 --- @param uid number
 --- @return Card
-function Db:card(uid)
+function Db:card(uid, params)
+    params = params or {}
+
     if type(uid) == "string" then
         uid = self.card_titles[uid]
     end
@@ -55,7 +63,10 @@ function Db:card(uid)
     end
 
     local card = Card(uid, CardMeta:New(info))
-    card.meta.card = card
+    if params.faceup ~= nil then
+        card.faceup = params.faceup
+    end
+
     return card
 end
 

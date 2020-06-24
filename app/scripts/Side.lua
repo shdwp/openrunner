@@ -51,7 +51,7 @@ function Side:newTurn()
 end
 
 --- @param card Card
-function Side:actionDiscard(card)
+function Side:discard(card)
     board:cardPop(card.slotid, card)
 
     local deck = board:deckGet(sideDiscardSlot(self.id), 0)
@@ -84,6 +84,6 @@ end
 --- @param from string
 --- @return boolean
 function Side:actionPlayEvent(card, from)
-    card.meta:onPlay()
+    card.meta:onPlay(card)
     board:cardPop(from, card)
 end
