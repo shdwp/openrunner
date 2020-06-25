@@ -103,6 +103,10 @@ public:
         }
     }
 
+    [[nodiscard]] luabridge::RefCountedPtr<Card> at(size_t idx) const {
+        return cards->at(idx);
+    }
+
     [[nodiscard]] size_t size() const { return cards->size(); }
 };
 

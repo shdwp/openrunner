@@ -3,7 +3,7 @@ function isSlotRemote(slot)
 end
 
 function isSlotIce(slot)
-    return string.starts_with(slot, "corp_remote_") and string.ends_with(slot, "_ice")
+    return string.starts_with(slot, "corp_") and string.ends_with(slot, "_ice")
 end
 
 function iceSlotOfRemote(slot)
@@ -24,6 +24,10 @@ end
 
 function isSlotInstallable(slot)
     return isSlotIce(slot) or isSlotRemote(slot) or slot == SLOT_RUNNER_CONSOLE or slot == SLOT_RUNNER_PROGRAMS or slot == SLOT_RUNNER_HARDWARE or slot == SLOT_RUNNER_RESOURCES
+end
+
+function isSlotRunnable(slot)
+    return isSlotRemote(slot) or slot == SLOT_CORP_ARCHIVES or slot == SLOT_CORP_HQ or slot == SLOT_CORP_RND
 end
 
 function remoteSlot(n)
@@ -66,11 +70,21 @@ function sideSlots(id)
     end
 end
 
+-- general
+INFINITE = 999
+MINUS_INFINITE = -999
+
 -- interaction
 INTERACTION_PRIMARY = "primary"
 INTERACTION_SECONDARY = "secondary"
 INTERACTION_TERTIARY = "tertiary"
 INTERACTION_CANCEL = "cancel"
+
+CI_INSTALL = "install"
+CI_PLAY = "play"
+CI_REZ = "rez"
+CI_SCORE = "score"
+CI_TRASH = "trash"
 
 -- sides
 SIDE_CORP = "corp"
@@ -81,6 +95,7 @@ SLOT_CORP_HAND = "corp_hand"
 SLOT_CORP_RND = "corp_rnd"
 SLOT_CORP_ARCHIVES = "corp_archives"
 SLOT_CORP_HQ = "corp_hq"
+SLOT_CORP_SCORE = "corp_score"
 -- SLOT_CORP_ = "corp_"
 
 SLOT_RUNNER_HAND = "runner_hand"
@@ -91,6 +106,7 @@ SLOT_RUNNER_PROGRAMS = "runner_software"
 SLOT_RUNNER_HARDWARE = "runner_hardware"
 SLOT_RUNNER_RESOURCES = "runner_resources"
 SLOT_RUNNER_HEAP = "runner_heap"
+SLOT_RUNNER_SCORE = "runner_score"
 
 RUNNER_SLOTS = {
     SLOT_RUNNER_HAND,
@@ -99,6 +115,7 @@ RUNNER_SLOTS = {
     SLOT_RUNNER_PROGRAMS,
     SLOT_RUNNER_HARDWARE,
     SLOT_RUNNER_RESOURCES,
+    SLOT_RUNNER_SCORE,
 }
 
 CORP_SLOTS = {
@@ -118,5 +135,5 @@ CORP_SLOTS = {
     SLOT_CORP_HQ,
     SLOT_CORP_RND,
     SLOT_CORP_ARCHIVES,
+    SLOT_CORP_SCORE,
 }
-

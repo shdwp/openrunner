@@ -45,6 +45,12 @@ function game:cycle()
     ctrl:handle(decision)
 end
 
+function game:endInFavor(side_id)
+    game.decision_stack:push(GameEndDecision:New(SIDE_CORP))
+    game.decision_stack:pop()
+    game:cycle()
+end
+
 --- @param side string
 --- @param amount number
 --- @return boolean
@@ -74,7 +80,7 @@ function game:newTurn()
     end
 
     -- @TODO: remove
-    self.current_side = SIDE_RUNNER
+    self.current_side = SIDE_CORP
 
     -- call newTurn for appropriate side
     if self.current_side == SIDE_CORP then
@@ -234,13 +240,16 @@ function game:onInit()
 
         -- Hands
         board:cardAppend(SLOT_CORP_HAND, Db:card("Hostile Takeover"))
+        board:cardAppend(SLOT_CORP_HAND, Db:card("Adonis Campaign"))
+        board:cardAppend(SLOT_CORP_HAND, Db:card("Melange Mining Corp."))
+        board:cardAppend(SLOT_CORP_HAND, Db:card("Ice Wall"))
 
         board:cardAppend(SLOT_RUNNER_HAND, Db:card("Cyberfeeder"))
         board:cardAppend(SLOT_RUNNER_HAND, Db:card("Diesel"))
         board:cardAppend(SLOT_RUNNER_HAND, Db:card("Infiltration"))
         board:cardAppend(SLOT_RUNNER_HAND, Db:card("The Personal Touch"))
         board:cardAppend(SLOT_RUNNER_HAND, Db:card("Femme Fatale"))
-
+        board:cardAppend(SLOT_RUNNER_HAND, Db:card("The Maker\'s Eye"))
     end
 
     info("Game ready!")

@@ -18,6 +18,7 @@ void StackWidget::update() {
     }
 
     float scale = (*children_)[0]->scale.x;
+    scale = 0.1f;
     float space;
     float initial_pos;
     float offline_pos;

@@ -40,9 +40,10 @@ function Decision:handledTop(amount)
         for _ = 2, amount do
             game.decision_stack:pop()
         end
-    else
+    elseif game.decision_stack:remove(self) then
         info("Decision %s tried to handle %d, but only hanlded itself", self, amount)
-        game.decision_stack:remove(self)
+    else
+        info("Decision %s tried to handle %d, but failed due to no longer being on stack", self, amount)
     end
 
     --- defer call in order to clear the stack

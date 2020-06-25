@@ -12,7 +12,7 @@ CardView::CardView(luabridge::RefCountedPtr<Card> card, const shared_ptr<Model>&
         SlotView::SlotView(model),
         card(card)
 {
-    scale = glm::vec3(0.1f, 0.01f, 0.1f);
+    scale = glm::vec3(0.2f, 0.01f, 0.2f);
 }
 
 CardView CardView::For(luabridge::RefCountedPtr<Card> _card) {
@@ -55,8 +55,8 @@ void CardView::draw(glm::mat4 transform) {
 }
 
 std::tuple<glm::vec4, glm::vec4, int> CardView::interactableArea() {
-    auto a = uiTransform_ * glm::vec4(-0.65f, 0.f, -1.f, 1.f);
-    auto b = uiTransform_ * glm::vec4(0.65f, 0.f, 1.f, 1.f);
+    auto a = uiTransform_ * glm::vec4(-0.33f, 0.f, -0.48f, 1.f);
+    auto b = uiTransform_ * glm::vec4(0.33f, 0.f, 0.48f, 1.f);
     return std::tuple(a, b, ui_z_index);
 }
 

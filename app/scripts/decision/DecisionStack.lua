@@ -41,6 +41,7 @@ function DecisionStack:remove(phase)
     for k, v in pairs(self.stack) do
         if v == phase then
             table.remove(self.stack, k)
+            return true
         end
     end
 end
@@ -96,8 +97,14 @@ end
 --- @param side string
 --- @param amount number
 function DecisionStack:removeClicks(side, amount)
-    info("Removing %d clicks from %s", amount, side)
-    for i = #self.stack, 1, -1 do
+    local clicks = self:countClicks(side)
+    if clicks - 1 < math.abs(amount) then
+        info("Failed to alter clicks (%d) from %s - not enough left (%d)", amount, side, clicks)
+        return false
+    end
+
+    info("Removing %d clicks (total %d) from %s", amount, clicks, side)
+    for i = #self.stack - 1, 1, -1 do
         if amount >= 0 then
             return true
         end

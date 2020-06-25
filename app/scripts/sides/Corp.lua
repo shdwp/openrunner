@@ -42,11 +42,14 @@ end
 --- @param card Card
 --- @param from string
 --- @param to string
+--- @param suppress_events boolean
+--- @param discount number - or + amount
 --- @return boolean
-function Corp:actionInstallRemote(card, from, to)
+function Side:actionInstall(card, from, to, suppress_events, discount)
     assert(card)
     assert(from)
     assert(to)
+    discount = discount or 0
 
     if card.meta:isCardIce() and not isSlotIce(to) then
         return false
@@ -64,7 +67,7 @@ function Corp:actionInstallRemote(card, from, to)
         price = board:count(to)
     end
 
-    if self:spendCredits(price) then
+    if self:spendCredits(price + discount) then
         local existing_card = board:cardGet(to, 0)
         if isSlotRemote(to) and existing_card then
             board:cardReplace(to, existing_card, card)
@@ -72,8 +75,12 @@ function Corp:actionInstallRemote(card, from, to)
             board:cardAppend(to, card)
         end
 
+        if not suppress_events then
+            card.meta:onInstall(card)
+        end
+
         board:cardPop(from, card)
-        ui:cardInstalled(card, slot)
+        ui:cardInstalled(card, to)
         return true
     else
         return false
@@ -85,36 +92,34 @@ end
 --- @param free boolean
 --- @return boolean
 function Corp:actionAdvance(card, from, free)
-    if not card then
-        return false
-    end
+    assert(card)
 
-    if not card.meta:canAdvance() then
+    if not card.meta:canAdvance(card) then
         info("cardspec forbids advance!")
         return false
     end
 
-    if card.meta.adv >= card.meta.info.advancement_cost then
-        return false
-    elseif self:spendCredits(free and 0 or 1) then
-        card.meta.adv = card.meta.adv + 1
+    if self:spendCredits(free and 0 or 1) and card.meta:onAdvance(card) then
+        card.meta.adv = (card.meta.adv or 0) + 1
         return true
     else
         return false
     end
 end
 
---- @param card userdata Card
+--- @param card Card
 --- @param from string
 --- @return boolean
 function Corp:actionScore(card, from)
-    if not card then
-        return false
-    end
+    assert(card)
 
-    if card.meta.adv >= card.meta.info.advancement_cost then
-        card.meta:onScore()
-        board:cardPop(from, card)
+    if (card.meta.adv or 0) >= (card.meta.info.advancement_cost or INFINITE) and card.meta:onScore(card) then
+        card.meta.rezzed = true
+        card.faceup = true
+        board:cardMove(card, SLOT_CORP_SCORE)
+        ui:cardInstalled(card, SLOT_CORP_SCORE)
+
+        self:alterScore(card.meta.info.agenda_points)
         game.last_agenda_scored_turn_n = game.turn_n
         return true
     end
@@ -124,8 +129,11 @@ end
 
 --- @param card Card
 --- @param from string
+--- @param discount number
 --- @return boolean
-function Corp:actionRez(card, from)
+function Corp:actionRez(card, from, discount)
+    discount = discount or 0
+
     if not card then
         return false
     end
@@ -134,7 +142,7 @@ function Corp:actionRez(card, from)
         return false
     end
 
-    if card.meta:onRez(card) and self:payPrice(card.meta) then
+    if card.meta:onRez(card) and self:payPrice(card.meta, discount) then
         self:rez(card)
         return true
     end

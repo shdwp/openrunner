@@ -40,6 +40,10 @@ function _deck:remove(card, idx) end
 --- @param card Card
 function _deck:erase(card) end
 
+--- @param idx number
+--- @return Card
+function _deck:at(idx) end
+
 --- @return number
 function _deck:size() end
 
@@ -70,6 +74,10 @@ function _game_board:cardPop(slot, card) end
 --- @param to Card
 --- @return Card
 function _game_board:cardReplace(slot, from, to) end
+
+--- @param card Card
+--- @param to string
+function _game_board:cardMove(card, to) end
 
 --- @param slot string
 --- @param idx number

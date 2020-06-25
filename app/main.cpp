@@ -76,7 +76,7 @@ int main() {
         gui_scene->addChild(alert_label);
 
         auto gui_card_zoomed_view = make_shared<ZoomCardView>(card_model);
-        gui_card_zoomed_view->scale = glm::vec3(250.f);
+        gui_card_zoomed_view->scale = glm::vec3(500.f);
         gui_scene->addChild(gui_card_zoomed_view);
 
         board_view = scene->addChild(GameBoardView(board_model));
@@ -161,6 +161,11 @@ int main() {
                     glDisable(GL_CULL_FACE);
                     gui_scene->unbind();
                 }
+
+                /*
+                scene->ui_layer->debugDraw();
+                gui_scene->ui_layer->debugDraw();
+                 */
 
                 std::this_thread::sleep_for(std::chrono::milliseconds(32));
                 glfwSwapBuffers(window);

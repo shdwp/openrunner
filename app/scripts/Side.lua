@@ -42,9 +42,10 @@ function Side:spendCredits(amount)
 end
 
 --- @param meta table card metatable
+--- @param discount number defaults to 0
 --- @return boolean
-function Side:payPrice(meta)
-    return self:spendCredits(meta.info.cost)
+function Side:payPrice(meta, discount)
+    return self:spendCredits(meta.info.cost, discount or 0)
 end
 
 function Side:newTurn()
@@ -86,4 +87,15 @@ end
 function Side:actionPlayEvent(card, from)
     card.meta:onPlay(card)
     board:cardPop(from, card)
+end
+
+--- @param card Card
+--- @param from string
+--- @param to string
+--- @param suppress_events boolean
+--- @param discount number - or + amount
+--- @return boolean
+function Side:actionInstall(card, from, to, suppress_events, discount)
+    error("Not implemented")
+    return false
 end

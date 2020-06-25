@@ -35,6 +35,9 @@ void Scripting::registerClasses() {
                 .addFunction("cardReplace", &GameBoard::replace<Card, Card, CardView>)
                 .addFunction("deckReplace", &GameBoard::replace<Deck, Deck, DeckView>)
 
+                .addFunction("cardMove", &GameBoard::move<Card, CardView>)
+                .addFunction("deckMove", &GameBoard::move<Deck, DeckView>)
+
                 .addFunction("cardGet", &GameBoard::get<Card>)
                 .addFunction("deckGet", &GameBoard::get<Deck>)
 
@@ -70,6 +73,7 @@ void Scripting::registerClasses() {
                 .addFunction("shuffle", &Deck::shuffle)
                 .addFunction("remove", &Deck::remove)
                 .addFunction("erase", &Deck::erase)
+                .addFunction("at", &Deck::at)
                 .addProperty("size", &Deck::size)
                 .endClass();
     }

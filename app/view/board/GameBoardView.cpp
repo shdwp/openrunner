@@ -74,5 +74,5 @@ void GameBoardView::draw(glm::mat4 transform) {
 
         Debug::Shared->drawText(mat, vec.first);
     }
-    */
+     */
 }

@@ -10,7 +10,7 @@ DeckView::DeckView(luabridge::RefCountedPtr<Deck> deck, const shared_ptr<Model> 
         CardView(CardView::SharedModel),
         deck_(deck)
 {
-    scale = glm::vec3(0.1f, 0.1f, 0.1f);
+    scale = glm::vec3(0.2f, 0.1f, 0.2f);
 }
 
 DeckView DeckView::For(luabridge::RefCountedPtr<Deck> deck) {
@@ -20,7 +20,7 @@ DeckView DeckView::For(luabridge::RefCountedPtr<Deck> deck) {
 void DeckView::update() {
     CardView::update();
 
-    scale.y = 0.01f * deck_->size();
+    scale.y = 0.005f * deck_->size();
     card = deck_->top();
 }
 

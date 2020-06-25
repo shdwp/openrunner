@@ -2,7 +2,6 @@
 --- @field card Card
 --- @field info CardInfo
 --- @field rezzed boolean
---- @field discard boolean
 --- @field until_forever table
 --- @field until_turn_end table
 --- @field until_run_end table
@@ -16,7 +15,6 @@ function CardMeta:New(info)
     return construct(self, {
         info = info,
 
-        discard = false,
         rezzed = false,
         until_turn_end = {},
         until_run_end = {},
@@ -44,9 +42,9 @@ end
 function CardMeta:interactionFromHand()
     local t = self.info.type_code
     if t == "agenda" or t == "asset" or t == "ice" or t == "resource" or t == "hardware" or t == "program" then
-        return "install"
+        return CI_INSTALL
     elseif t == "operation" or t == "event" then
-        return "play"
+        return CI_PLAY
     end
 end
 
@@ -54,11 +52,19 @@ end
 function CardMeta:interactionFromBoard()
     local t = self.info.type_code
     if t == "agenda" then
-        return "score"
-    elseif t == "asset" then
-        return "rez"
-    elseif t == "ice" then
-        return "rez"
+        return CI_SCORE
+    elseif t == "asset" or t == "ice" then
+        return CI_REZ
+    end
+end
+
+--- @return string
+function CardMeta:interactionFromRunAccess()
+    local t = self.info.type_code
+    if t == "agenda" then
+        return CI_SCORE
+    elseif self.info.trash_cost then
+        return CI_TRASH
     end
 end
 
@@ -145,15 +151,15 @@ function CardMeta:modificationsIter()
     return function ()
         i = i + 1
 
-        if i == 0 then
+        if i == 1 then
             return self.until_forever
-        elseif i == 1 then
-            return self.until_turn_end
         elseif i == 2 then
             return self.until_turn_end
         elseif i == 3 then
-            return self.until_use
+            return self.until_run_end
         elseif i == 4 then
+            return self.until_use
+        elseif i == 5 then
             return self.until_encounter_end
         else
             return nil
@@ -163,12 +169,13 @@ end
 
 -- predicates
 
+--- @param card Card
 --- @return boolean
-function CardMeta:canAdvance()
+function CardMeta:canAdvance(card)
     if self.info.type_code == "agenda" then
         return true
-    else
-        return false
+    elseif self.info.canBeAdvanced and self.info.canBeAdvanced(self:_ctx(card)) then
+        return true
     end
 end
 --- @return boolean
@@ -229,19 +236,39 @@ function CardMeta:onRez(card)
     end
 end
 
-function CardMeta:onPlay(card) if self.info.onPlay then return self.info.onPlay(self:_ctx(card)) end end
-function CardMeta:onAction(card) if self.info.onAction then return self.info.onAction(self:_ctx(card)) end end
-function CardMeta:onInstall(card) if self.info.onInstall then return self.info.onInstall(self:_ctx(card)) end end
-function CardMeta:onRemoval(card) if self.info.onRemoval then return self.info.onRemoval(self:_ctx(card)) end end
-function CardMeta:onScore(card) if self.info.onScore then return self.info.onScore(self:_ctx(card)) end end
-function CardMeta:onPowerUp(card) return self.info.onPowerUp(self:_ctx(card)) end
+function CardMeta:_callEventHandler(eventid, card)
+    local fn = self.info[eventid]
+
+    local default_values = {
+        ["onAction"] = false,
+        ["onPowerUp"] = false,
+
+        ["_"] = true,
+    }
+
+    if fn == nil then
+        local default = default_values[eventid]
+        if default ~= nil then
+            return default
+        else
+            return default_values["_"]
+        end
+    else
+        return fn(self:_ctx(card))
+    end
+end
+
+function CardMeta:onPlay(card) return self:_callEventHandler("onPlay", card) end
+function CardMeta:onAction(card) return self:_callEventHandler("onAction", card) end
+function CardMeta:onInstall(card) return self:_callEventHandler("onInstall", card) end
+function CardMeta:onRemoval(card) return self:_callEventHandler("onRemoval", card) end
+function CardMeta:onScore(card) return self:_callEventHandler("onScore", card) end
+function CardMeta:onPowerUp(card) return self:_callEventHandler("onPowerUp", card) end
+function CardMeta:onAdvance(card) return self:_callEventHandler("onAdvance", card) end
 
 function CardMeta:onNewTurn(card)
     self.until_turn_end = {}
-
-    local result
-    if self.info.onNewTurn then result = self.info.onNewTurn(self:_ctx(card)) end
-    return result
+    return self:_callEventHandler("onNewTurn", card)
 end
 
 function CardMeta:onUse(card)
@@ -250,10 +277,14 @@ end
 
 function CardMeta:onRunEnd(card)
     self.until_run_end = {}
+    return self:_callEventHandler("onRunEnd", card)
+end
+
+function CardMeta:onEncounterStart(card)
+    return self:_callEventHandler("onIceEncounterStart")
 end
 
 function CardMeta:onEncounterEnd(card)
     self.until_encounter_end = {}
-
-    if self.info.onIceEncounterEnd then return self.info.onIceEncounterEnd(self:_ctx(card)) end
+    return self:_callEventHandler("onIceEncounterEnd")
 end

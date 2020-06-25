@@ -1,3 +1,8 @@
+_end_the_run_description = "End the run"
+_end_the_run_subroutine = function ()
+    game.decision_stack:popUpTo(RunEndDecision.Type)
+end
+
 Db.cards[1005] = {
     code = "01005",
     cost = 2,
@@ -720,10 +725,10 @@ Db.cards[1056] = {
         ctx.meta.credits_pool = ctx.meta.credits_pool - 3
         game.corp:alterCredits(3)
         if ctx.meta.credits_pool <= 0 then
-            return true
+            game.corp:discard(ctx.card)
         end
 
-        return false
+        return true
     end,
 }
 Db.card_titles["Adonis Campaign"] = 1056
@@ -746,6 +751,22 @@ Db.cards[1064] = {
     title = "Rototurret",
     type_code = "ice",
     uniqueness = false,
+
+    subroutine_descriptions = {
+        "Trash 1 program",
+        _end_the_run_description,
+    },
+
+    subroutines = {
+        function ()
+            make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_PROGRAMS, 1, function (decision, card, slot)
+                game.runner:discard(card)
+                return true
+            end, true)
+        end,
+
+        _end_the_run_subroutine,
+    },
 }
 Db.card_titles["Rototurret"] = 1064
 
@@ -794,6 +815,23 @@ Db.cards[1090] = {
     title = "Tollbooth",
     type_code = "ice",
     uniqueness = false,
+
+    --- @param ctx Ctx
+    onIceEncounterStart = function (ctx)
+        if not game.runner:spendCredits(3) then
+            game.decision_stack:popUpTo(RunEndDecision.Type)
+        end
+
+        return true
+    end,
+
+    subroutine_descriptions = {
+        _end_the_run_description,
+    },
+
+    subroutines = {
+        _end_the_run_subroutine,
+    }
 }
 Db.card_titles["Tollbooth"] = 1090
 
@@ -819,7 +857,7 @@ Db.cards[1094] = {
     onScore = function (ctx)
         game.corp:alterCredits(7)
         game.corp:alterBadPublicity(1)
-        game.corp:alterScore(ctx.meta.info.agenda_points)
+        return true
     end,
 }
 Db.card_titles["Hostile Takeover"] = 1094
@@ -841,6 +879,25 @@ Db.cards[1095] = {
     title = "Posted Bounty",
     type_code = "agenda",
     uniqueness = false,
+
+    --- @param ctx Ctx
+    onScore = function (ctx)
+        local options = {
+            ["forfeit"] = "Forfeit",
+            ["score"] = "Score",
+        }
+        make_interaction:promptOptionSelect(SIDE_CORP, options, function (opt)
+            if opt == "forfeit" then
+                game.runner:alterTags(1)
+                game.corp:alterBadPublicity(1)
+                return true
+            elseif opt == "score" then
+                game.corp:alterScore(ctx.meta.info.agenda_points)
+                return true
+            end
+        end)
+        return false
+    end,
 }
 Db.card_titles["Posted Bounty"] = 1095
 
@@ -962,7 +1019,7 @@ Db.cards[1101] = {
         "The Corp gains 2[credit]",
         "Trash 1 program",
         "Trash 1 program",
-        "End the run",
+        _end_the_run_description,
     },
 
     subroutines = {
@@ -973,9 +1030,7 @@ Db.cards[1101] = {
         _archer_trash_program_subroutine,
         _archer_trash_program_subroutine,
 
-        function ()
-            game.decision_stack:popUpTo(RunEndDecision.Type)
-        end,
+        _end_the_run_subroutine,
     },
 }
 Db.card_titles["Archer"] = 1101
@@ -998,6 +1053,16 @@ Db.cards[1102] = {
     title = "Hadrian\'s Wall",
     type_code = "ice",
     uniqueness = false,
+
+    subroutine_descriptions = {
+        _end_the_run_description,
+        _end_the_run_description,
+    },
+
+    subroutines = {
+        _end_the_run_subroutine,
+        _end_the_run_subroutine,
+    }
 }
 Db.card_titles["Hadrian\'s Wall"] = 1102
 
@@ -1019,6 +1084,23 @@ Db.cards[1103] = {
     title = "Ice Wall",
     type_code = "ice",
     uniqueness = false,
+
+    --- @param ctx Ctx
+    canBeAdvanced = function (ctx) return true end,
+
+    --- @param ctx Ctx
+    onAdvance = function (ctx)
+        ctx.meta.until_forever.additional_strength = (ctx.meta.until_forever.additional_strength or 0) + 1
+        return true
+    end,
+
+    subroutine_descriptions = {
+        _end_the_run_description,
+    },
+
+    subroutines = {
+        _end_the_run_subroutine,
+    },
 }
 Db.card_titles["Ice Wall"] = 1103
 
@@ -1040,6 +1122,33 @@ Db.cards[1104] = {
     title = "Shadow",
     type_code = "ice",
     uniqueness = false,
+
+    --- @param ctx Ctx
+    canBeAdvanced = function (ctx) return true end,
+
+    --- @param ctx Ctx
+    onAdvance = function (ctx)
+        ctx.meta.until_forever.additional_strength = (ctx.meta.until_forever.additional_strength or 0) + 1
+        return true
+    end,
+
+    subroutine_descriptions = {
+        "The Corp gains 2[credit]",
+        "<trace>Trace 3</trace> If successful, give the Runner 1 tag",
+    },
+
+    subroutines = {
+        function ()
+            game.corp:alterCredits(2)
+        end,
+
+        function ()
+            if game.runner:trace(3) then
+                game.runner:alterTags(1)
+            end
+        end,
+    },
+
 }
 Db.card_titles["Shadow"] = 1104
 
@@ -1061,6 +1170,15 @@ Db.cards[1106] = {
     title = "Priority Requisition",
     type_code = "agenda",
     uniqueness = false,
+
+    --- @param ctx Ctx
+    onScore = function (ctx)
+        make_interaction:promptSlotSelect(SIDE_CORP, isSlotIce, 1, function (decision, card, slot)
+            return game.corp:actionRez(card, slot, -99)
+        end)
+
+        return true
+    end
 }
 Db.card_titles["Priority Requisition"] = 1106
 
@@ -1082,6 +1200,14 @@ Db.cards[1107] = {
     title = "Private Security Force",
     type_code = "agenda",
     uniqueness = false,
+
+    --- @param ctx Ctx
+    onAction = function (ctx)
+        if game.runner:isTagged() then
+            game.runner:alterMeatDamage(1)
+            return true
+        end
+    end,
 }
 Db.card_titles["Private Security Force"] = 1107
 
@@ -1108,7 +1234,7 @@ Db.cards[1108] = {
 
     --- @param ctx Ctx
     onAction = function (ctx)
-        if game:alterClicks(SIDE_CORP, -3) then
+        if game:alterClicks(SIDE_CORP, -2) then
             game.corp:alterCredits(7)
             return true
         end
@@ -1135,10 +1261,11 @@ Db.cards[1109] = {
     type_code = "asset",
     uniqueness = false,
 
+    --- @param ctx Ctx
     onNewTurn = function (ctx)
         game.corp:alterCredits(1)
         return true
-    end
+    end,
 }
 Db.card_titles["PAD Campaign"] = 1109
 
@@ -1164,7 +1291,7 @@ Db.cards[1110] = {
     onPlay = function (ctx)
         game.corp:alterCredits(9)
         return true
-    end
+    end,
 }
 Db.card_titles["Hedge Fund"] = 1110
 

@@ -28,10 +28,16 @@ end
 
 --- String
 function string.starts_with(str, start)
+    if not str then
+        error("")
+    end
     return str:sub(1, #start) == start
 end
 
 function string.ends_with(str, ending)
+    if not str then
+        error("")
+    end
     return ending == "" or str:sub(-#ending) == ending
 end
 

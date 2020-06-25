@@ -41,7 +41,7 @@ public:
     }
 
     void addView(GameBoardView &&view) {
-        views->emplace_back(make_shared<GameBoardView>(move(view)));
+        views->emplace_back(make_shared<GameBoardView>(std::move(view)));
     }
 
     void addView(const shared_ptr<GameBoardView>& view_ptr) {
@@ -77,8 +77,6 @@ public:
     template <class T>
     int erase(const string &slotid, luabridge::RefCountedPtr<T> item) {
         auto vec = &(*cards_)[slotid];
-        item->slotid = "";
-
         for (auto i = vec->begin(); i != vec->end(); i++) {
             if (i->get() == item.get()) {
                 if (auto view = findViewFor(slotid)) {
@@ -87,6 +85,8 @@ public:
                         stack_widget->removeChild([item](shared_ptr<Entity> ptr) {
                             if (auto view = dynamic_pointer_cast<SlotView>(ptr)) {
                                 if (view->itemPointer() == item.get()) {
+                                    item->slotid = "";
+
                                     UILayer::unregisterSceneEntity(view);
                                     return true;
                                 }
@@ -123,6 +123,14 @@ public:
         } else {
             return nullptr;
         }
+    }
+
+    template <class T, class V>
+    void move(const luabridge::RefCountedPtr<T> &card, const string &to) {
+        this->erase<T>(card->slotid, card);
+
+        auto card_val = *card.get();
+        this->append<T, V>(to, (const T&)(card_val));
     }
 
     template <class T>

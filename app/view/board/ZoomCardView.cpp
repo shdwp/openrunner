@@ -18,12 +18,11 @@ void ZoomCardView::draw(glm::mat4 transform) {
     CardView::draw(transform);
 
     auto mat = transform;
-    mat = glm::translate(mat, glm::vec3(-1.4f, 0.f, 0.5f));
-    mat = glm::scale(mat, glm::vec3(2.f));
+    mat = glm::translate(mat, glm::vec3(-0.7f, 0.f, 0.2f));
     mat = glm::rotate(mat, (float)M_PI, glm::vec3(1.f, 0.f, 0.f));
 
     if (*this->card != nullptr) {
-        auto text = format("uid: {}\nslotid: {}\n{}", this->card->uid, this->card->slotid, this->description);
+        auto text = format("uid: {}\nslotid: {}\nfaceup: {}\n{}", this->card->uid, this->card->slotid, this->card->faceup, this->description);
         Debug::Shared->drawText(mat, text, DebugDraw_Red | DebugDraw_Green | DebugDraw_Blue);
     }
 }

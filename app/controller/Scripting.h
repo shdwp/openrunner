@@ -31,11 +31,14 @@ private:
     unique_ptr<scripting_handles_t> init_handles_ = make_unique<scripting_handles_t>();
     unique_ptr<scripting_handles_t> tick_handles_ = make_unique<scripting_handles_t>();
     unique_ptr<scripting_handles_t> interaction_handles_ = make_unique<scripting_handles_t>();
+    luabridge::LuaRef persistent_table;
 
     void doModule(const string &path, const string &name);
 
 public:
-    Scripting() {}
+    Scripting() {
+        persistent_table = luabridge::newTable()
+    }
 
     void registerClasses();
 

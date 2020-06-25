@@ -8,6 +8,7 @@
 
 #include <engine/Entity.h>
 #include <scripting/LuaHost.h>
+#include <LuaBridge/RefCountedPtr.h>
 
 class Item {
 public:

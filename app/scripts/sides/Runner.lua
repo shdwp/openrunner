@@ -13,8 +13,6 @@ function Runner:New()
     return construct(self, Side:New(SIDE_RUNNER, 4), {
         tags = 0,
         link = 1,
-        meat_damage = 0,
-        brain_damage = 0,
         memory = 4,
         recurring = {}
     })
@@ -25,14 +23,38 @@ function Runner:alterTags(amount)
     self.tags = self.tags + amount
 end
 
---- @param amount number
-function Runner:alterBrainDamage(amount)
-    self.brain_damage = self.brain_damage + amount
+function Runner:isTagged()
+    return self.tags > 0
 end
 
 --- @param amount number
-function Runner:alterMeatDamage(amount)
-    self.meat_damage = self.meat_damage + amount
+function Runner:damage(amount)
+    local size = board:count(SLOT_RUNNER_HAND)
+    if size < amount then
+        game:endInFavor(SIDE_CORP)
+        return
+    end
+
+    for _ = 0, amount do
+        self:discard(board:cardGet(SLOT_RUNNER_HAND, math.random(0, size)))
+        size = size - 1
+    end
+end
+
+--- @param amount number
+function Runner:brainDamage(amount)
+    self:damage(amount)
+    self.max_hand = self.max_hand - 1
+end
+
+--- @param amount number
+function Runner:netDamage(amount)
+    self:damage(amount)
+end
+
+--- @param amount number
+function Runner:meatDamage(amount)
+    self:damage(amount)
 end
 
 function Runner:newTurn()
@@ -42,6 +64,15 @@ function Runner:newTurn()
         credits_for_icebreakers = 0,
         credits_for_virus_or_icebreakers = 0,
     }
+end
+
+--- @param card Card
+function Runner:scoreAgenda(card)
+    game.runner:alterScore(card.meta.info.agenda_points)
+    card.faceup = true
+    card.meta.rezzed = false
+    board:cardAppend(SLOT_RUNNER_SCORE, card)
+    ui:cardInstalled(card, SLOT_RUNNER_SCORE)
 end
 
 --- @param strength number

@@ -24,7 +24,7 @@ function HumanControllerComponent:New(controller, side_id, supportedDecisionType
 end
 
 function HumanControllerComponent:debugDescription()
-    return self.side.id .. " stype " .. self.supportedDecisionType
+    return self.side.id .. " stype " .. (self.supportedDecisionType or "nil")
 end
 
 function HumanControllerComponent:interactionDescriptions() return {} end

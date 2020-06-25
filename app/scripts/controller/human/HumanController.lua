@@ -9,11 +9,32 @@ function HumanController:New(side_id)
         last_update = 0,
     })
 
-    t.components = {
+    t.components = {}
+
+    if side_id == SIDE_CORP then
+        table.array_concat(t.components, {
+            HCAdvanceCardComponent:New(t, SIDE_CORP, TurnBaseDecision.Type, isSlotInstallable, true),
+            HCAdvanceCardComponent:New(t, SIDE_CORP, FreeAdvanceDecision.Type, isSlotInstallable, true),
+
+            HCScoreCardComponent:New(t, SIDE_CORP, nil, isSlotRemote, true),
+
+            HCRezCardComponent:New(t, SIDE_CORP, TurnBaseDecision.Type, isSlotInstallable, true),
+            HCRezCardComponent:New(t, SIDE_CORP, RunIceRezDecision.Type, isSlotInstallable, true),
+        })
+    elseif side_id == SIDE_RUNNER then
+        table.array_concat(t.components, {
+            HCInitiateRunComponent:New(t, SIDE_RUNNER, TurnBaseDecision.Type, isSlotRunnable, true),
+            HCApproachIceComponent:New(t, SIDE_RUNNER, RunIceApproachDecision.Type, isSlotIce, true),
+            HCSubroutBreakComponent:New(t, SIDE_RUNNER, RunSubroutBreakDecision.Type, function (c) return c == SLOT_RUNNER_PROGRAMS end, true),
+            HCRunAccessComponent:New(t, SIDE_RUNNER, RunAccessDecision.Type, nil, true),
+        })
+    end
+
+    table.array_concat(t.components, {
         HCDrawCardComponent:New(t, side_id, TurnBaseDecision.Type, isPlayDeckSlot, false),
         HCGetCreditComponent:New(t, side_id, TurnBaseDecision.Type, isCreditsPoolSlot, false),
         HCPlayCardComponent:New(t, side_id, TurnBaseDecision.Type, isHandSlot, true),
-        HCCardActionComponent:New(t, side_id, TurnBaseDecision.Type, isSlotInstallable, true),
+        HCCardActionComponent:New(t, side_id, TurnBaseDecision.Type, nil, true),
 
         HCInstallCardComponent:New(t, side_id, InstallDecision.Type, isSlotInstallable, false),
         HCInstallCardComponent:New(t, side_id, DiscountedInstallDecision.Type, isSlotInstallable, false),
@@ -23,27 +44,7 @@ function HumanController:New(side_id)
         HCSelectFromOptionsComponent:New(t, side_id, SelectFromOptionsDecision.Type, nil, false),
 
         HCTurnEndDiscardComponent:New(t, side_id, HandDiscardDecision.Type, isHandSlot, true),
-
-    }
-
-    if side_id == SIDE_CORP then
-        table.array_concat(t.components, {
-            HCAdvanceCardComponent:New(t, SIDE_CORP, TurnBaseDecision.Type, isSlotInstallable, true),
-            HCAdvanceCardComponent:New(t, SIDE_CORP, FreeAdvanceDecision.Type, isSlotInstallable, true),
-
-            HCScoreCardComponent:New(t, nil, nil, isSlotRemote, true),
-
-            HCRezCardComponent:New(t, SIDE_CORP, TurnBaseDecision.Type, isSlotInstallable, true),
-            HCRezCardComponent:New(t, SIDE_CORP, RunIceRezDecision.Type, isSlotInstallable, true),
-        })
-    elseif side_id == SIDE_RUNNER then
-        table.array_concat(t.components, {
-            HCInitiateRunComponent:New(t, SIDE_RUNNER, TurnBaseDecision.Type, isSlotRemote, true),
-            HCApproachIceComponent:New(t, SIDE_RUNNER, RunIceApproachDecision.Type, isSlotIce, true),
-            HCSubroutBreakComponent:New(t, SIDE_RUNNER, RunSubroutBreakDecision.Type, function (c) return c == SLOT_RUNNER_PROGRAMS end, true),
-            HCRunAccessComponent:New(t, SIDE_RUNNER, RunAccessDecision.Type, nil, true),
-        })
-    end
+    })
 
     return t
 end
@@ -55,7 +56,7 @@ function HumanController:_matchComponent(ignore_slot_card, slot, card, fn)
         local does_require_card = comp.requireCard == true
         local does_restrict_slot = comp.restrictSlot ~= nil
 
-        local side_matches = not comp.side or (self.decision and comp.side.id == self.decision.side.id)
+        local side_matches = comp.side == nil or (self.decision and comp.side.id == self.decision.side.id)
         local phase_matches = not comp.supportedDecisionType or self.decision and comp.supportedDecisionType == self.decision.type
         local slot_matches = ignore_slot_card or not does_restrict_slot or (slot ~= nil and comp.restrictSlot(slot))
         local card_req_matches = ignore_slot_card or (card and does_require_card) or not (card and does_require_card)
