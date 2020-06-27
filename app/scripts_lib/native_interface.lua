@@ -12,6 +12,7 @@ _card = {}
             Deck
 ]]--
 --- @class Deck
+--- @field size number
 _deck = {}
 
 --- @return Card
@@ -43,9 +44,6 @@ function _deck:erase(card) end
 --- @param idx number
 --- @return Card
 function _deck:at(idx) end
-
---- @return number
-function _deck:size() end
 
 --[[
             GameBoard
@@ -178,6 +176,7 @@ function _option_select_widget:setOptions(options) end
 ]]--
 
 --- @class Scripting
+--- @field meta table
 _scripting = {}
 
 --- @param lvl number

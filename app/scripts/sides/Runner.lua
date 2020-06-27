@@ -6,7 +6,6 @@
 --- @field brain_damage number
 --- @field recurring table
 Runner = class("Runner", Side)
-print(Side)
 
 --- @return Runner
 function Runner:New()
@@ -57,13 +56,35 @@ function Runner:meatDamage(amount)
     self:damage(amount)
 end
 
+function Runner:alterCredits(amount, category)
+    for k, v in pairs(self.recurring) do
+        if isSpendingApplicable(k, category) then
+            amount = amount + v
+            if amount >= 0 then
+                self.recurring[k] = amount
+                amount = 0
+                break
+            end
+        end
+    end
+end
+
 function Runner:newTurn()
     Side.newTurn(self)
 
     self.recurring = {
         credits_for_icebreakers = 0,
         credits_for_virus_or_icebreakers = 0,
+        credits_for_bad_publicity = 0,
     }
+end
+
+function Runner:onRunStart()
+    self.recurring.credits_for_bad_publicity = game.corp.bad_publicity
+end
+
+function Runner:onRunEnd()
+    self.recurring.credits_for_bad_publicity = 0
 end
 
 --- @param card Card
@@ -72,7 +93,6 @@ function Runner:scoreAgenda(card)
     card.faceup = true
     card.meta.rezzed = false
     board:cardAppend(SLOT_RUNNER_SCORE, card)
-    ui:cardInstalled(card, SLOT_RUNNER_SCORE)
 end
 
 --- @param strength number
@@ -101,19 +121,19 @@ function Runner:actionInstall(card, from, to, suppress_events, discount)
     assert(to)
     discount = discount or 0
 
-    if card.meta:isCardConsole() and to ~= SLOT_RUNNER_CONSOLE then
+    if card.meta:isConsole() and to ~= SLOT_RUNNER_CONSOLE then
         return false
     end
 
-    if card.meta:isCardProgram() and (to ~= SLOT_RUNNER_PROGRAMS or self.memory < card.meta.info.memory_cost) then
+    if card.meta:isProgram() and (to ~= SLOT_RUNNER_PROGRAMS or self.memory < card.meta.info.memory_cost) then
         return false
     end
 
-    if card.meta:isCardResource() and to ~= SLOT_RUNNER_RESOURCES then
+    if card.meta:isResource() and to ~= SLOT_RUNNER_RESOURCES then
         return false
     end
 
-    if self:spendCredits(card.meta.info.cost + discount) then
+    if self:spendCredits(card.meta.info.cost + discount, SPENDING_INSTALL) then
         card.faceup = true
         card.meta.rezzed = true
 
@@ -135,7 +155,6 @@ function Runner:actionInstall(card, from, to, suppress_events, discount)
         else
             card.meta:onInstall(card)
         end
-        ui:cardInstalled(card, to)
         return true
     end
 

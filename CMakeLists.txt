@@ -38,9 +38,13 @@ set(LIB_SOURCES
         src/font/Font.cpp
         src/ui/Input.cpp
         src/ui/UILayer.cpp
-        include/util/Geom.h src/ui/LayoutStack.cpp include/ui/LayoutStack.h)
+        src/ui/LayoutStack.cpp
+        extern/debugger.lua/embed/debugger_lua.c
+        )
+
 add_library(${LIB} ${LIB_SOURCES})
 target_include_directories(${LIB} PUBLIC include)
+target_include_directories(${LIB} PUBLIC extern/debugger.lua/embed)
 
 if (UNIX)
     target_link_libraries(${LIB} /usr/lib/liblua5.2.so /usr/lib/libglfw.so /usr/lib/libfreetype.so ${CMAKE_DL_LIBS})

@@ -13,16 +13,18 @@
 #include "CardView.h"
 #include "SlotInteractable.h"
 #include "../widgets/StackWidget.h"
+#include "../../controller/Scripting.h"
 
 class GameBoardView: public Entity {
 private:
     unique_ptr<std::unordered_map<string, glm::vec3>> slot_positions_ = make_unique<std::unordered_map<string, glm::vec3>>();
     unique_ptr<std::unordered_map<string, glm::vec4>> slot_bounding_boxes_ = make_unique<std::unordered_map<string, glm::vec4>>();
     unique_ptr<std::unordered_map<string, shared_ptr<SlotInteractable>>> slot_interactables_ = make_unique<std::unordered_map<string, shared_ptr<SlotInteractable>>>();
+    shared_ptr<Scripting> scripting_;
 
 public:
-    explicit GameBoardView(shared_ptr<Model> model);
-    GameBoardView();
+    explicit GameBoardView(shared_ptr<Scripting> scripting): scripting_(scripting), Entity() {}
+    explicit GameBoardView(shared_ptr<Model> model, shared_ptr<Scripting> scripting): scripting_(scripting), Entity(model) {}
 
     void addModelSlots();
     void addSlot(const string& slotid, glm::vec3 pos, glm::vec4 bbox = glm::vec4(-1, -1, 1, 1));
@@ -40,6 +42,7 @@ public:
             child->position = (*slot_positions_)[slotid];
         }
 
+        scripting_->onSlotConfiguration(slotid, child.get());
         return child;
     }
 

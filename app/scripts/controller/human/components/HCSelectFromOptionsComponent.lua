@@ -3,7 +3,6 @@
 HCSelectFromOptionsComponent = class("HCSelectFromOptionsComponent", HumanControllerComponent)
 
 function HCSelectFromOptionsComponent:onNewDecision()
-    print(inspect(self.decision.options))
     option_select_widget:setOptions(self.decision.options)
     option_select_widget.hidden = false
 end

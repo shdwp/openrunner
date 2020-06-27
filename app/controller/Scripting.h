@@ -31,14 +31,16 @@ private:
     unique_ptr<scripting_handles_t> init_handles_ = make_unique<scripting_handles_t>();
     unique_ptr<scripting_handles_t> tick_handles_ = make_unique<scripting_handles_t>();
     unique_ptr<scripting_handles_t> interaction_handles_ = make_unique<scripting_handles_t>();
-    luabridge::LuaRef persistent_table;
-
-    void doModule(const string &path, const string &name);
+    unique_ptr<scripting_handles_t> slot_configuration_handles_ = make_unique<scripting_handles_t>();
+    luabridge::LuaRef persistent_table = nullptr;
 
 public:
-    Scripting() {
-        persistent_table = luabridge::newTable()
-    }
+    Scripting(const Scripting &) = delete;
+    Scripting(Scripting &&) = delete;
+    Scripting &operator= (const Scripting &) = delete;
+    Scripting &operator= (Scripting &&) = delete;
+
+    Scripting(): persistent_table(host_->createTable()) {}
 
     void registerClasses();
 
@@ -111,6 +113,13 @@ public:
             } else {
                 host_->doFunction(std::get<1>(h), std::get<0>(h), event_str);
             }
+        }
+    }
+
+    template <class T>
+    void onSlotConfiguration(const string &slot, T* ptr) {
+        for (auto &h : *slot_configuration_handles_) {
+            host_->doFunction(std::get<1>(h), std::get<0>(h), slot, ptr);
         }
     }
 };

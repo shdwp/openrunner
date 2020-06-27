@@ -16,7 +16,7 @@ void LuaHost::doFile(const string &a) {
             break;
         }
 
-        if ((ret = lua_pcall(L, 0, LUA_MULTRET, 0)) != 0) {
+        if ((ret = dbg_pcall(L, 0, LUA_MULTRET, 0)) != 0) {
             break;
         }
     } while (false);

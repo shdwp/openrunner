@@ -8,6 +8,7 @@
 #include <definitions.h>
 #include <lua.hpp>
 #include <LuaBridge/LuaBridge.h>
+#include <debugger_lua.h>
 
 class LuaHost {
 private:
@@ -24,10 +25,16 @@ public:
 
     explicit LuaHost() {
         L = luaL_newstate();
+        INFO("LuaHost {:x} newstate luaL {:x}", (size_t)this, (size_t)L);
+
         luaL_openlibs(L);
+        dbg_setup_default(L);
+
         this->doFile("../app/scripts_lib/native_interface_engine.lua");
         this->bridgeEngine();;
     }
+
+    LuaHost(const LuaHost &) = delete;
 
     LuaHost(LuaHost &&o) noexcept {
         Move(this, o);
@@ -39,19 +46,48 @@ public:
     }
 
     ~LuaHost() {
+        INFO("LuaHost {:x} closed luaL {:x}", (size_t)this, (size_t)L);
         lua_close(L);
     }
 
     void doFile(const string&);
 
-    template <typename ...Arg>
-    void doFunction(const luabridge::LuaRef& ref, Arg... args) {
-        try {
-            ref(args...);
-        } catch (luabridge::LuaException &e) {
-            ERROR("Lua {}", e.what());
-            printTraceback();
-        }
+    template <typename P1>
+    luabridge::LuaRef doFunction(const luabridge::LuaRef& ref, P1 p1) {
+        ref.push();
+        luabridge::Stack<P1>::push(L, p1);
+        dbg_pcall(L, 1, 1, 0);
+        return luabridge::LuaRef::fromStack(L);
+    }
+
+    template <typename P1, typename P2>
+    luabridge::LuaRef doFunction(const luabridge::LuaRef& ref, P1 p1, P2 p2) {
+        ref.push();
+        luabridge::Stack<P1>::push(L, p1);
+        luabridge::Stack<P2>::push(L, p2);
+        dbg_pcall(L, 2, 1, 0);
+        return luabridge::LuaRef::fromStack(L);
+    }
+
+    template <typename P1, typename P2, typename P3>
+    luabridge::LuaRef doFunction(const luabridge::LuaRef& ref, P1 p1, P2 p2, P3 p3) {
+        ref.push();
+        luabridge::Stack<P1>::push(L, p1);
+        luabridge::Stack<P2>::push(L, p2);
+        luabridge::Stack<P3>::push(L, p3);
+        dbg_pcall(L, 3, 1, 0);
+        return luabridge::LuaRef::fromStack(L);
+    }
+
+    template <typename P1, typename P2, typename P3, typename P4>
+    luabridge::LuaRef doFunction(const luabridge::LuaRef& ref, P1 p1, P2 p2, P3 p3, P4 p4) {
+        ref.push();
+        luabridge::Stack<P1>::push(L, p1);
+        luabridge::Stack<P2>::push(L, p2);
+        luabridge::Stack<P3>::push(L, p3);
+        luabridge::Stack<P4>::push(L, p4);
+        dbg_pcall(L, 4, 1, 0);
+        return luabridge::LuaRef::fromStack(L);
     }
 
     void printTraceback() {

@@ -236,6 +236,7 @@ void Scripting::registerClasses() {
         host_->ns()
                 .beginClass<Scripting>("Scripting")
                 .TYPE_PROP(Scripting)
+                .addProperty("meta", &Scripting::persistent_table)
                 .addFunction("log", &Scripting::log)
                 .addFunction("register", &Scripting::registerController)
                 .endClass();
@@ -284,6 +285,7 @@ void Scripting::registerController(const luabridge::LuaRef &descr_table) {
     auto tick_handle = descr_table["onTick"];
     auto init_handle = descr_table["onInit"];
     auto intr_handle = descr_table["onInteraction"];
+    auto slot_configuration_handle = descr_table["onSlotConfiguration"];
 
     if (!tick_handle.isNil()) {
         tick_handles_->emplace_back(std::tuple(descr_table, tick_handle));
@@ -296,12 +298,17 @@ void Scripting::registerController(const luabridge::LuaRef &descr_table) {
     if (!intr_handle.isNil()) {
         interaction_handles_->emplace_back(std::tuple(descr_table, intr_handle));
     }
+
+    if (!slot_configuration_handle.isNil()) {
+        slot_configuration_handles_->emplace_back(std::tuple(descr_table, slot_configuration_handle));
+    }
 }
 
 void Scripting::reset() {
     tick_handles_->erase(begin(*tick_handles_), end(*tick_handles_));
     init_handles_->erase(begin(*init_handles_), end(*init_handles_));
     interaction_handles_->erase(begin(*interaction_handles_), end(*interaction_handles_));
+    slot_configuration_handles_->erase(begin(*slot_configuration_handles_), end(*slot_configuration_handles_));
 }
 
 void Scripting::log(const int level, const string &str) {

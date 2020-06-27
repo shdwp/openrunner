@@ -18,6 +18,9 @@ function PlayerController:interaction(type, descr) return false end
 
 function PlayerController:active() return self.decision ~= nil end
 
+--- @param side string
+function PlayerController:newTurn(side) end
+
 --- @param decision Decision
 function PlayerController:handle(decision)
     info("Controller of %s decision %s of %s", self.side.id, decision.type, decision.side.id)

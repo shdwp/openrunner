@@ -6,12 +6,6 @@
 #include <util/Debug.h>
 #include <util/Geom.h>
 
-GameBoardView::GameBoardView(shared_ptr<Model> model): Entity::Entity(model)
-{
-}
-
-GameBoardView::GameBoardView(): Entity::Entity() { }
-
 void GameBoardView::addModelSlots() {
     for (auto &zone : *model_->zones) {
         auto box = zone.box;

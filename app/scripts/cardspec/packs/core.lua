@@ -58,7 +58,7 @@ Db.cards[1007] = {
 
     --- @param ctx Ctx
     onPowerUp = function (ctx)
-        if game.runner:spendCredits(1) then
+        if game.runner:spendCredits(1, SPENDING_ICEBRBREAKER_POWERUP) then
             ctx.meta.until_use.additional_strength = (ctx.meta.until_use.additional_strength or 0) + 1
             return true
         end
@@ -67,7 +67,7 @@ Db.cards[1007] = {
     --- @param ctx Ctx
     --- @param ice_meta CardMeta
     onBreakIce = function (ctx, ice_meta)
-        if game.runner:spendCredits(1) then
+        if game.runner:spendCredits(1, SPENDING_ICEBREAKER_BREAK) then
             return ice_meta:keywordsInclude("Barrier")
         end
     end,
@@ -122,7 +122,7 @@ Db.cards[1026] = {
     --- @param ctx Ctx
     --- @param ice CardMeta
     onBreakIce = function (ctx, ice)
-        if game.runner:spendCredits(1) then
+        if game.runner:spendCredits(1, SPENDING_ICEBREAKER_BREAK) then
             if ctx.meta.selected_ice == ice then
                 return true
             else
@@ -133,7 +133,7 @@ Db.cards[1026] = {
 
     --- @param ctx Ctx
     onPowerUp = function (ctx)
-        if game.runner:spendCredits(2) then
+        if game.runner:spendCredits(2, SPENDING_ICEBRBREAKER_POWERUP) then
             ctx.meta.until_use.additional_strength = (ctx.meta.until_use.additional_strength or 0) + 1
             return true
         end
@@ -171,7 +171,7 @@ Db.cards[1027] = {
 
     --- @param ctx Ctx
     onPowerUp = function (ctx)
-        if game.runner:spendCredits(3) then
+        if game.runner:spendCredits(3, SPENDING_ICEBRBREAKER_POWERUP) then
             ctx.meta.until_use.additional_strength = (ctx.meta.until_use.additional_strength or 0) + 5
             return true
         end
@@ -183,7 +183,7 @@ Db.cards[1027] = {
     --- @param ice_meta CardMeta
     --- @return boolean
     onBreakIce = function (ctx, ice_meta)
-        return ice_meta:keywordsInclude({"Sentry"}) and game.runner:spendCredits(1)
+        return ice_meta:keywordsInclude({"Sentry"}) and game.runner:spendCredits(1, SPENDING_ICEBREAKER_BREAK)
     end,
 }
 Db.card_titles["Ninja"] = 1027
@@ -380,7 +380,7 @@ Db.cards[1040] = {
     --- @param ctx Ctx
     onInstall = function (ctx)
         make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_PROGRAMS, 1, function (decision, card, slot)
-            if card.meta:isCardIcebreaker() then
+            if card.meta:isIcebreaker() then
                 ctx.meta.installed_into = card.meta
                 card.meta.until_forever.additional_strength = (card.meta.until_forever.additional_strength or 0) + 1
                 return true
@@ -463,13 +463,13 @@ Db.cards[1043] = {
     --- @param ice_meta CardMeta
     --- @return boolean
     onBreakIce = function (ctx, ice_meta)
-        return ice_meta:keywordsInclude({"Code Gate"}) and game.runner:spendCredits(1)
+        return ice_meta:keywordsInclude({"Code Gate"}) and game.runner:spendCredits(1, SPENDING_ICEBREAKER_BREAK)
     end,
 
     --- @param ctx Ctx
     --- @return boolean
     onPowerUp = function (ctx)
-        if game.runner:spendCredits(1) then
+        if game.runner:spendCredits(1, SPENDING_ICEBRBREAKER_POWERUP) then
             ctx.meta.until_run_end.additional_strength = (ctx.meta.until_run_end.additional_strength or 0) + 1
             return true
         end
@@ -622,7 +622,7 @@ Db.cards[1051] = {
 
     --- @param ctx Ctx
     onPowerUp = function (ctx)
-        if game.runner:spendCredits(1) then
+        if game.runner:spendCredits(1, SPENDING_ICEBRBREAKER_POWERUP) then
             ctx.meta.until_use.additional_strength = (ctx.meta.until_use.additional_strength or 0) + 1
             return true
         end
@@ -638,7 +638,7 @@ Db.cards[1051] = {
     --- @param ice_meta CardMeta
     --- @return boolean
     onBreakIce = function (ctx, ice_meta)
-        if game.runner:spendCredits(1) then
+        if game.runner:spendCredits(1, SPENDING_ICEBREAKER_BREAK) then
             ctx.meta.virus_tagged = true
             return true
         end
@@ -818,7 +818,7 @@ Db.cards[1090] = {
 
     --- @param ctx Ctx
     onIceEncounterStart = function (ctx)
-        if not game.runner:spendCredits(3) then
+        if not game.runner:spendCredits(3, SPENDING_INVOLUNTARY) then
             game.decision_stack:popUpTo(RunEndDecision.Type)
         end
 
@@ -1005,7 +1005,7 @@ Db.cards[1101] = {
     --- @param ctx Ctx
     onRez = function (ctx)
         make_interaction:promptSlotSelect(SIDE_CORP, SLOT_CORP_HAND, 1, function (decision, card, slot)
-            if card.meta:isCardAgenda() and game.corp:payPrice(ctx.meta) then
+            if card.meta:isAgenda() and game.corp:payPrice(ctx.meta, SPENDING_ICE_REZ) then
                 game.corp:rez(ctx.card)
                 game.corp:discard(card)
                 decision:handledTop()

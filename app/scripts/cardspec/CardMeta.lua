@@ -50,18 +50,16 @@ end
 
 --- @return string
 function CardMeta:interactionFromBoard()
-    local t = self.info.type_code
-    if t == "agenda" then
+    if self:isAgenda() then
         return CI_SCORE
-    elseif t == "asset" or t == "ice" then
+    elseif self:isAsset() or self:isIce() then
         return CI_REZ
     end
 end
 
 --- @return string
 function CardMeta:interactionFromRunAccess()
-    local t = self.info.type_code
-    if t == "agenda" then
+    if self:isAgenda() then
         return CI_SCORE
     elseif self.info.trash_cost then
         return CI_TRASH
@@ -69,43 +67,48 @@ function CardMeta:interactionFromRunAccess()
 end
 
 --- @return boolean
-function CardMeta:isCardRemote()
+function CardMeta:isInstalledInServer()
     return self.info.type_code == "asset" or self.info.type_code == "agenda"
 end
 
 --- @return boolean
-function CardMeta:isCardIce()
+function CardMeta:isIce()
     return self.info.type_code == "ice"
 end
 
 --- @return boolean
-function CardMeta:isCardIcebreaker()
+function CardMeta:isAsset()
+    return self.info.type_code == "asset"
+end
+
+--- @return boolean
+function CardMeta:isAgenda()
+    return self.info.type_code == "agenda"
+end
+
+--- @return boolean
+function CardMeta:isIcebreaker()
     return self:keywordsInclude({"Icebreaker"})
 end
 
 --- @return boolean
-function CardMeta:isCardProgram()
+function CardMeta:isProgram()
     return self.info.type_code == "program"
 end
 
 --- @return boolean
-function CardMeta:isCardHardware()
+function CardMeta:isHardware()
     return self.info.type_code == "hardware"
 end
 
 --- @return boolean
-function CardMeta:isCardResource()
+function CardMeta:isResource()
     return self.info.type_code == "resource"
 end
 
 --- @return boolean
-function CardMeta:isCardConsole()
+function CardMeta:isConsole()
     return self.info.type_code == "hardware" and self.info.keywords == "Console"
-end
-
---- @return boolean
-function CardMeta:isCardAgenda()
-    return self.info.type_code == "agenda"
 end
 
 --- @param kws table<number, string>
@@ -131,6 +134,15 @@ function CardMeta:keywordsInclude(kws)
     end
 
     return false
+end
+
+--- @return number
+function CardMeta:advancementProgress()
+    if not self.adv or self.adv == 0 then
+        return 0
+    end
+
+    return self.adv / (self.info.advancement_cost or 1)
 end
 
 --- @return fun(): string, fun()
@@ -199,7 +211,7 @@ end
 
 --- @return boolean
 function CardMeta:canInstall()
-    return self:isCardRemote() or self:isCardIce()
+    return self:isInstalledInServer() or self:isIce()
 end
 
 function CardMeta:canBeSacrificed(card, slot)

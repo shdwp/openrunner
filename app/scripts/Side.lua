@@ -1,5 +1,6 @@
 --- @class Side
 --- @field id string
+--- @field bank Bank
 --- @field max_clicks number
 --- @field max_hand number
 --- @field score number
@@ -11,6 +12,7 @@ function Side:New(id, max_clicks)
     return construct(self, {
         id = id,
         max_clicks = max_clicks,
+        bank = Bank:New(),
         max_hand = 5,
         score = 0,
         credits = 25,
@@ -18,7 +20,8 @@ function Side:New(id, max_clicks)
 end
 
 --- @param amount number
-function Side:alterCredits(amount)
+--- @param category string
+function Side:alterCredits(amount, category)
     self.credits = self.credits + amount
 end
 
@@ -28,11 +31,15 @@ function Side:alterScore(amount)
 end
 
 --- @param amount number
+--- @param category string
 --- @return boolean
-function Side:spendCredits(amount)
+function Side:spendCredits(amount, category, discount)
+    discount = discount or 0
+    amount = amount + discount
+
     if self.credits >= amount then
         if amount > 0 then
-            self:alterCredits(-amount)
+            self:alterCredits(-amount, category)
         end
 
         return true
@@ -42,10 +49,11 @@ function Side:spendCredits(amount)
 end
 
 --- @param meta table card metatable
+--- @param category string
 --- @param discount number defaults to 0
 --- @return boolean
-function Side:payPrice(meta, discount)
-    return self:spendCredits(meta.info.cost, discount or 0)
+function Side:payPrice(meta, category, discount)
+    return self:spendCredits(meta.info.cost, category, discount or 0)
 end
 
 function Side:newTurn()
@@ -60,10 +68,6 @@ function Side:discard(card)
     deck:append(card)
 end
 
-function Side:actionDrawCard()
-    error("Not implemented.")
-end
-
 --- @param card Card
 --- @param from string
 --- @return boolean
@@ -76,7 +80,7 @@ function Side:actionPayEvent(card, from)
         return false
     end
 
-    if self:payPrice(card.meta) then
+    if self:payPrice(card.meta, SPENDING_EVENT) then
         return true
     end
 end
@@ -87,6 +91,11 @@ end
 function Side:actionPlayEvent(card, from)
     card.meta:onPlay(card)
     board:cardPop(from, card)
+end
+
+--- @return boolean
+function Side:actionDrawCard()
+    error("Not implemented.")
 end
 
 --- @param card Card

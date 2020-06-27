@@ -24,7 +24,7 @@ end
 --- @param card Card
 --- @return boolean
 function RunAccessDecision:trash(card)
-    if game.runner:spendCredits(card.meta.info.trash_cost) then
+    if game.runner:spendCredits(card.meta.info.trash_cost, SPENDING_TRASHING) then
         self:_removeCardFromCorp(card)
         return true
     end

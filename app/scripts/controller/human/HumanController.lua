@@ -59,7 +59,7 @@ function HumanController:_matchComponent(ignore_slot_card, slot, card, fn)
         local side_matches = comp.side == nil or (self.decision and comp.side.id == self.decision.side.id)
         local phase_matches = not comp.supportedDecisionType or self.decision and comp.supportedDecisionType == self.decision.type
         local slot_matches = ignore_slot_card or not does_restrict_slot or (slot ~= nil and comp.restrictSlot(slot))
-        local card_req_matches = ignore_slot_card or (card and does_require_card) or not (card and does_require_card)
+        local card_req_matches = ignore_slot_card or (card and does_require_card) or ((not card) and (not does_require_card))
 
         if side_matches and phase_matches and slot_matches and card_req_matches then
             comp.decision = self.decision;
@@ -111,13 +111,13 @@ function HumanController:onTick(dt)
 
     if self:active() then
         local update = true
-        if Input:keyPressed(61) then
+        if Input:keyPressed(KeyCode.EQUAL) then
             self.side:alterCredits(1)
-        elseif Input:keyPressed(45) then
+        elseif Input:keyPressed(KeyCode.MINUS) then
             self.side:alterCredits(-1)
-        elseif Input:keyPressed(48) then
+        elseif Input:keyPressed(KeyCode.N0) then
             game:alterClicks(self.side.id, 1)
-        elseif Input:keyPressed(57) then
+        elseif Input:keyPressed(KeyCode.N9) then
             self.side:alterClicks(self.side.id, -1)
         else
             update = false

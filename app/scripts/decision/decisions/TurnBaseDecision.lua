@@ -27,6 +27,8 @@ end
 function TurnBaseDecision.InitiateRun(slot, additional_amount)
     amount = amount or -1
 
+    game.runner:onRunStart()
+
     game.decision_stack:push(RunEndDecision:New(SIDE_RUNNER))
     game.decision_stack:push(RunAccessDecision:New(SIDE_RUNNER, slot, additional_amount))
 

@@ -54,16 +54,13 @@ int main() {
     shared_ptr<GameBoardView> board_view = nullptr;
     shared_ptr<GameBoardView> corp_hand_view = nullptr;
     shared_ptr<GameBoardView> runner_hand_view = nullptr;
-    unique_ptr<Scripting> scripting = nullptr;
+    shared_ptr<Scripting> scripting = nullptr;
+    shared_ptr<GameBoard> gameboard = nullptr;
 
     while (!glfwWindowShouldClose(window)) {
-        scene->reset();
-        gui_scene->reset();
-
-        auto test_widget = make_shared<LayoutStack>();
-        test_widget->addChild(Entity());
-        test_widget->addChild(Entity());
-        gui_scene->addChild(test_widget);
+        scripting = make_shared<Scripting>();
+        scripting->registerClasses();
+        scripting->doScript("../app/scripts_lib/native_interface.lua");
 
         auto status_label = make_shared<Label>(font);
         status_label->setText("");
@@ -79,17 +76,17 @@ int main() {
         gui_card_zoomed_view->scale = glm::vec3(500.f);
         gui_scene->addChild(gui_card_zoomed_view);
 
-        board_view = scene->addChild(GameBoardView(board_model));
+        board_view = scene->addChild(GameBoardView(board_model, scripting));
         board_view->position = glm::vec3(0.f, 0.f, 0.f);
         board_view->addModelSlots();
 
         float hand_scale = 500.f;
-        corp_hand_view = gui_scene->addChild(GameBoardView());
+        corp_hand_view = gui_scene->addChild(GameBoardView(scripting));
         corp_hand_view->addSlot("corp_hand", glm::vec3(0.f), glm::vec4(-300.f, 250.f, 300.f, 250.f) * (1.f / hand_scale));
         corp_hand_view->rotation = glm::rotate(corp_hand_view->rotation, glm::vec3((float)M_PI_2, 0.0f, 0.f));
         corp_hand_view->scale = glm::vec3(hand_scale);
 
-        runner_hand_view = gui_scene->addChild(GameBoardView());
+        runner_hand_view = gui_scene->addChild(GameBoardView(scripting));
         runner_hand_view->addSlot("runner_hand", glm::vec3(0.f), glm::vec4(-300.f, 250.f, 300.f, 250.f) * (1.f / hand_scale));
         runner_hand_view->rotation = glm::rotate(runner_hand_view->rotation, glm::vec3((float)M_PI_2, 0.0f, 0.f));
         runner_hand_view->scale = glm::vec3(hand_scale);
@@ -104,18 +101,14 @@ int main() {
         option_select_widget->hidden = true;
         gui_scene->addChild(option_select_widget);
 
-        auto gameboard = GameBoard();
-        gameboard.addView(board_view);
-        gameboard.addView(corp_hand_view);
-        gameboard.addView(runner_hand_view);
-
-        scripting = make_unique<Scripting>();
-        scripting->registerClasses();
-        scripting->doScript("../app/scripts_lib/native_interface.lua");
+        gameboard = make_shared<GameBoard>();
+        gameboard->addView(board_view);
+        gameboard->addView(corp_hand_view);
+        gameboard->addView(runner_hand_view);
 
         scripting->setGlobal("main_camera", scene->camera.get());
         scripting->setGlobal("host", scripting.get());
-        scripting->setGlobal("board", &gameboard);
+        scripting->setGlobal("board", gameboard.get());
         scripting->setGlobal("corp_hand_view", corp_hand_view.get());
         scripting->setGlobal("runner_hand_view", runner_hand_view.get());
         scripting->setGlobal("board_view", board_view.get());
@@ -229,8 +222,20 @@ int main() {
                 break;
             }
         }
+
+        scene->reset();
+        gui_scene->reset();
+
+        corp_hand_view = nullptr;
+        runner_hand_view = nullptr;
+        gui_card_zoomed_view = nullptr;
+        card_select_widget = nullptr;
+        option_select_widget = nullptr;
+
+        gameboard = nullptr;
+        board_view = nullptr;
+        scripting = nullptr;
     }
 
-    // @TODO: run destructors on LuaRefs before LuaHost closes luaL
     return 0;
 }

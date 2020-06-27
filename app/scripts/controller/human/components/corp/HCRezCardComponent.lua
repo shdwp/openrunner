@@ -12,7 +12,7 @@ function HCRezCardComponent:onPrimary(card, slot)
         return false
     end
 
-    if self.decision.type == TurnBaseDecision.Type then
+    if card.meta:isAsset() and self.decision.type == TurnBaseDecision.Type then
         game.corp:actionRez(card, slot)
         return true
     elseif self.decision.type == RunIceRezDecision.Type then

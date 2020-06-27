@@ -93,8 +93,11 @@ SIDE_RUNNER = "runner"
 -- slots
 SLOT_CORP_HAND = "corp_hand"
 SLOT_CORP_RND = "corp_rnd"
+SLOT_CORP_RND_ICE = "corp_rnd_ice"
 SLOT_CORP_ARCHIVES = "corp_archives"
+SLOT_CORP_ARCHIVES_ICE = "corp_archives_ice"
 SLOT_CORP_HQ = "corp_hq"
+SLOT_CORP_HQ_ICE = "corp_hq_ice"
 SLOT_CORP_SCORE = "corp_score"
 -- SLOT_CORP_ = "corp_"
 
@@ -109,6 +112,7 @@ SLOT_RUNNER_HEAP = "runner_heap"
 SLOT_RUNNER_SCORE = "runner_score"
 
 RUNNER_SLOTS = {
+    SLOT_RUNNER_ID,
     SLOT_RUNNER_HAND,
     SLOT_RUNNER_STACK,
     SLOT_RUNNER_CONSOLE,
@@ -117,6 +121,8 @@ RUNNER_SLOTS = {
     SLOT_RUNNER_RESOURCES,
     SLOT_RUNNER_SCORE,
 }
+
+CORP_REMOTE_SLOTS_N = 6
 
 CORP_SLOTS = {
     SLOT_CORP_HAND,

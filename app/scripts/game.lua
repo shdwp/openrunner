@@ -41,12 +41,16 @@ function game:cycle()
         return
     end
 
+    if decision.type == TurnBaseDecision.Type then
+        self:save()
+    end
+
     local ctrl = self:controllerFor(decision.side.id)
     ctrl:handle(decision)
 end
 
 function game:endInFavor(side_id)
-    game.decision_stack:push(GameEndDecision:New(SIDE_CORP))
+    game.decision_stack:push(GameEndDecision:New(side_id))
     game.decision_stack:pop()
     game:cycle()
 end
@@ -91,7 +95,7 @@ function game:newTurn()
 
     -- construct decision stack for new player
     self.decision_stack:push(HandDiscardDecision:New(self.current_side))
-    for _ = 0, clicks do
+    for _ = 1, clicks do
         self.decision_stack:push(TurnBaseDecision:New(self.current_side))
     end
 
@@ -104,8 +108,62 @@ function game:newTurn()
 
     self.turn_n = self.turn_n + 1
 
+    for _, c in pairs(self.player_controllers) do
+        c:newTurn(self.current_side)
+    end
+
     -- process UI
     ui:focusCurrentPlayer()
+end
+
+function game:save()
+    local f = function (side)
+        return {
+            id = side.id,
+            max_clicks = side.max_clicks,
+            max_hand = side.max_hand,
+            score = side.score,
+            credits = side.credits,
+        }
+    end
+
+    host.meta.corp = f(self.corp)
+    host.meta.corp.bad_publicity = self.corp.bad_publicity
+
+    host.meta.runner = f(self.runner)
+    host.meta.runner.tags = self.runner.tags
+    host.meta.runner.memory = self.runner.memory
+    host.meta.runner.link = self.runner.link
+
+    host.meta.current_side = self.current_side
+    host.meta.current_clicks = self.decision_stack:countClicks(self.current_side)
+end
+
+function game:load()
+    local f = function (t, s)
+        t.id = s.id
+        t.max_clicks = s.max_clicks
+        t.max_hand = s.max_hand
+        t.score = s.score
+        t.credits = s.credits
+        t.bad_publicity = s.bad_publicity
+    end
+
+    f(self.corp, host.meta.corp)
+    f(self.runner, host.meta.runner)
+
+    self.corp.bad_publicity = host.meta.corp.bad_publicity
+
+    self.runner.tags = host.meta.runner.tags
+    self.runner.memory = host.meta.runner.memory
+    self.runner.link = host.meta.runner.link
+
+    self.current_side = host.meta.current_side
+
+    self.decision_stack:push(HandDiscardDecision:New(self.current_side))
+    for _ = 1, host.meta.current_clicks do
+        self.decision_stack:push(TurnBaseDecision:New(self.current_side))
+    end
 end
 
 --- @return fun(): Card
@@ -161,7 +219,7 @@ function game:onInit()
 
     self.corp:alterCredits(12)
 
-    self.player_controllers[SIDE_CORP] = HumanController:New(SIDE_CORP)
+    self.player_controllers[SIDE_CORP] = AIController:New(SIDE_CORP)
     self.player_controllers[SIDE_RUNNER] = HumanController:New(SIDE_RUNNER)
 
     host:register(self.player_controllers[SIDE_CORP])
@@ -231,12 +289,10 @@ function game:onInit()
 
         board:cardAppend(remoteSlot(1), Db:card("Hostile Takeover", {faceup = false}))
         board:cardAppend(remoteIceSlot(1), Db:card("Enigma", {faceup = false}))
-        ui:cardInstalled(nil, remoteIceSlot(1))
 
         board:cardAppend(SLOT_RUNNER_PROGRAMS, Db:card(1043))
         board:cardAppend(SLOT_RUNNER_PROGRAMS, Db:card(1027))
         board:cardAppend(SLOT_RUNNER_PROGRAMS, Db:card(1051))
-        ui:cardInstalled(nil, SLOT_RUNNER_PROGRAMS)
 
         -- Hands
         board:cardAppend(SLOT_CORP_HAND, Db:card("Hostile Takeover"))
@@ -250,11 +306,13 @@ function game:onInit()
         board:cardAppend(SLOT_RUNNER_HAND, Db:card("The Personal Touch"))
         board:cardAppend(SLOT_RUNNER_HAND, Db:card("Femme Fatale"))
         board:cardAppend(SLOT_RUNNER_HAND, Db:card("The Maker\'s Eye"))
+    else
+        self:load()
     end
 
     info("Game ready!")
     self:cycle()
-end
+    end
 
 function game:onTick(dt)
     if dt - self.last_ui_update > 1 then
@@ -274,6 +332,7 @@ function game:onInteraction(type, descr)
             break
         end
     end
+
     self.last_ui_update = 0
 end
 

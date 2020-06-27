@@ -5,18 +5,6 @@ ui = {
 
 function ui:cardInstalled(card, slot)
     if not table.contains(self.configured_slots, slot) then
-        if isSlotIce(slot) then
-            local widget= board_view:getSlotStackWidget(slot)
-            widget.alignment = "min"
-            widget.orientation = "vertical"
-            widget.child_padding = 1.25
-            widget.child_rotation = math.pi / 2
-
-        elseif not isHandSlot(slot) and table.contains(RUNNER_SLOTS, slot) then
-            local widget = board_view:getSlotStackWidget(slot)
-            widget.child_rotation = math.pi
-        end
-
         self.configured_slots[#self.configured_slots] = slot
     end
 end
@@ -55,8 +43,21 @@ function ui:focusCurrentPlayer()
     end
 end
 
+--- @param slot string
+--- @param widget StackWidget
+function ui:onSlotConfiguration(slot, widget)
+    if isSlotIce(slot) then
+        widget.alignment = "min"
+        widget.orientation = "vertical"
+        widget.child_padding = 1.25
+        widget.child_rotation = math.pi / 2
+    elseif not isHandSlot(slot) and table.contains(RUNNER_SLOTS, slot) then
+        widget.child_rotation = math.pi
+    end
+end
+
 function ui:onTick(dt)
-    if Input:keyPressed(340) then
+    if Input:keyPressed(KeyCode.LEFT_SHIFT) then
         if self.view_zoomed then
             self:focusCurrentPlayer()
             self.view_zoomed = false

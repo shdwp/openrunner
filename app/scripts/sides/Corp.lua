@@ -51,11 +51,11 @@ function Side:actionInstall(card, from, to, suppress_events, discount)
     assert(to)
     discount = discount or 0
 
-    if card.meta:isCardIce() and not isSlotIce(to) then
+    if card.meta:isIce() and not isSlotIce(to) then
         return false
     end
 
-    if card.meta:isCardRemote() and not isSlotRemote(to) then
+    if card.meta:isInstalledInServer() and not isSlotRemote(to) then
         return false
     end
 
@@ -63,11 +63,11 @@ function Side:actionInstall(card, from, to, suppress_events, discount)
     card.meta.adv = 0
 
     local price = 0
-    if card.meta:isCardIce() then
+    if card.meta:isIce() then
         price = board:count(to)
     end
 
-    if self:spendCredits(price + discount) then
+    if self:spendCredits(price + discount, SPENDING_INSTALL) then
         local existing_card = board:cardGet(to, 0)
         if isSlotRemote(to) and existing_card then
             board:cardReplace(to, existing_card, card)
@@ -80,7 +80,6 @@ function Side:actionInstall(card, from, to, suppress_events, discount)
         end
 
         board:cardPop(from, card)
-        ui:cardInstalled(card, to)
         return true
     else
         return false
@@ -99,7 +98,7 @@ function Corp:actionAdvance(card, from, free)
         return false
     end
 
-    if self:spendCredits(free and 0 or 1) and card.meta:onAdvance(card) then
+    if card.meta:onAdvance(card) and self:spendCredits(free and 0 or 1, SPENDING_ADVANCE) then
         card.meta.adv = (card.meta.adv or 0) + 1
         return true
     else
@@ -117,7 +116,6 @@ function Corp:actionScore(card, from)
         card.meta.rezzed = true
         card.faceup = true
         board:cardMove(card, SLOT_CORP_SCORE)
-        ui:cardInstalled(card, SLOT_CORP_SCORE)
 
         self:alterScore(card.meta.info.agenda_points)
         game.last_agenda_scored_turn_n = game.turn_n
@@ -142,7 +140,7 @@ function Corp:actionRez(card, from, discount)
         return false
     end
 
-    if card.meta:onRez(card) and self:payPrice(card.meta, discount) then
+    if card.meta:onRez(card) and self:payPrice(card.meta, SPENDING_ICE_REZ, discount) then
         self:rez(card)
         return true
     end
