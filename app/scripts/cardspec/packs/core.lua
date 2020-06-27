@@ -1204,7 +1204,7 @@ Db.cards[1107] = {
     --- @param ctx Ctx
     onAction = function (ctx)
         if game.runner:isTagged() then
-            game.runner:alterMeatDamage(1)
+            game.runner:meatDamage(1)
             return true
         end
     end,

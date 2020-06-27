@@ -15,7 +15,7 @@ function Side:New(id, max_clicks)
         bank = Bank:New(),
         max_hand = 5,
         score = 0,
-        credits = 25,
+        credits = 5,
     })
 end
 

@@ -1,5 +1,10 @@
+--- @class AIAction
+AIAction = class("AIAction")
 
---- AIDrawCardAction
---- AIGainCreditAction
---- AIPlayCardAction
---- AIPlayActionAction
+function AIAction:New()
+    return construct(self)
+end
+
+--- @param state AIState
+--- @param actions table<number, AIAction>
+function AIAction:alterState(state, actions) end

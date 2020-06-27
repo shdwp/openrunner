@@ -24,6 +24,11 @@ function CardMeta:New(info)
     })
 end
 
+--- @return CardMeta
+function CardMeta:clone()
+    return copy(CardMeta, self)
+end
+
 function CardMeta:debugDescription()
     return "uid " .. self.info.code .. " of " .. self.info.type_code
 end

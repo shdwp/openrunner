@@ -43,15 +43,9 @@ end
 
 --- Table
 function table.shallowcopy(orig)
-    local orig_type = type(orig)
-    local copy
-    if orig_type == 'table' then
-        copy = {}
-        for orig_key, orig_value in pairs(orig) do
-            copy[orig_key] = orig_value
-        end
-    else -- number, string, boolean, etc
-        copy = orig
+    local copy = {}
+    for orig_key, orig_value in pairs(orig) do
+        copy[orig_key] = orig_value
     end
     return copy
 end
@@ -80,9 +74,26 @@ function table.indexOf(t, elem)
 end
 
 function table.array_concat(into, from)
+    assert(into)
+    assert(from)
+
     for _, v in pairs(from) do
         table.insert(into, v)
     end
+end
+
+--- @generic K, V
+--- @param t table<K, V>
+--- @param fn fun(v: V): V
+function table.map(t, fn)
+    assert(t)
+
+    local r = {}
+    for k, v in pairs(t) do
+        r[k] = fn(v)
+    end
+
+    return r
 end
 
 --- Card debug description (for cpp)
@@ -121,6 +132,24 @@ function construct(self, a, b)
     return b
 end
 
+function copy(self, a)
+    if type(a) == 'table' then
+        local b = {}
+        for k, v in pairs(a) do
+            b[k] = copy(v)
+        end
+
+        local meta = getmetatable(a)
+        if meta then
+            setmetatable(b, meta)
+        end
+
+        return b
+    else
+        return a
+    end
+end
+
 function class(typeid, parent, o)
     parent = parent or {
         debugDescription = function () return "" end
@@ -128,6 +157,7 @@ function class(typeid, parent, o)
 
     local t = o or {}
     local mt = {
+        __class = true,
         __tostring = function (self)
             return "<" .. typeid .. " " .. self:debugDescription() .. ">"
         end

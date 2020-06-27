@@ -15,7 +15,7 @@ function RemoteServerState:New(slot, ice_slot)
 
     if slot == SLOT_CORP_HQ then
         for i = 0, board:count(SLOT_CORP_HAND) -1 do
-            table.insert(t.core, board:cardGet(SLOT_CORP_HAND, i).meta)
+            table.insert(t.core, board:cardGet(SLOT_CORP_HAND, i).meta:clone())
         end
 
         t.factor = board:count(SLOT_CORP_HAND) * 2
@@ -33,12 +33,12 @@ function RemoteServerState:New(slot, ice_slot)
         t.factor = deck.size
     elseif isSlotRemote(slot) then
         for i = 0, board:count(slot) - 1 do
-            table.insert(t.core, board:cardGet(slot, i).meta)
+            table.insert(t.core, board:cardGet(slot, i).meta:clone())
         end
     end
 
     for i = 0, board:count(ice_slot) - 1 do
-        table.insert(t.ice, board:cardGet(ice_slot, i).meta)
+        table.insert(t.ice, board:cardGet(ice_slot, i).meta:clone())
     end
 
     return t

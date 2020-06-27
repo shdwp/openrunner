@@ -217,8 +217,6 @@ function game:onInit()
     self.runner = Runner:New()
     self.runner:newTurn()
 
-    self.corp:alterCredits(12)
-
     self.player_controllers[SIDE_CORP] = AIController:New(SIDE_CORP)
     self.player_controllers[SIDE_RUNNER] = HumanController:New(SIDE_RUNNER)
 

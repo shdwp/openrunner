@@ -1,4 +1,6 @@
 --- @class AIState
+--- @field valid boolean
+--- @field clicks number
 --- @field credits number
 --- @field score number
 --- @field remotes table<number, RemoteServerState>
@@ -8,6 +10,7 @@ AIState = class("AIState")
 --- @return AIState
 function AIState:New(clicks)
     local t = construct(self, {
+        valid = true,
         clicks = clicks,
         credits = game.corp.credits,
         score = game.corp.score,
@@ -25,12 +28,42 @@ function AIState:New(clicks)
     return t
 end
 
+--- @return AIState
+function AIState:clone()
+    return construct(AIState, {
+        valid = self.valid,
+        clicks = self.clicks,
+        credits = self.credits,
+        score = self.score,
+        remotes = self.remotes,
+    })
+end
+
+--- @param amount number
+--- @return boolean
+function AIState:alterClicks(amount)
+    self.clicks = self.clicks + amount
+
+    if self.clicks < 0 then
+        self.valid = false
+    end
+end
+
+--- @param amount number
+--- @return boolean
+function AIState:alterCredits(amount)
+    self.credits = self.credits + amount
+    if self.credits < 0 then
+        self.valid = false
+    end
+end
+
 --- @return number
 function AIState:calculateScore()
     local credits_score = -((self.credits / 10) ^ -2)
-    info("Credits score %f", credits_score)
+    info("Credits (%d) score %f", self.credits, credits_score)
     local score_score = self.score * 70
-    info("Score score %d", score_score)
+    info("Score (%d) score %d", self.score, score_score)
 
     local score = credits_score + score_score
 
@@ -38,5 +71,6 @@ function AIState:calculateScore()
         score = score + r:calculateScore()
     end
 
-    info("Calculated total score %d", score)
+    info("Calculated total score %f", score)
+    return score
 end
