@@ -3,14 +3,15 @@ HandDiscardDecision = class("HandDiscardDecision", Decision, {
     Type = "hand_discard_phase"
 })
 
+--- @param state GameState
 --- @param side string
 --- @return HandDiscardDecision
-function HandDiscardDecision:New(side)
-    return construct(self, Decision:New(self.Type, side))
+function HandDiscardDecision:New(state, side)
+    return construct(self, Decision:New(state, side))
 end
 
 function HandDiscardDecision:autoHandle()
-    self.amount = board:count(sideHandSlot(self.side.id)) - self.side.max_hand
+    self.amount = self.state.board:count(sideHandSlot(self.side.id)) - self.side.max_hand
     if self.amount <= 0 then
         return self:handledTop()
     end

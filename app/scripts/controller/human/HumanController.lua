@@ -2,10 +2,11 @@
 --- @field components table<number, HumanControllerComponent>
 HumanController = class("HumanController", PlayerController)
 
+--- @param state GameState
 --- @param side_id string
 --- @return HumanController
-function HumanController:New(side_id)
-    local t = construct(self, PlayerController:New(side_id), {
+function HumanController:New(state, side_id)
+    local t = construct(self, PlayerController:New(state, side_id), {
         last_update = 0,
     })
 
@@ -87,22 +88,22 @@ function HumanController:onTick(dt)
             status_label:setText(string.format(
                     "%s, cl%d, cr%d, sc%d, bp%d",
                     self.decision.type,
-                    game.decision_stack:countClicks(self.side.id),
-                    game.corp.credits,
-                    game.corp.score,
-                    game.corp.bad_publicity
+                    self.state.stack:countClicks(self.side.id),
+                    self.state.corp.credits,
+                    self.state.corp.score,
+                    self.state.corp.bad_publicity
             ))
         else
             status_label:setText(string.format(
                     "%s, cl%d, cr%d, rcr%d/%d, sc%d, tag%d, mem%d",
                     self.decision.type,
-                    game.decision_stack:countClicks(self.side.id),
+                    self.state.stack:countClicks(self.side.id),
                     self.side.credits,
-                    game.runner.recurring.credits_for_icebreakers,
-                    game.runner.recurring.credits_for_virus_or_icebreakers,
+                    self.state.runner.recurring.credits_for_icebreakers,
+                    self.state.runner.recurring.credits_for_virus_or_icebreakers,
                     self.side.score,
-                    game.runner.tags,
-                    game.runner.memory
+                    self.state.runner.tags,
+                    self.state.runner.memory
             ))
         end
 
@@ -116,7 +117,7 @@ function HumanController:onTick(dt)
         elseif Input:keyPressed(KeyCode.MINUS) then
             self.side:alterCredits(-1)
         elseif Input:keyPressed(KeyCode.N0) then
-            game:alterClicks(self.side.id, 1)
+        self.state:alterClicks(self.side.id, 1)
         elseif Input:keyPressed(KeyCode.N9) then
             self.side:alterClicks(self.side.id, -1)
         else

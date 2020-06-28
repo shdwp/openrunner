@@ -5,13 +5,14 @@
 --- @field cb function
 SelectFromDeckDecision = class("SelectFromDeckDecision", Decision, { Type = "deck_select"})
 
+--- @param state GameState
 --- @param side string
 --- @param limit number limit query to first N cards
 --- @param amount number amount of cards to pick
 --- @param cb fun(card: Card): boolean
 --- @return SelectFromDeckDecision
-function SelectFromDeckDecision:New(side, deck, limit, amount, cb)
-    return construct(self, Decision:New(self.Type, side), {
+function SelectFromDeckDecision:New(state, side, deck, limit, amount, cb)
+    return construct(self, Decision:New(self.Type, state, side), {
         deck = deck,
         limit = limit,
         amount = amount,

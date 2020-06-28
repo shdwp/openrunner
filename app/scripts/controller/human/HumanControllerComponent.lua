@@ -1,5 +1,6 @@
 --- @class HumanControllerComponent
 --- @field controller HumanController
+--- @field state GameState
 --- @field decision Decision
 --- @field side Side
 --- @field supportedDecisionType string
@@ -16,6 +17,7 @@ HumanControllerComponent = class("HumanControllerComponent")
 function HumanControllerComponent:New(controller, side_id, supportedDecisionType, restrictSlot, requireCard)
     return construct(self, {
         controller = controller,
+        state = controller.state,
         supportedDecisionType = supportedDecisionType,
         restrictSlot = restrictSlot,
         requireCard = requireCard and requireCard or false,

@@ -1,18 +1,19 @@
 --- @class RunEndDecision: Decision
 RunEndDecision = class("RunEndDecision", Decision, { Type = "run_end"})
 
+--- @param state GameState
 --- @param side_id string
 --- @return RunEndDecision
-function RunEndDecision:New(side_id)
-    return construct(self, Decision:New(self.Type, side_id))
+function RunEndDecision:New(state, side_id)
+    return construct(self, Decision:New(self.Type, state, side_id))
 end
 
 function RunEndDecision:autoHandle()
-    for card in game:boardCardsIter() do
-        game.runner:onRunEnd()
+    self.state.runner:onRunEnd()
 
-        card.meta:onEncounterEnd(card)
-        card.meta:onRunEnd(card)
+    for card in self.state:boardCardsIter() do
+        card.meta:onEncounterEnd(self.state, card)
+        card.meta:onRunEnd(self.state, card)
     end
 
     return self:handledTop()

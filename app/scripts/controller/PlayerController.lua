@@ -1,12 +1,15 @@
 --- @class PlayerController
+--- @field state GameState
 --- @field decision Decision
 --- @field side Side
 PlayerController = class("PlayerController")
 
+--- @param state GameState
 --- @param side_id string
 --- @return PlayerController
-function PlayerController:New(side_id)
+function PlayerController:New(state, side_id)
     return construct(self, {
+        state = state,
         side = sideForId(side_id)
     })
 end

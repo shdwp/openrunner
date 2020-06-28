@@ -55,6 +55,7 @@ function sideDiscardSlot(side)
 end
 
 function sideForId(id)
+    -- @TODO: ref
     if id == SIDE_CORP then
         return game.corp
     else

@@ -12,6 +12,7 @@ function error(fmt, ...) host:log(0, string.format(fmt, ...)) end
 --- @param slot string
 --- @return fun(): Card
 function cardsIter(slot)
+    -- @TODO: ref
     local i = 0
     local n = board:count(slot)
 

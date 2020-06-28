@@ -2,9 +2,10 @@
 --- @field bad_publicity number
 Corp = class("Corp", Side)
 
+--- @param state GameState
 --- @return Corp
-function Corp:New()
-    return construct(self, Side:New(SIDE_CORP, 3), {
+function Corp:New(state)
+    return construct(self, Side:New(state, SIDE_CORP, 3), {
         bad_publicity = 0
     })
 end
@@ -20,11 +21,11 @@ function Corp:newTurn()
 end
 
 function Corp:drawCard()
-    local deck = board:deckGet(SLOT_CORP_RND, 0)
+    local deck = self.state.board:deck(SLOT_CORP_RND)
     if deck.size > 0 then
         local card_info = deck:takeTop()
         local card = Db:card(card_info.uid)
-        board:cardAppend(SLOT_CORP_HAND, card)
+        self.state.board:append(SLOT_CORP_HAND, card)
     end
 end
 
@@ -64,22 +65,22 @@ function Side:actionInstall(card, from, to, suppress_events, discount)
 
     local price = 0
     if card.meta:isIce() then
-        price = board:count(to)
+        price = self.state.board:count(to)
     end
 
     if self:spendCredits(price + discount, SPENDING_INSTALL) then
-        local existing_card = board:cardGet(to, 0)
+        local existing_card = self.state.board:card(to)
         if isSlotRemote(to) and existing_card then
-            board:cardReplace(to, existing_card, card)
+            self.state.board:replace(existing_card, card)
         else
-            board:cardAppend(to, card)
+            self.state.board:append(to, card)
         end
 
         if not suppress_events then
-            card.meta:onInstall(card)
+            card.meta:onInstall(self.state, card)
         end
 
-        board:cardPop(from, card)
+        self.state.board:pop(card)
         return true
     else
         return false
@@ -93,12 +94,12 @@ end
 function Corp:actionAdvance(card, from, free)
     assert(card)
 
-    if not card.meta:canAdvance(card) then
+    if not card.meta:canAdvance(self.state, card) then
         info("cardspec forbids advance!")
         return false
     end
 
-    if card.meta:onAdvance(card) and self:spendCredits(free and 0 or 1, SPENDING_ADVANCE) then
+    if card.meta:onAdvance(self.state, card) and self:spendCredits(free and 0 or 1, SPENDING_ADVANCE) then
         card.meta.adv = (card.meta.adv or 0) + 1
         return true
     else
@@ -111,14 +112,18 @@ end
 --- @return boolean
 function Corp:actionScore(card, from)
     assert(card)
+    
+    if (card.meta.adv or 0) < (card.meta.info.advancement_cost or INFINITE) then
+        return false
+    end
 
-    if (card.meta.adv or 0) >= (card.meta.info.advancement_cost or INFINITE) and card.meta:onScore(card) then
+    if card.meta:onScore(self.state, card) then
         card.meta.rezzed = true
         card.faceup = true
-        board:cardMove(card, SLOT_CORP_SCORE)
+        self.state.board:move(card, SLOT_CORP_SCORE)
 
         self:alterScore(card.meta.info.agenda_points)
-        game.last_agenda_scored_turn_n = game.turn_n
+        self.state.last_agenda_scored_turn_n = self.state.turn_n
         return true
     end
 
@@ -140,7 +145,7 @@ function Corp:actionRez(card, from, discount)
         return false
     end
 
-    if card.meta:onRez(card) and self:payPrice(card.meta, SPENDING_ICE_REZ, discount) then
+    if card.meta:onRez(self.state, card) and self:payPrice(card.meta, SPENDING_ICE_REZ, discount) then
         self:rez(card)
         return true
     end

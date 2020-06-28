@@ -6,13 +6,14 @@
 --- @field force boolean
 SelectFromSlotDecision = class("SelectFromSlotDecision", Decision, { Type = "select_from_slot"})
 
+--- @param state GameState
 --- @param side string
 --- @param slot any
 --- @param amount number
 --- @param cb fun(decision: SelectFromSlotDecision, card: Card, slot: string)
 --- @param force boolean
-function SelectFromSlotDecision:New(side, slot, amount, cb, force)
-    return construct(self, Decision:New(self.Type, side), {
+function SelectFromSlotDecision:New(state, side, slot, amount, cb, force)
+    return construct(self, Decision:New(self.Type, state, side), {
         slot = type(slot) == "string" and slot,
         slot_pred = type(slot) == "function" and slot,
         amount = amount,
@@ -59,12 +60,12 @@ end
 function SelectFromSlotDecision:cancelled()
     if self.force then
         if self.slot then
-            return board:count(self.slot) <= 0
+            return self.state.board:count(self.slot) <= 0
         elseif self.slot_pred then
             local count = 0
             for slot in sideSlots(self.side.id) do
                 if self.slot_pred(slot) then
-                    count = board:count(slot)
+                    count = self.state.board:count(slot)
                 end
             end
 

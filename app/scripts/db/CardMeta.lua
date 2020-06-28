@@ -33,14 +33,11 @@ function CardMeta:debugDescription()
     return "uid " .. self.info.code .. " of " .. self.info.type_code
 end
 
+--- @param state GameState
 --- @param card Card
 --- @return Ctx
-function CardMeta:_ctx(card)
-    return Ctx:New(
-            game.decision_stack:top(),
-            self,
-            card
-    )
+function CardMeta:_ctx(state, card)
+    return Ctx:New(state, card)
 end
 
 --- @return string
@@ -186,19 +183,22 @@ end
 
 -- predicates
 
+--- @param state GameState
 --- @param card Card
 --- @return boolean
-function CardMeta:canAdvance(card)
+function CardMeta:canAdvance(state, card)
     if self.info.type_code == "agenda" then
         return true
-    elseif self.info.canBeAdvanced and self.info.canBeAdvanced(self:_ctx(card)) then
+    elseif self.info.canBeAdvanced and self.info.canBeAdvanced(self:_ctx(state, card)) then
         return true
     end
 end
+
+--- @param state GameState
 --- @return boolean
 function CardMeta:canAction()
     if self.info.canAction then
-        return self.info.canAction(self:_ctx())
+        return self.info.canAction(state, self:_ctx())
     else
         return self.info.onAction ~= nil
     end
@@ -209,9 +209,10 @@ function CardMeta:canPowerUp()
     return self.info.onPowerUp ~= nil
 end
 
+--- @param state GameState
 --- @return boolean
-function CardMeta:canPlay()
-    return self.info.canPlay == nil or self.info.canPlay(self:_ctx())
+function CardMeta:canPlay(state, card)
+    return self.info.canPlay == nil or self.info.canPlay(self:_ctx(state, card))
 end
 
 --- @return boolean
@@ -219,20 +220,29 @@ function CardMeta:canInstall()
     return self:isInstalledInServer() or self:isIce()
 end
 
-function CardMeta:canBeSacrificed(card, slot)
-    return self.info.canBeSacrificed and self.info.canBeSacrificed(self:_ctx(), card, slot) or false
-end
-
---- @param meta CardMeta
---- @return boolean
-function CardMeta:onBreakIce(meta)
-    return self.info.onBreakIce(self:_ctx(), meta)
-end
-
+--- @param state GameState
+--- @param card Card
+--- @param sacrificed_for Card
 --- @param slot string
 --- @return boolean
-function CardMeta:canInstallTo(slot)
-    if not self:canInstall(self:_ctx()) then
+function CardMeta:canBeSacrificed(state, card, sacrificed_for, slot)
+    return self.info.canBeSacrificed and self.info.canBeSacrificed(self:_ctx(state, card), sacrificed_for, slot) or false
+end
+
+--- @param state GameState
+--- @param card Card
+--- @param meta CardMeta
+--- @return boolean
+function CardMeta:onBreakIce(state, card, meta)
+    return self.info.onBreakIce(self:_ctx(state, card), meta)
+end
+
+--- @param state GameState
+--- @param card Card
+--- @param slot string
+--- @return boolean
+function CardMeta:canInstallTo(state, card, slot)
+    if not self:canInstall(self:_ctx(state, card)) then
         return false
     end
 
@@ -245,15 +255,22 @@ end
 
 -- events
 
-function CardMeta:onRez(card)
+--- @param state GameState
+--- @param card CardMeta
+--- @return boolean
+function CardMeta:onRez(state, card)
     if self.info.onRez then
-        return self.info.onRez(self:_ctx(card))
+        return self.info.onRez(self:_ctx(state, card))
     else
         return true
     end
 end
 
-function CardMeta:_callEventHandler(eventid, card)
+--- @param eventid string
+--- @param state GameState
+--- @param card Card
+--- @return boolean
+function CardMeta:_callEventHandler(eventid, state, card)
     local fn = self.info[eventid]
 
     local default_values = {
@@ -271,37 +288,41 @@ function CardMeta:_callEventHandler(eventid, card)
             return default_values["_"]
         end
     else
-        return fn(self:_ctx(card))
+        return fn(self:_ctx(state, card))
     end
 end
 
-function CardMeta:onPlay(card) return self:_callEventHandler("onPlay", card) end
-function CardMeta:onAction(card) return self:_callEventHandler("onAction", card) end
-function CardMeta:onInstall(card) return self:_callEventHandler("onInstall", card) end
-function CardMeta:onRemoval(card) return self:_callEventHandler("onRemoval", card) end
-function CardMeta:onScore(card) return self:_callEventHandler("onScore", card) end
-function CardMeta:onPowerUp(card) return self:_callEventHandler("onPowerUp", card) end
-function CardMeta:onAdvance(card) return self:_callEventHandler("onAdvance", card) end
+function CardMeta:onPlay(state, card) return self:_callEventHandler("onPlay", state, card) end
+function CardMeta:onAction(state, card) return self:_callEventHandler("onAction", state, card) end
+function CardMeta:onInstall(state, card) return self:_callEventHandler("onInstall", state, card) end
+function CardMeta:onRemoval(state, card) return self:_callEventHandler("onRemoval", state, card) end
+function CardMeta:onScore(state, card) return self:_callEventHandler("onScore", state, card) end
+function CardMeta:onPowerUp(state, card) return self:_callEventHandler("onPowerUp", state, card) end
+function CardMeta:onAdvance(state, card) return self:_callEventHandler("onAdvance", state, card) end
 
-function CardMeta:onNewTurn(card)
+function CardMeta:onNewTurn(state, card)
     self.until_turn_end = {}
-    return self:_callEventHandler("onNewTurn", card)
+    return self:_callEventHandler("onNewTurn", state, card)
 end
 
-function CardMeta:onUse(card)
+function CardMeta:onUse(state, card)
     self.until_use = {}
 end
 
-function CardMeta:onRunEnd(card)
+function CardMeta:onRunEnd(state, card)
     self.until_run_end = {}
-    return self:_callEventHandler("onRunEnd", card)
+    return self:_callEventHandler("onRunEnd", state, card)
 end
 
-function CardMeta:onEncounterStart(card)
-    return self:_callEventHandler("onIceEncounterStart")
+function CardMeta:onEncounterStart(state, card)
+    return self:_callEventHandler("onIceEncounterStart", state, card)
 end
 
-function CardMeta:onEncounterEnd(card)
+function CardMeta:onEncounterEnd(state, card)
     self.until_encounter_end = {}
-    return self:_callEventHandler("onIceEncounterEnd")
+    return self:_callEventHandler("onIceEncounterEnd", state, card)
+end
+
+function CardMeta:onSubroutineResolution(state, fn)
+    fn(self:_ctx(state, nil))
 end

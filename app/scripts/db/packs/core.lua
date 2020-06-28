@@ -1,6 +1,8 @@
 _end_the_run_description = "End the run"
-_end_the_run_subroutine = function ()
-    game.decision_stack:popUpTo(RunEndDecision.Type)
+
+--- @param ctx Ctx
+_end_the_run_subroutine = function (ctx)
+    ctx.state.stack:popUpTo(RunEndDecision.Type)
 end
 
 Db.cards[1005] = {
@@ -23,13 +25,13 @@ Db.cards[1005] = {
 
     --- @param ctx Ctx
     onNewTurn = function (ctx)
-        game.runner.recurring.credits_for_virus_or_icebreakers = game.runner.recurring.credits_for_virus_or_icebreakers + 1
+        ctx.runner.bank:addRecurring(CREDITS_FOR_ICEBREAKERS_OR_VIRUS, 1)
         return true
     end,
 
     --- @param ctx Ctx
     onInstall = function (ctx)
-        game.runner.recurring.credits_for_virus_or_icebreakers = game.runner.recurring.credits_for_virus_or_icebreakers + 1
+        ctx.runner.bank:subtractRecurring(CREDITS_FOR_ICEBREAKERS_OR_VIRUS, -1)
         return true
     end
 
@@ -58,7 +60,7 @@ Db.cards[1007] = {
 
     --- @param ctx Ctx
     onPowerUp = function (ctx)
-        if game.runner:spendCredits(1, SPENDING_ICEBRBREAKER_POWERUP) then
+        if ctx.runner.bank:debit(SPENDING_ICEBRBREAKER_POWERUP, 1) then
             ctx.meta.until_use.additional_strength = (ctx.meta.until_use.additional_strength or 0) + 1
             return true
         end
@@ -67,7 +69,7 @@ Db.cards[1007] = {
     --- @param ctx Ctx
     --- @param ice_meta CardMeta
     onBreakIce = function (ctx, ice_meta)
-        if game.runner:spendCredits(1, SPENDING_ICEBREAKER_BREAK) then
+        if ctx.runner.bank:debig(SPENDING_ICEBRBREAKER_BREAK, 1) then
             return ice_meta:keywordsInclude("Barrier")
         end
     end,
@@ -94,7 +96,7 @@ Db.cards[1019] = {
 
     --- @param ctx Ctx
     onPlay = function (ctx)
-        game.runner:alterCredits(3)
+        ctx.runner.bank:credit(3)
         return true
     end
 }
@@ -122,7 +124,7 @@ Db.cards[1026] = {
     --- @param ctx Ctx
     --- @param ice CardMeta
     onBreakIce = function (ctx, ice)
-        if game.runner:spendCredits(1, SPENDING_ICEBREAKER_BREAK) then
+        if ctx.runner.bank:debit(SPENDING_ICEBREAKER_BREAK, 1) then
             if ctx.meta.selected_ice == ice then
                 return true
             else
@@ -133,14 +135,15 @@ Db.cards[1026] = {
 
     --- @param ctx Ctx
     onPowerUp = function (ctx)
-        if game.runner:spendCredits(2, SPENDING_ICEBRBREAKER_POWERUP) then
+        if ctx.runner.bank:debit(SPENDING_ICEBRBREAKER_POWERUP, 2) then
             ctx.meta.until_use.additional_strength = (ctx.meta.until_use.additional_strength or 0) + 1
             return true
         end
     end,
 
+    --- @param ctx Ctx
     onInstall = function (ctx)
-        make_interaction:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (decision, card, slot)
+        ctx.prompt:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (decision, card, slot)
             ctx.meta.selected_ice = card.meta
             return true
         end)
@@ -171,7 +174,7 @@ Db.cards[1027] = {
 
     --- @param ctx Ctx
     onPowerUp = function (ctx)
-        if game.runner:spendCredits(3, SPENDING_ICEBRBREAKER_POWERUP) then
+        if ctx.runner.bank:debit(SPENDING_ICEBRBREAKER_POWERUP, 3) then
             ctx.meta.until_use.additional_strength = (ctx.meta.until_use.additional_strength or 0) + 5
             return true
         end
@@ -183,7 +186,7 @@ Db.cards[1027] = {
     --- @param ice_meta CardMeta
     --- @return boolean
     onBreakIce = function (ctx, ice_meta)
-        return ice_meta:keywordsInclude({"Sentry"}) and game.runner:spendCredits(1, SPENDING_ICEBREAKER_BREAK)
+        return ice_meta:keywordsInclude({"Sentry"}) and ctx.runner.bank:debit(SPENDING_ICEBREAKER_BREAK, 1)
     end,
 }
 Db.card_titles["Ninja"] = 1027
@@ -207,9 +210,9 @@ Db.cards[1034] = {
 
     --- @param ctx Ctx
     onPlay = function (ctx)
-        game.runner:actionDrawCard()
-        game.runner:actionDrawCard()
-        game.runner:actionDrawCard()
+        ctx.runner:actionDrawCard()
+        ctx.runner:actionDrawCard()
+        ctx.runner:actionDrawCard()
         return true
     end,
 }
@@ -235,8 +238,8 @@ Db.cards[1035] = {
 
     --- @param ctx Ctx
     onPlay = function(ctx)
-        make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_HAND, 1, function (decision, card, slot)
-            make_interaction:promptDiscountedInstall(SIDE_RUNNER, SLOT_RUNNER_HARDWARE, card, -3)
+        ctx.prompt:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_HAND, 1, function (decision, card, slot)
+            ctx.prompt:promptDiscountedInstall(SIDE_RUNNER, SLOT_RUNNER_HARDWARE, card, -3)
             return true
         end)
     end
@@ -263,7 +266,7 @@ Db.cards[1036] = {
 
     --- @param ctx Ctx
     onPlay = function (ctx)
-        TurnBaseDecision.InitiateRun(SLOT_CORP_RND, 2)
+        TurnBaseDecision.InitiateRun(ctx.state, SLOT_CORP_RND, 2)
         return true
     end
 }
@@ -289,7 +292,7 @@ Db.cards[1037] = {
 
     --- @param ctx Ctx
     onPlay = function (ctx)
-        make_interaction:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (decision, card, slot)
+        ctx.prompt:promptSlotSelect(SIDE_RUNNER, isSlotIce, 1, function (decision, card, slot)
             card.meta.until_turn_end.additional_keywords = "Sentry Code Gate Barrier"
             return true
         end)
@@ -317,13 +320,13 @@ Db.cards[1038] = {
 
     --- @param ctx Ctx
     onInstall = function (ctx)
-        game.runner.memory = game.runner.memory + 1
+        ctx.runner:alterMemory(1)
         return true
     end,
 
     --- @param ctx Ctx
     onRemoval = function (ctx)
-        game.runner.memory = game.runner.memory - 1
+        ctx.runner:alterMemory(-1)
         return true
     end
 }
@@ -349,8 +352,8 @@ Db.cards[1039] = {
 
     --- @param ctx Ctx
     onInstall = function (ctx)
-        make_interaction:promptDeckSelect(SIDE_RUNNER, SLOT_RUNNER_STACK, -1, 1, function (card)
-            if card.uid == 1039 and game.runner:actionInstall(card, SLOT_RUNNER_STACK, SLOT_RUNNER_HARDWARE, true) then
+        ctx.prompt:promptDeckSelect(SIDE_RUNNER, SLOT_RUNNER_STACK, -1, 1, function (card)
+            if card.uid == 1039 and ctx.runner:actionInstall(card, SLOT_RUNNER_STACK, SLOT_RUNNER_HARDWARE, true) then
                 return true
             end
         end)
@@ -379,7 +382,7 @@ Db.cards[1040] = {
 
     --- @param ctx Ctx
     onInstall = function (ctx)
-        make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_PROGRAMS, 1, function (decision, card, slot)
+        ctx.prompt:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_PROGRAMS, 1, function (decision, card, slot)
             if card.meta:isIcebreaker() then
                 ctx.meta.installed_into = card.meta
                 card.meta.until_forever.additional_strength = (card.meta.until_forever.additional_strength or 0) + 1
@@ -417,23 +420,18 @@ Db.cards[1041] = {
     uniqueness = true,
 
     --- @param ctx Ctx
-    onNewTurn = function (ctx)
-        game.runner.recurring.credits_for_icebreakers = game.runner.recurring.credits_for_icebreakers + 2
-        return true
-    end,
-
-    --- @param ctx Ctx
     onInstall = function (ctx)
-        game.runner.memory = game.runner.memory + 2
-        game.runner.link = game.runner.link + 2
-        game.runner.recurring.credits_for_icebreakers = game.runner.recurring.credits_for_icebreakers + 2
+        ctx.runner:alterMemory(2)
+        ctx.runner:alterLink(2)
+        ctx.runner.bank:addRecurring(CREDITS_FOR_ICEBREAKERS, 2)
         return true
     end,
 
     --- @param ctx Ctx
     onRemoval = function (ctx)
-        game.runner.memory = game.runner.memory - 2
-        game.runner.link = game.runner.link - 2
+        ctx.runner:alterMemory(-2)
+        ctx.runner:alterLink(-2)
+        ctx.runner.bank:subtractRecurring(CREDITS_FOR_ICEBREAKERS, -2)
         return true
     end
 }
@@ -463,13 +461,13 @@ Db.cards[1043] = {
     --- @param ice_meta CardMeta
     --- @return boolean
     onBreakIce = function (ctx, ice_meta)
-        return ice_meta:keywordsInclude({"Code Gate"}) and game.runner:spendCredits(1, SPENDING_ICEBREAKER_BREAK)
+        return ice_meta:keywordsInclude({"Code Gate"}) and ctx.runner.bank:debit(SPENDING_ICEBREAKER_BREAK, 1)
     end,
 
     --- @param ctx Ctx
     --- @return boolean
     onPowerUp = function (ctx)
-        if game.runner:spendCredits(1, SPENDING_ICEBRBREAKER_POWERUP) then
+        if ctx.runner.bank:debit(SPENDING_ICEBRBREAKER_POWERUP, 1) then
             ctx.meta.until_run_end.additional_strength = (ctx.meta.until_run_end.additional_strength or 0) + 1
             return true
         end
@@ -501,7 +499,7 @@ Db.cards[1044] = {
 
     --- @param ctx Ctx
     onAction = function (ctx)
-        game.runner:alterCredits(2)
+        ctx.runner.bank:credit(2)
         return true
     end
 }
@@ -525,7 +523,9 @@ Db.cards[1048] = {
     type_code = "resource",
     uniqueness = false,
 
-    canBeSacrificed = function (card, slot)
+    --- @param ctx Ctx
+    --- @param card Card
+    canBeSacrificed = function (ctx, card, slot)
         return slot == SLOT_RUNNER_PROGRAMS or slot == SLOT_RUNNER_HARDWARE
     end,
 }
@@ -555,13 +555,13 @@ Db.cards[1049] = {
             ["expose"] = "Expose 1 card",
         }
 
-        make_interaction:promptOptionSelect(SIDE_RUNNER, options, function (opt_id)
+        ctx.prompt:promptOptionSelect(SIDE_RUNNER, options, function (opt_id)
             if opt_id == "credits" then
-                game.runner:alterCredits(2)
+                ctx.runner.bank:credit(2)
             elseif opt_id == "expose" then
-                make_interaction:promptSlotSelect(SIDE_RUNNER, function () return true end, 1, function (decision, card, slot)
+                ctx.prompt:promptSlotSelect(SIDE_RUNNER, function () return true end, 1, function (decision, card, slot)
                     if not card.faceup then
-                        make_interaction:displayFaceup(SIDE_RUNNER, card)
+                        ctx.prompt:displayFaceup(SIDE_RUNNER, card)
                         return true
                     end
 
@@ -594,8 +594,9 @@ Db.cards[1050] = {
     type_code = "event",
     uniqueness = false,
 
-    onPlay = function ()
-        game.runner:alterCredits(9)
+    --- @param ctx Ctx
+    onPlay = function (ctx)
+        ctx.runner.bank:credit(9)
         return true
     end
 }
@@ -622,7 +623,7 @@ Db.cards[1051] = {
 
     --- @param ctx Ctx
     onPowerUp = function (ctx)
-        if game.runner:spendCredits(1, SPENDING_ICEBRBREAKER_POWERUP) then
+        if ctx.runner.bank:debit(SPENDING_ICEBRBREAKER_POWERUP, 1) then
             ctx.meta.until_use.additional_strength = (ctx.meta.until_use.additional_strength or 0) + 1
             return true
         end
@@ -638,7 +639,7 @@ Db.cards[1051] = {
     --- @param ice_meta CardMeta
     --- @return boolean
     onBreakIce = function (ctx, ice_meta)
-        if game.runner:spendCredits(1, SPENDING_ICEBREAKER_BREAK) then
+        if ctx.runner.bank:debit(SPENDING_ICEBREAKER_BREAK, 1) then
             ctx.meta.virus_tagged = true
             return true
         end
@@ -650,7 +651,7 @@ Db.cards[1051] = {
             if (ctx.meta.virus_counter or 0) > 0 then
                 ctx.meta.virus_counter = ctx.meta.virus_counter - 1
             else
-                game.runner:discard(ctx.card)
+                ctx.runner:discard(ctx.card)
             end
         end
 
@@ -686,10 +687,10 @@ Db.cards[1053] = {
 
     --- @param ctx Ctx
     onAction = function (ctx)
-        game.runner:alterCredits(2)
+        ctx.runner.bank:credit(2)
         ctx.meta.credits = ctx.meta.credits - 2
         if ctx.meta.credits <= 0 then
-            game.runner:discard(ctx.card)
+            ctx.runner:discard(ctx.card)
         end
         return true
     end,
@@ -723,9 +724,9 @@ Db.cards[1056] = {
     --- @param ctx Ctx
     onNewTurn = function (ctx)
         ctx.meta.credits_pool = ctx.meta.credits_pool - 3
-        game.corp:alterCredits(3)
+        ctx.corp.bank:credit(3)
         if ctx.meta.credits_pool <= 0 then
-            game.corp:discard(ctx.card)
+            ctx.corp:discard(ctx.card)
         end
 
         return true
@@ -758,9 +759,10 @@ Db.cards[1064] = {
     },
 
     subroutines = {
-        function ()
-            make_interaction:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_PROGRAMS, 1, function (decision, card, slot)
-                game.runner:discard(card)
+        --- @param ctx Ctx
+        function (ctx)
+            ctx.prompt:promptSlotSelect(SIDE_RUNNER, SLOT_RUNNER_PROGRAMS, 1, function (decision, card, slot)
+                ctx.runner:discard(card)
                 return true
             end, true)
         end,
@@ -789,9 +791,9 @@ Db.cards[1083] = {
 
     --- @param ctx Ctx
     onPlay = function (ctx)
-        game.corp:drawCard()
-        game.corp:drawCard()
-        game.corp:drawCard()
+        ctx.corp:drawCard()
+        ctx.corp:drawCard()
+        ctx.corp:drawCard()
         return true
     end,
 }
@@ -818,8 +820,8 @@ Db.cards[1090] = {
 
     --- @param ctx Ctx
     onIceEncounterStart = function (ctx)
-        if not game.runner:spendCredits(3, SPENDING_INVOLUNTARY) then
-            game.decision_stack:popUpTo(RunEndDecision.Type)
+        if not ctx.runner.bank:debit(SPENDING_INVOLUNTARY, 3) then
+            ctx.state.stack:popUpTo(RunEndDecision.Type)
         end
 
         return true
@@ -855,8 +857,8 @@ Db.cards[1094] = {
 
     --- @param ctx Ctx
     onScore = function (ctx)
-        game.corp:alterCredits(7)
-        game.corp:alterBadPublicity(1)
+        ctx.corp.bank:credit(7)
+        ctx.corp:alterBadPublicity(1)
         return true
     end,
 }
@@ -886,13 +888,13 @@ Db.cards[1095] = {
             ["forfeit"] = "Forfeit",
             ["score"] = "Score",
         }
-        make_interaction:promptOptionSelect(SIDE_CORP, options, function (opt)
+        ctx.prompt:promptOptionSelect(SIDE_CORP, options, function (opt)
             if opt == "forfeit" then
-                game.runner:alterTags(1)
-                game.corp:alterBadPublicity(1)
+                ctx.runner:alterTags(1)
+                ctx.corp:alterBadPublicity(1)
                 return true
             elseif opt == "score" then
-                game.corp:alterScore(ctx.meta.info.agenda_points)
+                ctx.corp:alterScore(ctx.meta.info.agenda_points)
                 return true
             end
         end)
@@ -921,7 +923,7 @@ Db.cards[1098] = {
 
     --- @param ctx Ctx
     onPlay = function (ctx)
-        game.corp:alterCredits(3)
+        ctx.corp.bank:credit(3)
         return true
     end,
 }
@@ -956,24 +958,25 @@ Db.cards[1100] = {
             return true
         end
 
-        make_interaction:promptFreeAdvance(SIDE_CORP, fn)
-        make_interaction:promptFreeAdvance(SIDE_CORP, fn)
+        ctx.prompt:promptFreeAdvance(SIDE_CORP, fn)
+        ctx.prompt:promptFreeAdvance(SIDE_CORP, fn)
         return true
     end,
 }
 Db.card_titles["Shipment from Kaguya"] = 1100
 
-_archer_trash_program_subroutine = function ()
-    make_interaction:promptSlotSelect(
+--- @param ctx Ctx
+_archer_trash_program_subroutine = function (ctx)
+    ctx.prompt:promptSlotSelect(
             SIDE_RUNNER,
             function (slot) return slot == SLOT_RUNNER_PROGRAMS or slot == SLOT_RUNNER_RESOURCES end,
             1,
             function (decision, card, slot)
-                if card.meta:canBeSacrificed(nil, SLOT_RUNNER_PROGRAMS) then
-                    board:cardPop(slot, card)
+                if card.meta:canBeSacrificed(ctx.state, card, ctx.card, SLOT_RUNNER_PROGRAMS) then
+                    ctx.runner:discard(card)
                     return true
                 elseif slot == SLOT_RUNNER_PROGRAMS then
-                    board:cardPop(slot, card)
+                    ctx.runner:discard(card)
                     return true
                 end
 
@@ -1004,10 +1007,10 @@ Db.cards[1101] = {
 
     --- @param ctx Ctx
     onRez = function (ctx)
-        make_interaction:promptSlotSelect(SIDE_CORP, SLOT_CORP_HAND, 1, function (decision, card, slot)
-            if card.meta:isAgenda() and game.corp:payPrice(ctx.meta, SPENDING_ICE_REZ) then
-                game.corp:rez(ctx.card)
-                game.corp:discard(card)
+        ctx.prompt:promptSlotSelect(SIDE_CORP, SLOT_CORP_HAND, 1, function (decision, card, slot)
+            if card.meta:isAgenda() and ctx.corp:payPrice(ctx.meta, SPENDING_ICE_REZ) then
+                ctx.corp:rez(ctx.card)
+                ctx.corp:discard(card)
                 decision:handledTop()
                 return true
             end
@@ -1023,8 +1026,9 @@ Db.cards[1101] = {
     },
 
     subroutines = {
-        function ()
-            game.corp:alterCredits(2)
+        --- @param ctx Ctx
+        function (ctx)
+            ctx.corp.bank:credit(2)
         end,
 
         _archer_trash_program_subroutine,
@@ -1138,13 +1142,15 @@ Db.cards[1104] = {
     },
 
     subroutines = {
-        function ()
-            game.corp:alterCredits(2)
+        --- @param ctx Ctx
+        function (ctx)
+            ctx.corp.bank:credit(2)
         end,
 
-        function ()
-            if game.runner:trace(3) then
-                game.runner:alterTags(1)
+        --- @param ctx Ctx
+        function (ctx)
+            if ctx.runner:trace(3) then
+                ctx.runner:alterTags(1)
             end
         end,
     },
@@ -1173,8 +1179,8 @@ Db.cards[1106] = {
 
     --- @param ctx Ctx
     onScore = function (ctx)
-        make_interaction:promptSlotSelect(SIDE_CORP, isSlotIce, 1, function (decision, card, slot)
-            return game.corp:actionRez(card, slot, -99)
+        ctx.prompt:promptSlotSelect(SIDE_CORP, isSlotIce, 1, function (decision, card, slot)
+            return ctx.corp:actionRez(card, slot, -99)
         end)
 
         return true
@@ -1203,8 +1209,8 @@ Db.cards[1107] = {
 
     --- @param ctx Ctx
     onAction = function (ctx)
-        if game.runner:isTagged() then
-            game.runner:meatDamage(1)
+        if ctx.runner:isTagged() then
+            ctx.runner:meatDamage(1)
             return true
         end
     end,
@@ -1234,8 +1240,8 @@ Db.cards[1108] = {
 
     --- @param ctx Ctx
     onAction = function (ctx)
-        if game:alterClicks(SIDE_CORP, -2) then
-            game.corp:alterCredits(7)
+        if ctx.state:alterClicks(SIDE_CORP, -2) then
+            ctx.corp.bank:credit(7)
             return true
         end
     end
@@ -1263,7 +1269,7 @@ Db.cards[1109] = {
 
     --- @param ctx Ctx
     onNewTurn = function (ctx)
-        game.corp:alterCredits(1)
+        ctx.corp.bank:credit(1)
         return true
     end,
 }
@@ -1289,7 +1295,7 @@ Db.cards[1110] = {
 
     --- @param ctx Ctx
     onPlay = function (ctx)
-        game.corp:alterCredits(9)
+        ctx.corp.bank:credit(9)
         return true
     end,
 }
@@ -1316,17 +1322,16 @@ Db.cards[1111] = {
 
     subroutine_descriptions = {
         "The Runner loses [click], if able",
-        "End the run",
+        _end_the_run_description,
     },
 
     subroutines = {
-        function ()
-            game:alterClicks(SIDE_RUNNER, -1)
+        --- @param ctx Ctx
+        function (ctx)
+            ctx.state:alterClicks(SIDE_RUNNER, -1)
         end,
 
-        function ()
-            game.decision_stack:popUpTo(RunEndDecision.Type)
-        end,
+        _end_the_run_subroutine,
     }
 }
 Db.card_titles["Enigma"] = 1111
@@ -1351,14 +1356,11 @@ Db.cards[1113] = {
     uniqueness = false,
 
     subroutine_descriptions = {
-        "End the run",
+        _end_the_run_description,
     },
 
     subroutines = {
-        function ()
-            game.decision_stack:popUpTo(RunEndDecision.Type)
-            return true
-        end,
+        _end_the_run_subroutine,
     },
 }
 Db.card_titles["Wall of Static"] = 1113

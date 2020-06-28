@@ -1,9 +1,18 @@
 --- @class Bank
+--- @field recurring table<string, number>
+--- @field ordered_categories table<number, string>
 Bank = class("RecurringCredits")
 
 function Bank:New()
     return construct(self, {
-        CREDITS_GENERAL = 0,
+        ordered_categories = {
+            CREDITS_FOR_ICEBREAKERS_OR_VIRUS,
+            CREDITS_FOR_ICEBREAKERS,
+            CREDITS_FOR_BAD_PUBLICITY,
+            CREDITS_GENERAL
+        },
+        recurring = {},
+        CREDITS_GENERAL = 5,
     })
 end
 
@@ -37,18 +46,53 @@ function Bank:count(category)
     return total
 end
 
---- @param category string
+--- @param category_or_amount string|number
 --- @param amount number
 --- @return boolean
-function Bank:credit(category, amount)
+function Bank:credit(category_or_amount, amount)
+    local category = category_or_amount
+    if amount == nil then
+        category = CREDITS_GENERAL
+        amount = category_or_amount
+    end
+    
     self[category] = (self[category] or 0) + amount
 end
 
---- @param category string
+--- @param spending_category string
 --- @param amount number
-function Bank:debit(category, amount)
-    assert(self:count(category) > amount)
+function Bank:debit(spending_category, amount)
+    assert(amount ~= 0)
+    
+    if self:count(spending_category) < amount then
+        return false
+    end
+    
+    for _, category in pairs(self.ordered_categories) do
+        if self:_isCategoryApplicable(category, spending_category) then
+            local count = self[category] or 0
+            if count ~= 0 then
+                amount = amount - count
+                
+                if amount < 0 then
+                    self[category] = -amount
+                    break
+                else
+                    self[category] = 0
+                end
+            end
+        end
+    end
+    
+    return true
+end
 
+function Bank:addRecurring(category, amount)
+    self.recurring[category] = (self.recurring[category] or 0) + amount
+end
+
+function Bank:subtractRecurring(category, amount)
+    self.recurring[category] = (self.recurring[category] or 0) + amount
 end
 
 -- creds

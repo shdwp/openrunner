@@ -1,16 +1,19 @@
 --- @class Decision
 --- @field Type string
 --- @field type string
+--- @field state GameState
 --- @field side Side
 Decision = class("Decision")
 
 --- @param type string type identifier
+--- @param state GameState
 --- @param side_id string side
 --- @return Decision
-function Decision:New(type, side_id)
+function Decision:New(type, state, side_id)
     return construct(self, {
         type = type,
-        side = sideForId(side_id),
+        side = state:sideObject(side_id),
+        state = state,
     })
 end
 
@@ -24,8 +27,8 @@ end
 
 function Decision:handledSelf()
     info("Decision %s handled self", self)
-    game.decision_stack:remove(self)
-    game:cycle()
+    self.state.stack:remove(self)
+    self.state:cycle()
     return true
 end
 
@@ -34,20 +37,20 @@ end
 function Decision:handledTop(amount)
     amount = amount or 1
 
-    if game.decision_stack:popIfTop(self) then
+    if self.state.stack:popIfTop(self) then
         info("Decision %s handled %d on top", self, amount)
 
         for _ = 2, amount do
-            game.decision_stack:pop()
+            self.state.stack:pop()
         end
-    elseif game.decision_stack:remove(self) then
+    elseif self.state.stack:remove(self) then
         info("Decision %s tried to handle %d, but only hanlded itself", self, amount)
     else
         info("Decision %s tried to handle %d, but failed due to no longer being on stack", self, amount)
     end
 
     --- defer call in order to clear the stack
-    game:cycle()
+    self.state:cycle()
     return true
 end
 
@@ -56,7 +59,7 @@ end
 function Decision:handledSpecific(decision)
     assert(decision)
     info("Decision %s handled specific decision %s", self, decision.type)
-    game.decision_stack:remove(decision)
+    self.state.stack:remove(decision)
     return true
 end
 
@@ -67,6 +70,6 @@ function Decision:handledUpTo(type)
         info("Decision %s handled decisions up to %s", self, type)
     end
 
-    game:cycle()
+    self.state:cycle()
     return true
 end

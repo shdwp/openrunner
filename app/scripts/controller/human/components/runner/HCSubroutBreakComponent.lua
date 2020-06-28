@@ -15,7 +15,7 @@ function HCSubroutBreakComponent:onPrimary(card, slot)
 
 function HCSubroutBreakComponent:onSecondary(card, slot)
     if card.meta:canPowerUp() then
-        return card.meta:onPowerUp(card)
+        return card.meta:onPowerUp(self.state, card)
     else
         info("Failed to handle alt click: no available action on card %d", card.uid)
         return false

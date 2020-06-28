@@ -7,20 +7,28 @@ Db = {
 }
 
 --- @class Ctx
+--- @field card Card
 --- @field meta CardMeta
 --- @field decision Decision
---- @field card Card
+--- @field prompt PromptFactory
+--- @field state GameState
+--- @field corp Corp
+--- @field runner Runner
 Ctx = class("Ctx")
 
---- @param decision Decision
---- @param meta CardMeta
+--- @param state GameState
 --- @param card Card
 --- @return Ctx
-function Ctx:New(decision, meta, card)
+function Ctx:New(state, card)
     return construct(self, {
-        meta = meta,
-        decision = decision,
         card = card,
+        meta = card.meta,
+        decision = state.stack:top(),
+        state = state,
+        prompt = state.prompt_factory,
+        
+        corp = state.corp,
+        runner = state.runner,
     })
 end
 

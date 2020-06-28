@@ -3,10 +3,11 @@ TurnBaseDecision = class("TurnBaseDecision", Decision, {
     Type = "turn_base"
 })
 
+--- @param state GameState
 --- @param side string
 --- @return TurnBaseDecision
-function TurnBaseDecision:New(side)
-    return construct(self, Decision:New(self.Type, side))
+function TurnBaseDecision:New(state, side)
+    return construct(self, Decision:New(self.Type, state, side))
 end
 
 --- @param slot string
@@ -17,23 +18,24 @@ function TurnBaseDecision:initiateRun(slot, additional_amount)
 end
 
 function TurnBaseDecision:install(side_id, card, slot)
-    game.decision_stack:push(InstallDecision:New(side_id, slot, card))
-    game:cycle()
+    self.state.stack:push(InstallDecision:New(self.state, side_id, slot, card))
+    self.state:cycle()
     return true
 end
 
+--- @param state GameState
 --- @param slot string
 --- @param additional_amount number
-function TurnBaseDecision.InitiateRun(slot, additional_amount)
+function TurnBaseDecision.InitiateRun(state, slot, additional_amount)
     amount = amount or -1
 
-    game.runner:onRunStart()
+    state.runner:onRunStart()
 
-    game.decision_stack:push(RunEndDecision:New(SIDE_RUNNER))
-    game.decision_stack:push(RunAccessDecision:New(SIDE_RUNNER, slot, additional_amount))
+    state.stack:push(RunEndDecision:New(state, SIDE_RUNNER))
+    state.stack:push(RunAccessDecision:New(state, SIDE_RUNNER, slot, additional_amount))
 
-    for c in cardsIter(iceSlotOfRemote(slot)) do
-        game.decision_stack:push(RunIceRezDecision:New(SIDE_CORP, c.meta))
-        game.decision_stack:push(RunIceApproachDecision:New(SIDE_RUNNER, c.meta))
+    for c in state.board:cardsIter(iceSlotOfRemote(slot)) do
+        state.stack:push(RunIceRezDecision:New(state, SIDE_CORP, c.meta))
+        state.stack:push(RunIceApproachDecision:New(state, SIDE_RUNNER, c.meta))
     end
 end

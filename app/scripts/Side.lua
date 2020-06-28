@@ -1,5 +1,6 @@
 --- @class Side
 --- @field id string
+--- @field state GameState
 --- @field bank Bank
 --- @field max_clicks number
 --- @field max_hand number
@@ -7,9 +8,13 @@
 --- @field credits number
 Side = class("Side")
 
+--- @param state GameState
+--- @param id string
+--- @param max_clicks number
 --- @return Side
-function Side:New(id, max_clicks)
+function Side:New(state, id, max_clicks)
     return construct(self, {
+        state = state,
         id = id,
         max_clicks = max_clicks,
         bank = Bank:New(),
@@ -36,15 +41,11 @@ end
 function Side:spendCredits(amount, category, discount)
     discount = discount or 0
     amount = amount + discount
-
-    if self.credits >= amount then
-        if amount > 0 then
-            self:alterCredits(-amount, category)
-        end
-
+    
+    if amount > 0 then
         return true
     else
-        return false
+        return self.bank:debit(category, -amount)
     end
 end
 
@@ -61,9 +62,9 @@ end
 
 --- @param card Card
 function Side:discard(card)
-    board:cardPop(card.slotid, card)
+    self.state.board:pop(card)
 
-    local deck = board:deckGet(sideDiscardSlot(self.id), 0)
+    local deck = self.state.board:deck(sideDiscardSlot(self.id))
     card.faceup = false
     deck:append(card)
 end
@@ -76,7 +77,7 @@ function Side:actionPayEvent(card, from)
         return false
     end
 
-    if not card.meta:canPlay() then
+    if not card.meta:canPlay(self.state, card) then
         return false
     end
 
@@ -89,8 +90,8 @@ end
 --- @param from string
 --- @return boolean
 function Side:actionPlayEvent(card, from)
-    card.meta:onPlay(card)
-    board:cardPop(from, card)
+    card.meta:onPlay(self.state, card)
+    self.state.board:pop(card)
 end
 
 --- @return boolean
