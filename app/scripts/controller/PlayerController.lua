@@ -10,7 +10,7 @@ PlayerController = class("PlayerController")
 function PlayerController:New(state, side_id)
     return construct(self, {
         state = state,
-        side = sideForId(side_id)
+        side = state:sideObject(side_id)
     })
 end
 

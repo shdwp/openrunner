@@ -7,7 +7,7 @@ HandDiscardDecision = class("HandDiscardDecision", Decision, {
 --- @param side string
 --- @return HandDiscardDecision
 function HandDiscardDecision:New(state, side)
-    return construct(self, Decision:New(state, side))
+    return construct(self, Decision:New(self.Type, state, side))
 end
 
 function HandDiscardDecision:autoHandle()

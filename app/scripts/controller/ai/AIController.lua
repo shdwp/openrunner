@@ -2,8 +2,8 @@
 --- @field paths table<number, table<number, AIAction>>
 AIController = class("AIController", PlayerController)
 
-function AIController:New(side_id)
-    return construct(self, PlayerController:New(side_id), {
+function AIController:New(state, side_id)
+    return construct(self, PlayerController:New(state, side_id), {
         paths = {},
     })
 end
@@ -38,7 +38,7 @@ end
 
 function AIController:newTurn(side)
     if side == self.side.id then
-        local clicks = game.decision_stack:countClicks(self.side.id)
+        local clicks = self.state.stack:countClicks(self.side.id)
 
         local available_actions = {
             AIDrawCardAction:New(),
