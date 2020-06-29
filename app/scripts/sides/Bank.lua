@@ -1,7 +1,7 @@
 --- @class Bank
 --- @field recurring table<string, number>
 --- @field ordered_categories table<number, string>
-Bank = class("RecurringCredits")
+Bank = class("Bank")
 
 function Bank:New()
     return construct(self, {
@@ -12,7 +12,8 @@ function Bank:New()
             CREDITS_GENERAL
         },
         recurring = {},
-        CREDITS_GENERAL = 5,
+        
+        [CREDITS_GENERAL] = 5,
     })
 end
 
@@ -37,9 +38,9 @@ function Bank:count(category)
     category = category or CREDITS_GENERAL
 
     local total = 0
-    for k, v in pairs(self) do
-        if self:_isCategoryApplicable(category, k) then
-            total = total + v
+    for _, k in pairs(self.ordered_categories) do
+        if self:_isCategoryApplicable(k, category) then
+            total = total + (self[k] or 0)
         end
     end
 
@@ -110,5 +111,3 @@ SPENDING_INSTALL = "install"
 SPENDING_ADVANCE = "advance"
 SPENDING_EVENT = "event"
 
-function isSpendingApplicable(credits_category, spending_category)
-end

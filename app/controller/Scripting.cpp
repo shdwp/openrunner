@@ -42,6 +42,8 @@ void Scripting::registerClasses() {
                 .addFunction("deckGet", &GameBoard::get<Deck>)
 
                 .addFunction("count", &GameBoard::count)
+
+                .addFunction("viewlessDeepcopy", &GameBoard::viewlessDeepcopy)
                 .endClass();
     }
 

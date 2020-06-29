@@ -1,7 +1,10 @@
 --- @class AIGainCreditAction: AIAction
 AIGainCreditAction = class("AIGainCreditAction", AIAction)
 
-function AIGainCreditAction:alterState(state, actions)
-    state:alterClicks(-1)
-    state:alterCredits(1)
+function AIGainCreditAction:handle(decision, state, actions)
+    print(decision)
+    print(state.gameState.stack:top())
+    
+    decision.side.bank:credit(1)
+    return decision:handledTop()
 end

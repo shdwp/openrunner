@@ -40,6 +40,8 @@ public:
         return *this;
     }
 
+    luabridge::RefCountedPtr<GameBoard> viewlessDeepcopy() const;
+
     void addView(GameBoardView &&view) {
         views->emplace_back(make_shared<GameBoardView>(std::move(view)));
     }
@@ -150,7 +152,7 @@ public:
         auto vec = &(*cards_)[slotid];
         size_t c = 0;
 
-    for (auto &ptr : *vec) {
+        for (auto &ptr : *vec) {
             if (auto stack = dynamic_cast<StackWidget *>(ptr.get())) {
                 c += stack->childCount();
             } else {

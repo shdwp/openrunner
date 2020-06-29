@@ -26,7 +26,7 @@ end
 
 --- @return CardMeta
 function CardMeta:clone()
-    return copy(CardMeta, self)
+    return clone(CardMeta, self)
 end
 
 function CardMeta:debugDescription()

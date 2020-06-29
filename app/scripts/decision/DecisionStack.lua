@@ -5,7 +5,7 @@ DecisionStack = class("DecisionStack")
 --- @return DecisionStack
 function DecisionStack:New()
     return construct(self, {
-        stack = {}
+        array = {}
     })
 end
 
@@ -71,6 +71,10 @@ function DecisionStack:popUpTo(phase_type)
         error("Type %s not found in stack!", phase_type)
         return false
     end
+end
+
+function DecisionStack:size()
+    return #self.stack
 end
 
 --- @param side string

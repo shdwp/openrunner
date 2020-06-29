@@ -63,10 +63,10 @@ function EngineGameBoardView:count(slot)
     return self.board:count(slot)
 end
 
-function EngineGameBoardView:card(slot, idx)
+function EngineGameBoardView:cardAt(slot, idx)
     return self.board:cardGet(slot, idx or 0)
 end
 
-function EngineGameBoardView:deck(slot, idx)
+function EngineGameBoardView:deckAt(slot, idx)
     return self.board:deckGet(slot, idx or 0)
 end

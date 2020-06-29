@@ -32,7 +32,7 @@ void DeckView::draw(glm::mat4 transform) {
         mat = glm::translate(mat, glm::vec3(0.f, 2.f, 0.f));
         mat = glm::scale(mat, glm::vec3(10.f, 100.f, 10.f));
 
-        Debug::Shared->drawText(mat, format("d{}", deck_->size()));
+        // Debug::Shared->drawText(mat, format("d{}", deck_->size()));
     }
 }
 

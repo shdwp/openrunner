@@ -57,19 +57,6 @@ function Runner:meatDamage(amount)
     self:damage(amount)
 end
 
-function Runner:alterCredits(amount, category)
-    for k, v in pairs(self.recurring) do
-        if isSpendingApplicable(k, category) then
-            amount = amount + v
-            if amount >= 0 then
-                self.recurring[k] = amount
-                amount = 0
-                break
-            end
-        end
-    end
-end
-
 function Runner:alterMemory(amount)
     self.memory = self.memory + amount
 end
@@ -111,7 +98,7 @@ function Runner:trace(strength)
 end
 
 function Runner:actionDrawCard()
-    local deck = self.state.board:deck(SLOT_RUNNER_STACK)
+    local deck = self.state.board:deckAt(SLOT_RUNNER_STACK)
     if deck.size > 0 then
         local card_info = deck:takeTop()
         local card = Db:card(card_info.uid)
@@ -146,7 +133,7 @@ function Runner:actionInstall(card, from, to, suppress_events, discount)
         card.faceup = true
         card.meta.rezzed = true
 
-        local existing_card = self.state.board:card(to)
+        local existing_card = self.state.board:cardAt(to)
         if to == SLOT_RUNNER_CONSOLE and existing_card then
             self.state.board:replace(existing_card, card)
             existing_card.meta:onRemoval(self.state, existing_card)

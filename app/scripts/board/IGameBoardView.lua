@@ -4,12 +4,12 @@ IGameBoardView = class("IGameBoardView")
 --- @param slot string
 --- @param idx number
 --- @return Card
-function IGameBoardView:card(slot, idx) end
+function IGameBoardView:cardAt(slot, idx) end
 
 --- @param slot string
 --- @param idx number
 --- @return Deck
-function IGameBoardView:deck(slot, idx) end
+function IGameBoardView:deckAt(slot, idx) end
 
 --- @param slot string
 --- @param item Card|Deck
@@ -43,7 +43,7 @@ function IGameBoardView:cardsIter(slot)
         if i >= n then
             return nil
         else
-            local value = self:card(slot, i)
+            local value = self:cardAt(slot, i)
             i = i + 1
             return value
         end
@@ -76,7 +76,7 @@ function IGameBoardView:boardCardsIter()
     
     for _, slot in pairs(slots) do
         for i = 0, self:count(slot) do
-            local card = self:card(slot, i)
+            local card = self:cardAt(slot, i)
             if card then
                 table.insert(cards, card)
             end

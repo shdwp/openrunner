@@ -64,10 +64,10 @@ function GameState:testState()
     self.board:append(SLOT_RUNNER_PROGRAMS, Db:card(1051))
     
     -- Hands
-    self.board:append(SLOT_CORP_HAND, Db:card("Hostile Takeover"))
-    self.board:append(SLOT_CORP_HAND, Db:card("Adonis Campaign"))
-    self.board:append(SLOT_CORP_HAND, Db:card("Melange Mining Corp."))
-    self.board:append(SLOT_CORP_HAND, Db:card("Ice Wall"))
+    --self.board:append(SLOT_CORP_HAND, Db:card("Hostile Takeover"))
+    --self.board:append(SLOT_CORP_HAND, Db:card("Adonis Campaign"))
+    --self.board:append(SLOT_CORP_HAND, Db:card("Melange Mining Corp."))
+    --self.board:append(SLOT_CORP_HAND, Db:card("Ice Wall"))
     
     self.board:append(SLOT_RUNNER_HAND, Db:card("Cyberfeeder"))
     self.board:append(SLOT_RUNNER_HAND, Db:card("Diesel"))

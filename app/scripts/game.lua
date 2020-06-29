@@ -4,6 +4,7 @@
 --- @field player_controllers table<number, PlayerController>
 game = {
     player_controllers = {},
+    ui_focused = nil,
     last_ui_update = 0,
 }
 
@@ -20,8 +21,8 @@ function game:cycle()
     end
 
     local decision = self.state.stack:top()
-    if self.state.current_side ~= decision.side.id then
-        self.state.current_side = decision.side.id
+    if self.ui_focused ~= decision.side.id then
+        self.ui_focused = decision.side.id
         ui:focusCurrentPlayer()
     end
     
@@ -56,6 +57,7 @@ function game:onInit()
     end
     
     info("Game ready!")
+    dbg()
     self.state:cycle()
 end
 

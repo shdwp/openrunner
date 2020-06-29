@@ -8,25 +8,6 @@ function info(fmt, ...) host:log(1, string.format(fmt, ...)) end
 function verbose(fmt, ...) host:log(2, string.format(fmt, ...)) end
 function error(fmt, ...) host:log(0, string.format(fmt, ...)) end
 
---- Cards
---- @param slot string
---- @return fun(): Card
-function cardsIter(slot)
-    -- @TODO: ref
-    local i = 0
-    local n = board:count(slot)
-
-    return function ()
-        if i >= n then
-            return nil
-        else
-            local value = board:cardGet(slot, i)
-            i = i + 1
-            return value
-        end
-    end
-end
-
 --- String
 function string.starts_with(str, start)
     if not str then
@@ -97,7 +78,7 @@ function table.map(t, fn)
     return r
 end
 
---- Card debug description (for cpp)
+--- Card debug description ignoring lengthy sections (for cpp)
 function debugDescriptionTableCleanup(t)
     for k, v in pairs(t) do
         if k == "info" then
@@ -119,7 +100,12 @@ function debugDescription(item)
 end
 
 
+---
 --- OOP
+---
+
+local __instanceid = 0
+
 function construct(self, a, b)
     a = a or {}
     b = b or {}
@@ -128,20 +114,36 @@ function construct(self, a, b)
         b[k] = v
     end
 
+    b._instanceid = __instanceid
+    __instanceid = __instanceid + 1
+    
     local mt = getmetatable(self)
     setmetatable(b, { __index = self, __tostring = mt.__tostring })
     return b
 end
 
-function copy(self, a)
+--- @generic A
+--- @param a A
+--- @return A
+function clone(a, cache)
+    cache = cache or {}
+    
     if type(a) == 'table' then
         local b = {}
+        cache[a] = b
         for k, v in pairs(a) do
-            b[k] = copy(v)
+            if cache[v] then
+                b[k] = cache[v]
+            else
+                b[k] = clone(v, cache)
+                cache[v] = b[k]
+            end
         end
 
         local meta = getmetatable(a)
         if meta then
+            b._instanceid = __instanceid + 1
+            __instanceid = __instanceid + 1
             setmetatable(b, meta)
         end
 
@@ -160,7 +162,8 @@ function class(typeid, parent, o)
     local mt = {
         __class = true,
         __tostring = function (self)
-            return "<" .. typeid .. " " .. self:debugDescription() .. ">"
+            local descr = self:debugDescription()
+            return "<" .. typeid .. " 0x" .. (self._instanceid or "") .. (descr:len() > 0 and " " .. descr or "") .. ">"
         end
     }
 

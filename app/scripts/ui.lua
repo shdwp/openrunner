@@ -36,9 +36,11 @@ function ui:zoomCorp()
 end
 
 function ui:focusCurrentPlayer()
-    if game.current_side == SIDE_CORP then
+    if game.ui_focused == SIDE_CORP then
+        info("UI focusing corp")
         ui:focusCorp()
     else
+        info("UI focusing runner")
         ui:focusRunner()
     end
 end
@@ -63,7 +65,7 @@ function ui:onTick(dt)
             self.view_zoomed = false
         else
             self.view_zoomed = true
-            if game.current_side == SIDE_CORP then
+            if game.ui_focused == SIDE_CORP then
                 ui:zoomRunner()
             else
                 ui:zoomCorp()

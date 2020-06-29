@@ -1,4 +1,5 @@
 --- @class GameState
+--- @field simulated boolean
 --- @field current_side string
 --- @field prompt_factory PromptFactory
 --- @field board IGameBoardView
@@ -10,6 +11,8 @@ GameState = class("GameState")
 --- @param board IGameBoardView
 function GameState:New(board)
     local t = construct(self, {
+        viewless = false,
+        simulated = false,
         turn_n = 1,
     
         last_run_turn_n = 0,
@@ -23,6 +26,14 @@ function GameState:New(board)
     t.factory = PromptFactory:New(t)
     t.corp = Corp:New(t)
     t.runner = Runner:New(t)
+    
+    return t
+end
+
+function GameState:viewlessDeepcopy()
+    local t = clone(self)
+    t.board = EngineGameBoardView:New(self.board.board:viewlessDeepcopy())
+    t.simulated = true
     
     return t
 end
@@ -52,16 +63,22 @@ function GameState:endInFavor(side_id)
 end
 
 function GameState:cycle()
-    if self.stack:empty() then
+    if self.stack:empty() and not self.simulated then
         self:newTurn()
     end
     
-    local decision = self.state.stack:top()
+    local decision = self.stack:top()
+    if not decision then
+        return
+    end
+    
     if decision:autoHandle() then
         return
     end
     
-    game:cycle()
+    if not self.simulated then
+        game:cycle()
+    end
 end
 
 function GameState:newTurn()
@@ -105,7 +122,9 @@ function GameState:newTurn()
     
     self.turn_n = self.turn_n + 1
     
-    game:newTurn()
+    if not self.simulated then
+        game:newTurn()
+    end
 end
 
 --- @return fun(): Card

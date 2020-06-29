@@ -14,7 +14,7 @@ end
 --- @param limit number limit to top N
 --- @param cb fun(card: Card): boolean
 function PromptFactory:promptDeckSelect(side, slot, limit, amount, cb)
-    local deck = self.state.board:deck(slot)
+    local deck = self.state.board:deckAt(slot)
     self.state.stack:push(SelectFromDeckDecision:New(self.state, side, deck, limit, amount, cb))
     self.state:cycle()
 end

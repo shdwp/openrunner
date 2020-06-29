@@ -21,7 +21,7 @@ function Corp:newTurn()
 end
 
 function Corp:drawCard()
-    local deck = self.state.board:deck(SLOT_CORP_RND)
+    local deck = self.state.board:deckAt(SLOT_CORP_RND)
     if deck.size > 0 then
         local card_info = deck:takeTop()
         local card = Db:card(card_info.uid)
@@ -69,7 +69,7 @@ function Side:actionInstall(card, from, to, suppress_events, discount)
     end
 
     if self:spendCredits(price + discount, SPENDING_INSTALL) then
-        local existing_card = self.state.board:card(to)
+        local existing_card = self.state.board:cardAt(to)
         if isSlotRemote(to) and existing_card then
             self.state.board:replace(existing_card, card)
         else

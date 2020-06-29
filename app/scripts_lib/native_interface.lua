@@ -112,6 +112,9 @@ function _game_board:deckGet(slot, idx) end
 --- @return number
 function _game_board:count(slot) end
 
+--- @return GameBoard
+function _game_board:viewlessDeepcopy() end
+
 --[[
             Views
 ]]--

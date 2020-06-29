@@ -25,12 +25,6 @@ function Side:New(state, id, max_clicks)
 end
 
 --- @param amount number
---- @param category string
-function Side:alterCredits(amount, category)
-    self.credits = self.credits + amount
-end
-
---- @param amount number
 function Side:alterScore(amount)
     self.score = self.score + amount
 end
@@ -64,7 +58,7 @@ end
 function Side:discard(card)
     self.state.board:pop(card)
 
-    local deck = self.state.board:deck(sideDiscardSlot(self.id))
+    local deck = self.state.board:deckAt(sideDiscardSlot(self.id))
     card.faceup = false
     deck:append(card)
 end

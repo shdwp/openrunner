@@ -2,6 +2,6 @@
 HCGetCreditComponent = class("HCGetCreditComponent", HumanControllerComponent)
 
 function HCGetCreditComponent:onPrimary(card, slot)
-    self.side:alterCredits(1)
+    self.side.bank:credit(1)
     return self.decision:handledTop()
 end

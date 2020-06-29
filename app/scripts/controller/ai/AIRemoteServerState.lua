@@ -1,78 +1,70 @@
---- @class RemoteServerState
+--- @class AIRemoteServerState
 --- @field slot string
+--- @field ice_slot string
+--- @field state GameState
 --- @field factor number
---- @field core table<number, CardMeta>
---- @field ice table<number, CardMeta>
-RemoteServerState = class("RemoteServerState")
+AIRemoteServerState = class("AIRemoteServerState")
 
-function RemoteServerState:New(slot, ice_slot)
+--- @param state GameState
+--- @param slot string
+--- @param ice_slot string
+--- @return AIRemoteServerState
+function AIRemoteServerState:New(state, slot, ice_slot)
     local t = construct(self, {
+        state = state,
         slot = slot,
-        factor = 1,
-        core = {},
-        ice = {},
+        ice_slot = ice_slot,
     })
-
-    if slot == SLOT_CORP_HQ then
-        for i = 0, board:count(SLOT_CORP_HAND) -1 do
-            table.insert(t.core, board:cardGet(SLOT_CORP_HAND, i).meta:clone())
-        end
-
-        t.factor = board:count(SLOT_CORP_HAND) * 2
-    elseif slot == SLOT_CORP_ARCHIVES then
-        local deck = board:deckGet(slot, 0)
-        for i = 0, deck.size - 1 do
-            table.insert(t.core, deck:at(i).meta)
-        end
-    elseif slot == SLOT_CORP_RND then
-        local deck = board:deckGet(slot, 0)
-        for i = 0, deck.size - 1 do
-            table.insert(t.core, deck:at(i).meta)
-        end
-
-        t.factor = deck.size
-    elseif isSlotRemote(slot) then
-        for i = 0, board:count(slot) - 1 do
-            table.insert(t.core, board:cardGet(slot, i).meta:clone())
-        end
-    end
-
-    for i = 0, board:count(ice_slot) - 1 do
-        table.insert(t.ice, board:cardGet(ice_slot, i).meta:clone())
-    end
-
     return t
 end
 
---- @param ice_meta CardMeta
-function RemoteServerState:addIce(ice_meta)
-    table.insert(self.ice, ice_meta)
+function AIRemoteServerState:_calculateCoreScore(meta)
+    if meta:isAgenda() then
+        return (meta.info.agenda_points * 30) + (10 * meta:advancementProgress())
+    elseif meta:isAsset() then
+        if meta.rezzed then
+            return 40
+        else
+            return 20
+        end
+    else
+        return 10
+    end
 end
 
 --- @return number
-function RemoteServerState:calculateScore()
+function AIRemoteServerState:calculateScore()
     local core_score = 0
-    for _, core_meta in pairs(self.core) do
-        if core_meta:isAgenda() then
-            core_score = core_score + (core_meta.info.agenda_points * 30) + (10 * core_meta:advancementProgress())
-        elseif core_meta:isAsset() then
-            core_score = core_score + 20
-            if core_meta.rezzed then
-                core_score = core_score + 20
-            end
+    
+    if self.slot == SLOT_CORP_HQ then
+        local count = self.state.board:count(SLOT_CORP_HAND) - 1
+        for i = 0, count - 1 do
+            core_score = core_score + self:_calculateCoreScore(self.state.board:cardAt(SLOT_CORP_HAND, i).meta) / (count * 2)
+        end
+    elseif self.slot == SLOT_CORP_ARCHIVES then
+        local deck = self.state.board:deckAt(self.slot)
+        for i = 0, deck.size - 1 do
+            core_score = core_score + self:_calculateCoreScore(deck:at(i).meta)
+        end
+    elseif self.slot == SLOT_CORP_RND then
+        local deck = self.state.board:deckAt(self.slot)
+        for i = 0, deck.size - 1 do
+            core_score = core_score + self:_calculateCoreScore(deck:at(i).meta) / deck.size
+        end
+    elseif isSlotRemote(self.slot) then
+        for card in self.state.board:cardsIter(self.slot) do
+            core_score = core_score + self:_calculateCoreScore(card.meta)
         end
     end
 
-    core_score = core_score / self.factor
-
     local ice_score = 0
-    for _, ice_meta in pairs(self.ice) do
-        local ice_str = ice_meta.info.strength * #ice_meta.info.subroutines
+    for card in self.state.board:cardsIter(self.ice_slot) do
+        local ice_str = card.meta.info.strength * #card.meta.info.subroutines
         ice_score = ice_score + ice_str * 10
     end
 
     local score = -math.abs(ice_score - core_score)
-    info("Calculate remote %s score: %d (%d pieces of ice)", self.slot, score, #self.ice)
+    info("Calculate remote %s score: %d (%f ice)", self.slot, score, ice_score)
     return score
 end
 

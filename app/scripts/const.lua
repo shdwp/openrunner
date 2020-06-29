@@ -72,8 +72,8 @@ function sideSlots(id)
 end
 
 -- general
-INFINITE = 999
-MINUS_INFINITE = -999
+INFINITE = math.huge
+MINUS_INFINITE = -math.huge
 
 -- interaction
 INTERACTION_PRIMARY = "primary"
@@ -144,3 +144,6 @@ CORP_SLOTS = {
     SLOT_CORP_ARCHIVES,
     SLOT_CORP_SCORE,
 }
+
+ALL_SLOTS = table.shallowcopy(RUNNER_SLOTS)
+table.array_concat(ALL_SLOTS, CORP_SLOTS)

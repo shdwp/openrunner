@@ -1,10 +1,14 @@
 --- @class AIAction
+--- @field side Side
 AIAction = class("AIAction")
 
-function AIAction:New()
-    return construct(self)
+function AIAction:New(side)
+    return construct(self, {
+        side = side,
+    })
 end
 
+--- @param decision Decision
 --- @param state AIState
 --- @param actions table<number, AIAction>
-function AIAction:alterState(state, actions) end
+function AIAction:handle(decision, state, actions) end
