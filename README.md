@@ -14,3 +14,4 @@ Most of the game mechanics are implemented, as well as ~40% of core set cards. B
 * `/extern` - third-party dependencies
 * `/include` - game engine header files
 * `/src` - game engine source files
+* `/utils` - misc. scripts used during development
